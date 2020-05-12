@@ -98,43 +98,45 @@ class RGB_Led_Control(item.item):
 		for b in range(4):
 			BLC[b] = int(self.colors[b] , 16)			
 		
-		for b in range(4):
-			self.ResponseBox.SetLedColor( \
-				((BLC[b] >> 16) & 0xFF), \
-				((BLC[b] >> 8) & 0xFF), \
-				(BLC[b] & 0xFF), \
-				b+1, 1)
-		
-		if self.var.Feedback == u'yes':
+		if self.var._ProductName != u'DUMMY':
 			for b in range(4):
 				self.ResponseBox.SetLedColor( \
-					((IC >> 16) & 0xFF), \
-					((IC >> 8) & 0xFF), \
-					(IC & 0xFF), \
-					b+1, b+11)
+					((BLC[b] >> 16) & 0xFF), \
+					((BLC[b] >> 8) & 0xFF), \
+					(BLC[b] & 0xFF), \
+					b+1, 1)
 		
-			self.ResponseBox.SetLedColor( \
-				((CC >> 16) & 0xFF), \
-				((CC >> 8) & 0xFF), \
-				(CC & 0xFF), \
-				int(self.var._CorrectButton), int(self.var._CorrectButton)+10)
+			if self.var.Feedback == u'yes':
+				for b in range(4):
+					self.ResponseBox.SetLedColor( \
+						((IC >> 16) & 0xFF), \
+						((IC >> 8) & 0xFF), \
+						(IC & 0xFF), \
+						b+1, b+11)
 		
-		# Call the 'wait for event' function in the EventExchanger C# object.
+				self.ResponseBox.SetLedColor( \
+					((CC >> 16) & 0xFF), \
+					((CC >> 8) & 0xFF), \
+					(CC & 0xFF), \
+					int(self.var._CorrectButton), int(self.var._CorrectButton)+10)
+		
+			# Call the 'wait for event' function in the EventExchanger C# object.
 
-		if self.var._ProductName != u'DUMMY':
 			(self.var.Response,self.var.RT) = \
 				(self.ResponseBox.WaitForDigEvents(self.var.AllowedEventLines,
 							self.var._ResponseTimeout)) 
+
+			#FEEDBACK:
+			if self.var.Feedback == u'yes':
+				time.sleep(self.var.ResetAfter/1000.0)
+				for b in range(4):
+					self.ResponseBox.SetLedColor(0,0,0,b+1,1)
 		else:
 			# demo mode: keyboard response.....
-			self.var.Response, self.var.RT= self._Keyboard.get_key(timeout=self.var._ResponseTimeout)
+			if self.var._ResponseTimeout==-1:
+				self.var._ResponseTimeout = None
+			self.var.Response, self.var.RT= self.ResponseBox.get_key(timeout=self.var._ResponseTimeout)
 
-		#FEEDBACK:
-		if self.var.Feedback == u'yes':
-			time.sleep(self.var.ResetAfter/1000.0)
-			for b in range(4):
-				self.ResponseBox.SetLedColor(0,0,0,b+1,1)
-					
 		#HOUSEHOLD:
 		self.CorrectResponse = \
 			(self.var.Response == self.var._CorrectButton)
