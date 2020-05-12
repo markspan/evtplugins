@@ -1,0 +1,33 @@
+description: ResponseBox Buttonbox plug-in.
+version: 0.99b
+author: "Eise Hoekstra"
+url: "http://www.rug.nl/"
+category: "\r\nResearch Support\r\n         BSS"
+date: "2019"
+controls:
+-
+    type: "combobox"
+    var: "_ProductName"
+    label: "Select ProductName"
+    options:
+    - "DUMMY"
+    name: "ProductName_widget"
+    tooltip: "Select desired ProductName"
+-
+    type: "line_edit"
+    var: "_CorrectButton"
+    label: "Correct Button"
+    name: "CorrectButton_widget"
+    tooltip: "Correct Button ( 1 - 8)"
+-
+    type: "line_edit"
+    var: "_AllowedButtons"
+    label: "Allowed Buttons"
+    name: "AllowedButtons_widget"
+    tooltip: "Allowed Buttons, ( 1 - 8 ) seperated by ;"
+-
+    type: "line_edit"
+    var: "_ResponseTimeout"
+    label: "ResponseTimeout"
+    name: "ResponseTimeout_widget"
+    tooltip: "ResponseTimeout in MSec"

@@ -1,0 +1,37 @@
+description: EVT-2/3 Trigger plug-in.
+version: 0.99b
+author: "Eise Hoekstra"
+url: "http://www.rug.nl/"
+category: "\r\nResearch Support\r\n         BSS"
+date: "2019"
+controls:
+-
+    type: "combobox"
+    var: "_ProductName"
+    label: "Select ProductName"
+    options:
+    - "DUMMY"
+    name: "ProductName_widget"
+    tooltip: "Select desired ProductName"
+-
+    type: "combobox"
+    var: "_OutputMode"
+    label: "Select OutputMode"
+    options:
+    - "Pulse Output Lines"
+    - "Set Output Lines"
+    name: "OutputMode_widget"
+    tooltip: "Select desired Outputmode"
+-
+    type: "line_edit"
+    var: "_value"
+    label: "Value"
+    name: "value_widget"
+    tooltip: "Value (0-255) to pulse/set port, -1 for no initial output."
+-
+    type: "line_edit"
+    var: "_duration"
+    label: "Duration in ms"
+    name: "duration_widget"
+    tooltip: "Expecting a value in milliseconds"
+
