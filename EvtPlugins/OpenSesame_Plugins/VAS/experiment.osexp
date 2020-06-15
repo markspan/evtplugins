@@ -1,0 +1,106 @@
+---
+API: 2.1
+OpenSesame: 3.3.2
+Platform: nt
+---
+set width 1920
+set uniform_coordinates yes
+set title "New experiment"
+set subject_parity even
+set subject_nr 0
+set start experiment
+set sound_sample_size -16
+set sound_freq 48000
+set sound_channels 2
+set sound_buf_size 1024
+set sampler_backend psycho
+set round_decimals 2
+set mouse_backend psycho
+set keyboard_backend psycho
+set height 1080
+set fullscreen no
+set form_clicks no
+set foreground white
+set font_underline no
+set font_size 18
+set font_italic no
+set font_family mono
+set font_bold no
+set experiment_path "C:/Users/mmspa/Desktop"
+set disable_garbage_collection yes
+set description "The main experiment item"
+set coordinates uniform
+set compensation 0
+set color_backend psycho
+set clock_backend psycho
+set canvas_backend psycho
+set background black
+
+define sketchpad VASDEMOSCREEN
+	set start_response_interval no
+	set reset_variables no
+	set duration 0
+	set description "Displays stimuli"
+	draw line color=white name=VASBODY penwidth=4 show_if=always x1=-500 x2=500 y1=0 y2=0 z_index=0
+	draw line color=white name=VASCURSOR penwidth=4 show_if=always x1=-288 x2=-288 y1=-32 y2=32 z_index=0
+	draw rect color=white fill=0 h=700 penwidth=1 show_if=always w=49 x=-624 y=-350 z_index=0
+	draw line color="#ff0000" name=VASTIMER penwidth=48 show_if=always x1=-600 x2=-600 y1=350 y2=-350 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-500 x2=-500 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-450 x2=-450 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-400 x2=-400 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-350 x2=-350 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-300 x2=-300 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-250 x2=-250 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-200 x2=-200 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-150 x2=-150 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-100 x2=-100 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=-50 x2=-50 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=0 x2=0 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=500 x2=500 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=450 x2=450 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=400 x2=400 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=350 x2=350 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=300 x2=300 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=250 x2=250 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=200 x2=200 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=150 x2=150 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=100 x2=100 y1=-8 y2=8 z_index=0
+	draw line color=white penwidth=1 show_if=always x1=50 x2=50 y1=-8 y2=8 z_index=0
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=50 html=yes show_if=always text="Enter your estimate within the given time.<br />" x=54 y=-403 z_index=0
+	draw textline center=0 color=white font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Very much so" x=416 y=32 z_index=0
+	draw textline center=0 color=white font_bold=no font_family=mono font_italic=no font_size=20 html=yes show_if=always text="Not at all" x=-544 y=32 z_index=0
+
+define sequence experiment
+	set flush_keyboard yes
+	set description "Runs a number of items in sequence"
+	run getting_started always
+	run VASDEMOSCREEN always
+	run new_VAS always
+
+define notepad getting_started
+	__note__
+	Welcome to OpenSesame 3.3 "Lentiform Loewenfeld"!
+	If you are new to OpenSesame, it is a good idea to follow one of the tutorials,
+	which can be found on the documentation site:
+	- <http://osdoc.cogsci.nl/>
+	You can also check out the examples. These can be opened via:
+	- Menu -> Tools -> Example experiments.
+	And feel free to ask for help on the forum:
+	- <http://forum.cogsci.nl/>
+	Have fun with OpenSesame!
+	__end__
+	set description "A simple notepad to document your experiment. This plug-in does nothing."
+
+define VAS new_VAS
+	set description "A VAS modifier for a canvas"
+	set VAS_TIMER_NAME VASTIMER
+	set VAS_EXIT_METHOD KEY
+	set VAS_EXIT_KEY " "
+	set VAS_EXITKEY a
+	set VAS_ENCODER_ID "EventExchanger-EVT03-GC-060604-RSP+-RDC1 SN## 19002"
+	set VAS_DURATION 10000
+	set VAS_CURSOR_STARTPOSITION 0
+	set VAS_CURSOR_NAME VASCURSOR
+	set VAS_CANVAS_NAME VASDEMOSCREEN
+	set VAS_BODY_NAME VASBODY
+

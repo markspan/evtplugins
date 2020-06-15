@@ -16,6 +16,7 @@ along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from libopensesame import item
+from libopensesame.oslogging import oslogger
 from libqtopensesame.items.qtautoplugin import qtautoplugin
 from libopensesame.py3compat import *
 import os
@@ -38,40 +39,36 @@ class EVTxx(item.item):
 	def reset(self):
 		self.var._value = 0
 		self.var._duration = 500
-		self.var._ProductName = u'DUMMY'
-		self.var._OutputMode = u'Pulse Output Lines'
+		self.var._productName = u'DUMMY'
+		self.var._outputMode = u'Pulse Output Lines'
 
 
 	def prepare(self):
-
+        
 		item.item.prepare(self)
-		if not hasattr(self, u'EventExchanger'):
-			self.ELister = EvtExchanger()
-			Devices = self.ELister.Device().Select(self.var._ProductName)
-			if len(Devices) == 0:
-				self.EventExchanger = None
-				self.var._ProductName = u'DUMMY'
-				print("Cannot find eventexchanger: code to debugwindow")
-			else:
-				self.EventExchanger = self.ELister.Device()
+		self.EE = EvtExchanger.Device()
+		Devices = self.EE.Select(self.var._productName)
+		try:
+			if Devices[0] is None:
+				raise
+		except:
+			self.var._productName = u'DUMMY'
+			oslogger.info("Cannot find eventexchanger: code to debugwindow")
 
-			self.python_workspace[u'EventExchanger'] = self.EventExchanger
-		#else:
-			#self.EventExchanger = self.python_workspace[u'EventExchanger']
+			
 			
 	def run(self):
-		self.set_item_onset()
-		if 	self.var._ProductName == u'DUMMY':
-			print("code: %i for %i ms" % (self.var._value, self.var._duration) )
+		self.EE.Select(self.var._productName)
+		if 	self.var._productName == u'DUMMY':
+			oslogger.info('dummy code: {} for {} ms'.format(self.var._value, self.var._duration) )
 		else:
-			if self.var._OutputMode == u'Set Output Lines':
-				self.EventExchanger.SetLines(self.var._value)
-			elif self.var._OutputMode == u'Pulse Output Lines':
-				self.EventExchanger.SetLines(0)
-				self.EventExchanger.PulseLines(self.var._value, self.var._duration)
-	
-		t0 = self.set_item_onset()
-	
+			if self.var._outputMode == u'Set Output Lines':
+				self.EE.SetLines(self.var._value)
+			elif self.var._outputMode == u'Pulse Output Lines':
+				# make sure that the code starts at, and returns to zero.
+				self.EE.SetLines(0)
+				self.EE.PulseLines(self.var._value, self.var._duration)
+		
 		return True
 
 class qtEVTxx(EVTxx, qtautoplugin):
@@ -85,11 +82,7 @@ class qtEVTxx(EVTxx, qtautoplugin):
 	# Pass the word on to the parent
 		qtautoplugin.init_edit_widget(self)
 
-		ELister = EvtExchanger()
-		listofdevices = ELister.Device().Attached()
+		EE = EvtExchanger.Device()
+		listofdevices = EE.Attached()
 		for i in listofdevices:
 			self.ProductName_widget.addItem(i)
-
-
-
-

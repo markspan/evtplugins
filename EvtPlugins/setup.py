@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="EvtPlugins", 
-    version="0.99.9",
+    version="0.99.14",
     author="Eise Hoekstra and Mark Span (primary developer)",
     author_email="m.m.span@rug.nl",
     description="Plugin Package to communicate with RUG developed hardware",
@@ -39,6 +39,11 @@ setuptools.setup(
 			'opensesame_plugins/VAS/VAS_large.png',
 			'opensesame_plugins/VAS/VAS.py',
 			'opensesame_plugins/VAS/info.yaml',
+			]
+		),
+		# Corresponding Demo
+		('share/opensesame_extensions/example_experiments/examples/VAS',
+		['opensesame_plugins/VAS/experiment.osexp',
 			]
 		),
 		# Second target folder.

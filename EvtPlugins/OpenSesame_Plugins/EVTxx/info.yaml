@@ -7,7 +7,7 @@ date: "2019"
 controls:
 -
     type: "combobox"
-    var: "_ProductName"
+    var: "_productName"
     label: "Select ProductName"
     options:
     - "DUMMY"
@@ -15,7 +15,7 @@ controls:
     tooltip: "Select desired ProductName"
 -
     type: "combobox"
-    var: "_OutputMode"
+    var: "_outputMode"
     label: "Select OutputMode"
     options:
     - "Pulse Output Lines"

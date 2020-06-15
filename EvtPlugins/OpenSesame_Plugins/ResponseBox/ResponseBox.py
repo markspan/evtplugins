@@ -17,6 +17,8 @@ along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 from openexp.keyboard import Keyboard
 
 from libopensesame import item
+from libopensesame.oslogging import oslogger
+
 from libopensesame.base_response_item import base_response_item
 from libqtopensesame.items.qtautoplugin import qtautoplugin
 import os
@@ -37,53 +39,57 @@ class ResponseBox(item.item):
 		" from EventExchanger-based digital input device. "
 
 	def reset(self):
-
-		# Set the default values of the plug-in items in the GUI.
-		self.var._ProductName		 = u'DUMMY'
-		self.var._CorrectButton		 = u''
-		self.var._AllowedButtons	 = u'1;2;3;4'
-		self.var._ResponseTimeout	 = u'infinite'
+		# Set the default values of the plug-in items in the GUI
+		self.var._productName		 = u'DUMMY'
+		self.var._correctButton		 = u''
+		self.var._allowedButtons	 = u'1;2;3;4'
+		self.var._responseTimeout	 = u'infinite'
 
 
 	def prepare(self):
-
 		item.item.prepare(self)
+		self.EE = EvtExchanger.Device()
+		Devices = self.EE.Select(self.var._productName)
+		try:
+			if Devices[0] is None:
+				raise
+		except:
+			self.var._productName = u'DUMMY'
+			self.Keyboard = Keyboard(self.experiment);
+			if not type(self.var._responseTimeout) == int:
+				self.var._responseTimeout = None
+			oslogger.info("Cannot find ResponseBox: Using Keyboard instead")
 
-		self.ELister = EvtExchanger()
-		Devices = self.ELister.Device().Select(self.var._ProductName)
-		if len(Devices) == 0:
-			self.var._ProductName		 = u'DUMMY'
-			self.ResponseBox = Keyboard(self.experiment);
-			print("Cannot find ResponseBox: Using Keyboard")
-		else:
-			self.ResponseBox = self.ELister.Device()
-			self.ResponseBox.Start()
-
-		if not type(self.var._ResponseTimeout) == int:
-			self.var._ResponseTimeout = -1
-
+		if not type(self.var._responseTimeout) == int:
+			self.var._responseTimeout = -1
+		# Recode Allowed buttons to AllowedEventLines
 		self.var.AllowedEventLines = 0
-		AllowedList = self.var._AllowedButtons.split(";")
-		for x in AllowedList:
-			self.var.AllowedEventLines +=  (1 << (int(x,10) -1))
+		try:
+			AllowedList = self.var._allowedButtons.split(";")
+			for x in AllowedList:
+				self.var.AllowedEventLines +=  (1 << (int(x,10) -1))
+		except:
+			x = self.var._allowedButtons
+			self.var.AllowedEventLines =  (1 << (x-1))
 
 	def run(self):
-		
+		self.EE.Select(self.var._productName)
+
 		# Save the current time ...
 		t0 = self.set_item_onset()
 		# Call the 'wait for event' function in the EventExchanger C# object.
 
-		if 	self.var._ProductName != u'DUMMY':
+		if 	self.var._productName != u'DUMMY':
 			(self.var.Response,self.var.RT) = \
-				(self.ResponseBox.WaitForDigEvents(self.var.AllowedEventLines,
-							self.var._ResponseTimeout)) 
-			self.ResponseBox.Start()
+				(self.EE.WaitForDigEvents(self.var.AllowedEventLines,
+							self.var._responseTimeout)) 
+			self.var.Response += 1           
 		else:
 			# demo mode: keyboard response.....
-			self.var.Response, self.var.RT= self._Keyboard.get_key(timeout=self.var._ResponseTimeout)
+			self.var.Response, self.var.RT= self.Keyboard.get_key(timeout=self.var._responseTimeout)
 
 		self.CorrectResponse = \
-			(self.var.Response == self.var._CorrectButton)
+			(self.var.Response == self.var._correctButton)
 		# Add all response related data to the Opensesame responses instance.
 		self.experiment.responses.add(response_time=self.var.RT, \
 								correct=self.CorrectResponse, \
@@ -112,4 +118,3 @@ class qtResponseBox(ResponseBox, qtautoplugin):
 		listofdevices = ELister.Device().Attached()
 		for i in listofdevices:
 			self.ProductName_widget.addItem(i)
-

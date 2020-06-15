@@ -7,7 +7,7 @@ date: "2019"
 controls:
 -
     type: "combobox"
-    var: "_ProductName"
+    var: "_productName"
     label: "Select ProductName"
     options:
     - "DUMMY"
@@ -15,19 +15,19 @@ controls:
     tooltip: "Select desired ProductName"
 -
     type: "line_edit"
-    var: "_CorrectButton"
+    var: "_correctButton"
     label: "Correct Button"
     name: "CorrectButton_widget"
     tooltip: "Correct Button ( 1 - 8)"
 -
     type: "line_edit"
-    var: "_AllowedButtons"
+    var: "_allowedButtons"
     label: "Allowed Buttons"
     name: "AllowedButtons_widget"
     tooltip: "Allowed Buttons, ( 1 - 8 ) seperated by ;"
 -
     type: "line_edit"
-    var: "_ResponseTimeout"
+    var: "_responseTimeout"
     label: "ResponseTimeout"
     name: "ResponseTimeout_widget"
     tooltip: "ResponseTimeout in MSec"

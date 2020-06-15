@@ -9,6 +9,7 @@ from libopensesame.py3compat import *
 from libopensesame.item import item
 from libqtopensesame.items.qtautoplugin import qtautoplugin
 from openexp.canvas import Canvas, canvas
+from libopensesame.oslogging import oslogger
 
 from openexp.keyboard import Keyboard
 from openexp.mouse import Mouse
@@ -56,16 +57,19 @@ class VAS(item):
 
 		"""The preparation phase of the plug-in goes here."""
 		item.prepare(self)
-		self.ELister = EvtExchanger()
-		Devices = self.ELister.Device().Select(self.var.VAS_ENCODER_ID)
+		self.EE = EvtExchanger.Device()
+		Devices = self.EE.Select(self.var.VAS_ENCODER_ID)
 
-		if len(Devices) == 0:
+		try:
+			if Devices[0] is None:
+				raise
+			self.EE.Stop();
+			self.EE.Start();
+
+		except:
 			self.var.VAS_ENCODER_ID = u"MOUSE"
-			print("Cannot find encoder input device: Using mouse")
-		else:
-			self.InputObject = self.ELister.Device()
-			self.InputObject.Stop();
-			self.InputObject.Start();
+			oslogger.info("Cannot find encoder input device: Using mouse")
+
 						
 		
 		# Checking the excistence of the VAS elements is only possible in the runphase
@@ -80,7 +84,7 @@ class VAS(item):
 		
 		try:
 			if my_canvas[self.var.VAS_CURSOR_NAME] == None or my_canvas[self.var.VAS_BODY_NAME] == None:
-				print("Should not occur")
+				oslogger.info("Should not occur")
 		except Exception as e:
 			raise osexception(u"Prepare: READ the VAS manual:\n\rNo VAS elements found on the named canvas")
 		
@@ -103,6 +107,7 @@ class VAS(item):
 			
 		
 	def run(self):
+		self.EE.Select(self.var.VAS_ENCODER_ID)
 		self.set_item_onset(self.c.show())
 		st = self.experiment.time()
 		val = 0
@@ -115,7 +120,7 @@ class VAS(item):
 						self.c[self.var.VAS_TIMER_NAME].ex = self.c[self.var.VAS_TIMER_NAME].sx + ((1-tperc) * self.w)
 					else:
 						self.c[self.var.VAS_TIMER_NAME].ey = self.c[self.var.VAS_TIMER_NAME].sy + ((1-tperc) * self.h)
-						print("changing")
+						
 				if ((self.experiment.time()-st) > self.var.VAS_DURATION):
 					break
 			if self.var.VAS_EXIT_METHOD == 'MOUSE':
@@ -132,7 +137,7 @@ class VAS(item):
 			
 			
 			if self.var.VAS_ENCODER_ID != u"MOUSE":
-				val = self.InputObject.GetAxis(1)
+				val = self.EE.GetAxis(1)
 			else:
 				(val,y), time = self._Mouse.get_pos()
 				val = (val + 512) 
@@ -152,7 +157,7 @@ class VAS(item):
 			self.c.show()
 			
 		if self.var.VAS_ENCODER_ID != u"MOUSE":
-			self.InputObject.Stop()
+			self.EE.Stop()
 
 		# Add all response related data to the Opensesame responses instance.
 		self.experiment.responses.add(response_time=self.experiment.time()-st, \
