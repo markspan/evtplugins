@@ -1,11 +1,13 @@
 ---
 API: 2.1
+Description: Example using a VAS component
 OpenSesame: 3.3.2
 Platform: nt
+Title: VAS Example
 ---
 set width 1920
 set uniform_coordinates yes
-set title "New experiment"
+set title "VAS Demo"
 set subject_parity even
 set subject_nr 0
 set start experiment
@@ -26,7 +28,7 @@ set font_size 18
 set font_italic no
 set font_family mono
 set font_bold no
-set experiment_path "C:/Users/mmspa/Desktop"
+set experiment_path "d:\\Program Files (x86)\\OpenSesame\\share\\opensesame_extensions\\example_experiments\\examples\\VAS"
 set disable_garbage_collection yes
 set description "The main experiment item"
 set coordinates uniform
@@ -94,10 +96,9 @@ define notepad getting_started
 define VAS new_VAS
 	set description "A VAS modifier for a canvas"
 	set VAS_TIMER_NAME VASTIMER
-	set VAS_EXIT_METHOD KEY
+	set VAS_EXIT_METHOD TIME
 	set VAS_EXIT_KEY " "
-	set VAS_EXITKEY a
-	set VAS_ENCODER_ID "EventExchanger-EVT03-GC-060604-RSP+-RDC1 SN## 19002"
+	set VAS_ENCODER_ID MOUSE
 	set VAS_DURATION 10000
 	set VAS_CURSOR_STARTPOSITION 0
 	set VAS_CURSOR_NAME VASCURSOR
