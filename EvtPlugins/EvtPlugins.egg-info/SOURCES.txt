@@ -10,8 +10,8 @@ opensesame_plugins/EVTxx/EVTxx.md
 opensesame_plugins/EVTxx/EVTxx.png
 opensesame_plugins/EVTxx/EVTxx.py
 opensesame_plugins/EVTxx/EVTxx_large.png
+opensesame_plugins/EVTxx/evtxx.py
 opensesame_plugins/EVTxx/info.yaml
-opensesame_plugins/RGB_Led_Control/RGB_LED.jpg
 opensesame_plugins/RGB_Led_Control/RGB_Led_Control.png
 opensesame_plugins/RGB_Led_Control/RGB_Led_Control.py
 opensesame_plugins/RGB_Led_Control/RGB_Led_Control_large.png
@@ -21,8 +21,12 @@ opensesame_plugins/ResponseBox/ResponseBox.png
 opensesame_plugins/ResponseBox/ResponseBox.py
 opensesame_plugins/ResponseBox/ResponseBox_large.png
 opensesame_plugins/ResponseBox/info.yaml
+opensesame_plugins/ResponseBox/responsebox.py
 opensesame_plugins/VAS/VAS.md
 opensesame_plugins/VAS/VAS.png
 opensesame_plugins/VAS/VAS.py
 opensesame_plugins/VAS/VAS_large.png
+opensesame_plugins/VAS/experiment.osexp
 opensesame_plugins/VAS/info.yaml
+opensesame_plugins/VAS/quickrun.csv
+opensesame_plugins/VAS/subject-0.csv

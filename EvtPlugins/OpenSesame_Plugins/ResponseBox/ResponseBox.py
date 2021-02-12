@@ -50,6 +50,7 @@ class ResponseBox(item.item):
 		item.item.prepare(self)
 		self.EE = EvtExchanger.Device()
 		Devices = self.EE.Select(self.var._productName)
+
 		try:
 			if Devices[0] is None:
 				raise
