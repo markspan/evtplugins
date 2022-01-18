@@ -1,27 +1,11 @@
 Metadata-Version: 2.1
 Name: EvtPlugins
-Version: 0.99.23
+Version: 0.99.24
 Summary: Plugin Package to communicate with RUG developed hardware
 Home-page: https://github.com/markspan/EvtPlugins
 Author: Eise Hoekstra and Mark Span (primary developer)
 Author-email: m.m.span@rug.nl
 License: UNKNOWN
-Description: # EventExchanger
-        
-        ## Disclaimer:
-        
-        C-Sharp code to communicate with the hardware the University of Groningen,
-        faculty of Behaviour and Social Sciences, department of Research Support developed.
-        
-        Code Written by Eise Hoekstra and Mark M. Span, Maintained by Mark M. Span
-        
-        ## Usage:
-        
-        Any environment that can read and use .net code will be able to use this library.
-        
-        e.g., Matlab and Python.
-        
-        
 Platform: UNKNOWN
 Classifier: Intended Audience :: Science/Research
 Classifier: Topic :: Scientific/Engineering
@@ -32,3 +16,9 @@ Classifier: License :: OSI Approved :: Apache Software License
 Classifier: Programming Language :: Python :: 3
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
+License-File: LICENCE
+
+# EventExchanger
+
+
+
