@@ -1,0 +1,36 @@
+description: Shocker plug-in.
+version: 0.1
+author: "M.M.Span"
+url: "http://www.rug.nl/"
+category: "\r\nResearch Support\r\n         BSS"
+date: "2022"
+controls:
+-
+    type: "combobox"
+    var: "_productName"
+    label: "Select ProductName"
+    options:
+    - "DUMMY"
+    name: "ProductName_widget"
+    tooltip: "Select desired ProductName"
+-
+    type: "combobox"
+    var: "_calibrate"
+    label: "Select OutputMode"
+    options:
+    - "Calibrate"
+    - "Shock"
+    name: "Calibrate_widget"
+    tooltip: "Select desired mode"
+-
+    type: "line_edit"
+    var: "_value"
+    label: "Percentage"
+    name: "value_widget"
+    tooltip: "Value: give the percentage of the calibration value to be used."
+-
+    type: "line_edit"
+    var: "_duration"
+    label: "Duration in ms"
+    name: "duration_widget"
+    tooltip: "Expecting a value in milliseconds"

@@ -30,3 +30,4 @@ opensesame_plugins/VAS/experiment.osexp
 opensesame_plugins/VAS/info.yaml
 opensesame_plugins/VAS/quickrun.csv
 opensesame_plugins/VAS/subject-0.csv
+opensesame_plugins/VAS/vas.py

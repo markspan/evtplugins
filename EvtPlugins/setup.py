@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="EvtPlugins", 
-    version="0.99.17",
+    version="0.99.23",
     author="Eise Hoekstra and Mark Span (primary developer)",
     author_email="m.m.span@rug.nl",
     description="Plugin Package to communicate with RUG developed hardware",
@@ -79,6 +79,17 @@ setuptools.setup(
 			'opensesame_plugins/RGB_Led_Control/RGB_Led_Control_large.png',
 			'opensesame_plugins/RGB_Led_Control/RGB_Led_Control.py',
 			'opensesame_plugins/RGB_Led_Control/info.yaml',
+			]
+		),
+				# Fourth target folder.
+		('share/opensesame_plugins/Shocker',
+		# Then a list of files that are copied into the target folder. Make sure
+		# that these files are also included by MANIFEST.in!
+		[
+			'opensesame_plugins/Shocker/Shocker.png',
+			'opensesame_plugins/Shocker/Shocker_large.png',
+			'opensesame_plugins/Shocker/Shocker.py',
+			'opensesame_plugins/Shocker/info.yaml',
 			]
 		)
 	],)
