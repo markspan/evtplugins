@@ -55,16 +55,18 @@ class Shocker(item.item):
 		self.var._duration = 150
 		self.var._productName = u"DUMMY"
 		self.var._calibrate = u"Calibrate"
+
 		# time in seconds.
 		
 	def prepare(self):
 		self.experiment.set("ShockDuration", self.var._duration)
 		self.var._min_intershock_interval = 1
 		item.item.prepare(self)
-		self.EE = EvtExchanger.Device()
-		Devices = self.EE.Select(self.var._productName)
+		self.EE = EvtExchanger()
+		Device = self.EE.Select(self.var._productName)
+
 		try:
-			if Devices[0] is None:
+			if Device is None:
 				raise
 		except:
 			self.var._productName = u"DUMMY"
@@ -84,7 +86,7 @@ class Shocker(item.item):
 			else:
 				self.Calibrate_Run()			
 		else:
-			self.EE.Select(self.var._productName)
+			#self.EE.Select(self.PATH)
 			if self.var._calibrate == u"Calibrate":
 				self.Calibrate_Run()
 			elif self.var._calibrate == u"Shock":
@@ -266,7 +268,7 @@ class qtShocker(Shocker, qtautoplugin):
 	# Pass the word on to the parent
 		qtautoplugin.init_edit_widget(self)
 
-		EE = EvtExchanger.Device()
+		EE = EvtExchanger()
 		listOfDevices = EE.Attached(u"SHOCKER")
 		# if there is no shocker attached, the selected name defaults to 'Dummy' again.
 		if listOfDevices:

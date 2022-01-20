@@ -42,23 +42,22 @@ class EVTxx(item.item):
 		self.var._productName = u'DUMMY'
 		self.var._outputMode = u'Pulse Output Lines'
 
-
 	def prepare(self):
-        
 		item.item.prepare(self)
-		self.EE = EvtExchanger.Device()
-		Devices = self.EE.Select(self.var._productName)
+		self.EE = EvtExchanger()
+		Device = self.EE.Select(self.var._productName)
+		
 		try:
-			if Devices[0] is None:
+			if Device is None:
 				raise
 		except:
 			self.var._productName = u'DUMMY'
 			oslogger.info("Cannot find eventexchanger: code to debugwindow")
 
-			
-			
+						
 	def run(self):
-		self.EE.Select(self.var._productName)
+		self.set_item_onset()
+		#self.EE.Select(self.PATH)
 		if 	self.var._productName == u'DUMMY':
 			oslogger.info('dummy code: {} for {} ms'.format(self.var._value, self.var._duration) )
 		else:
@@ -82,7 +81,8 @@ class qtEVTxx(EVTxx, qtautoplugin):
 	# Pass the word on to the parent
 		qtautoplugin.init_edit_widget(self)
 
-		EE = EvtExchanger.Device()
+		EE = EvtExchanger()
 		listofdevices = EE.Attached()
 		for i in listofdevices:
-			self.ProductName_widget.addItem(i)
+			if "SHOCKER" not in i:
+				self.ProductName_widget.addItem(i)

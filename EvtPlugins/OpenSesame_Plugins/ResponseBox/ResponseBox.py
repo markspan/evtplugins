@@ -48,11 +48,11 @@ class ResponseBox(item.item):
 
 	def prepare(self):
 		item.item.prepare(self)
-		self.EE = EvtExchanger.Device()
-		Devices = self.EE.Select(self.var._productName)
-
+		self.EE = EvtExchanger()
+		Device = self.EE.Select(self.var._productName)
+		
 		try:
-			if Devices[0] is None:
+			if Device is None:
 				raise
 		except:
 			self.var._productName = u'DUMMY'
@@ -74,8 +74,6 @@ class ResponseBox(item.item):
 			self.var.AllowedEventLines =  (1 << (x-1))
 
 	def run(self):
-		self.EE.Select(self.var._productName)
-
 		# Save the current time ...
 		t0 = self.set_item_onset()
 		# Call the 'wait for event' function in the EventExchanger C# object.
@@ -115,7 +113,7 @@ class qtResponseBox(ResponseBox, qtautoplugin):
 	# Pass the word on to the parent
 		qtautoplugin.init_edit_widget(self)
 
-		ELister = EvtExchanger()
-		listofdevices = ELister.Device().Attached()
+		EE = EvtExchanger()
+		listofdevices = EE.Attached()
 		for i in listofdevices:
 			self.ProductName_widget.addItem(i)
