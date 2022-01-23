@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: EvtPlugins
-Version: 0.99.24
+Version: 0.99.27
 Summary: Plugin Package to communicate with RUG developed hardware
 Home-page: https://github.com/markspan/EvtPlugins
 Author: Eise Hoekstra and Mark Span (primary developer)

@@ -57,7 +57,7 @@ class VAS(item):
 
         """The preparation phase of the plug-in goes here."""
         item.prepare(self)
-        self.EE = EvtExchanger.Device()
+        self.EE = EvtExchanger()
         Devices = self.EE.Select(self.var.VAS_ENCODER_ID)
 
         try:
@@ -106,7 +106,6 @@ class VAS(item):
             
         
     def run(self):
-        self.EE.Select(self.var.VAS_ENCODER_ID)
         self.set_item_onset(self.c.show())
         st = self.experiment.time()
         val = int(1024*(self.var.VAS_CURSOR_STARTPOSITION/100.0))
@@ -216,7 +215,7 @@ class qtVAS(VAS, qtautoplugin):
         #self.checkbox_widget.stateChanged.connect(
         #    self.line_edit_widget.setEnabled)
         ELister = EvtExchanger()
-        listofdevices = ELister.Device().Attached()
+        listofdevices = ELister.Attached()
         for i in listofdevices:
             self.VAS_ENCODERID_widget.addItem(i)
         self.VAS_TIMERNAME_widget.setEnabled(self.VAS_EXIT_METHOD_widget.currentText() == u'TIME')
