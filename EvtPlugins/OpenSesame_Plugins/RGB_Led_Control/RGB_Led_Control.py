@@ -87,7 +87,6 @@ class RGB_Led_Control(item.item):
 
 
 	def run(self):
-		self.EE.Select(self.var._productName)
 		
 		# Save the current time ...
 		t0 = self.set_item_onset()
