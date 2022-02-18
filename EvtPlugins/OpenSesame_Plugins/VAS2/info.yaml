@@ -1,0 +1,51 @@
+description: VAS2 plug-in.
+version: 0.1
+author: "Mark Span"
+url: "http://www.rug.nl/"
+category: "\r\nResearch Support\r\n         BSS"
+date: "2020"
+controls:
+-
+    type: "line_edit"
+    var: "VAS_CANVAS_NAME"
+    label: "Name of the VAS canvas"
+    name: "VAS_canvasname_widget"
+    tooltip: "Enter the name of the VAS canvas element"
+-
+    type: "line_edit"
+    var: "VAS_BODY_NAME"
+    label: "Name of the line-element"
+    name: "VAS_bodyname_widget"
+    tooltip: "Name of the Line Element of the VAS on the Canvas"
+-
+    type: "color_edit"
+    var: "VAS_CURSOR_COLOR"
+    label: "Color of the cursor"
+    name: "VAS_cursorcolor_widget"
+    tooltip: "Color of the Cursor Element of the VAS on the Canvas"
+-
+    type: "line_edit"
+    var: "VAS_EXITBUTTON_NAME"
+    label: "Name of the Exit Button"
+    name: "VAS_EXITBUTTON_widget"
+    tooltip: "Name of the exitbutton"
+-
+    type: "line_edit"
+    var: "VAS_MINLABEL_NAME"
+    label: "Name of the textelement to the left of the VAS"
+    name: "VAS_MINLABEL_widget"
+    tooltip: "Enter the name of the textelement to the left of the VAS"
+-
+    type: "line_edit"
+    var: "VAS_MAXLABEL_NAME"
+    label: "Name of the textelement to the right of the VAS"
+    name: "VAS_MAXLABEL_widget"
+    tooltip: "Enter the name of the textelement to the righ of the VAS"
+-
+    type: spinbox
+    var: "VAS_LINESIZE"
+    min_val: 1
+    max_val: 1000
+    label: "Length of the VAS markerline"
+    name: VAS_LINESIZE_widget
+    tooltip: 'Enter the length you want to have for the marker in pixels.'

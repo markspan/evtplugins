@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="EvtPlugins", 
-    version="0.99.27",
+    version="0.99.30",
     author="Eise Hoekstra and Mark Span (primary developer)",
     author_email="m.m.span@rug.nl",
     description="Plugin Package to communicate with RUG developed hardware",
@@ -30,6 +30,17 @@ setuptools.setup(
 	
 	data_files=[
 		# First target folder.
+		('share/opensesame_plugins/VAS',
+		# Then a list of files that are copied into the target folder. Make sure
+		# that these files are also included by MANIFEST.in!
+		[
+			'opensesame_plugins/VAS2/VAS2.md',
+			'opensesame_plugins/VAS2/VAS2.png',
+			'opensesame_plugins/VAS2/VAS2_large.png',
+			'opensesame_plugins/VAS2/VAS2.py',
+			'opensesame_plugins/VAS2/info.yaml',
+			]
+		),
 		('share/opensesame_plugins/VAS',
 		# Then a list of files that are copied into the target folder. Make sure
 		# that these files are also included by MANIFEST.in!
