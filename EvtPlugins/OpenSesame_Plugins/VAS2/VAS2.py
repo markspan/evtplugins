@@ -102,17 +102,13 @@ class VAS2(item):
 			self.VASLENGTH = self.c[self.var.VAS_BODY_NAME].ex - self.c[self.var.VAS_BODY_NAME].sx
 			self.ypos = (self.c[self.var.VAS_BODY_NAME].sy + self.c[self.var.VAS_BODY_NAME].ey) / 2
 			self.sx = self.c[self.var.VAS_BODY_NAME].sx
-			oslogger.warning('Line')
 		
 		if hasattr(self.c[self.var.VAS_BODY_NAME], 'w') and hasattr(self.c[self.var.VAS_BODY_NAME], 'y') and hasattr(self.c[self.var.VAS_BODY_NAME], 'h'):
 			self.VASLENGTH = self.c[self.var.VAS_BODY_NAME].w
 			self.ypos = self.c[self.var.VAS_BODY_NAME].y+(self.c[self.var.VAS_BODY_NAME].h/2)
 			self.sx = self.c[self.var.VAS_BODY_NAME].x
-			oslogger.warning('Rect')
-			oslogger.warning(type(self.c[self.var.VAS_BODY_NAME]))
 		
 		if self.ypos == -1:
-			oslogger.warning('Error')
 			raise TypeError("VasBody should be a line or a Rect")
 		
 		
