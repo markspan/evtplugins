@@ -36,3 +36,8 @@ opensesame_plugins/VAS/info.yaml
 opensesame_plugins/VAS/quickrun.csv
 opensesame_plugins/VAS/subject-0.csv
 opensesame_plugins/VAS/vas.py
+opensesame_plugins/VAS2/VAS2.md
+opensesame_plugins/VAS2/VAS2.png
+opensesame_plugins/VAS2/VAS2.py
+opensesame_plugins/VAS2/VAS2_large.png
+opensesame_plugins/VAS2/info.yaml
