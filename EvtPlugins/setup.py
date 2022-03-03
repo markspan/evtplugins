@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="EvtPlugins", 
-    version="0.99.32",
+    version="0.99.33",
     author="Eise Hoekstra and Mark Span (primary developer)",
     author_email="m.m.span@rug.nl",
     description="Plugin Package to communicate with RUG developed hardware",
