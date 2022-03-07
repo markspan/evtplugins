@@ -23,6 +23,7 @@ from libopensesame.oslogging import oslogger
 import os
 import sys
 import time
+import math
 
 from pyEVT import EvtExchanger
 
@@ -133,7 +134,7 @@ class RGB_Led_Control(item.item):
 			(self.var.Response,self.var.RT) = \
 				(self.EE.WaitForDigEvents(self.var.AllowedEventLines,
 							self.var._responseTimeout)) 
-			self.var.Response += 1
+			self.var.Response = math.log2(self.var.Response) + 1;   
 
 			#FEEDBACK:
 			if self.var._feedback == u'yes':

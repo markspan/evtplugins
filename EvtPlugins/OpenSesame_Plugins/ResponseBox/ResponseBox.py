@@ -23,6 +23,7 @@ from libopensesame.base_response_item import base_response_item
 from libqtopensesame.items.qtautoplugin import qtautoplugin
 import os
 import sys
+import math
 
 from pyEVT import EvtExchanger
 
@@ -82,7 +83,8 @@ class ResponseBox(item.item):
 			(self.var.Response,self.var.RT) = \
 				(self.EE.WaitForDigEvents(self.var.AllowedEventLines,
 							self.var._responseTimeout)) 
-			self.var.Response += 1           
+			self.var.Response = math.log2(self.var.Response) + 1;   
+			
 		else:
 			# demo mode: keyboard response.....
 			self.var.Response, self.var.RT= self.Keyboard.get_key(timeout=self.var._responseTimeout)
