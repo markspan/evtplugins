@@ -24,6 +24,7 @@ import os
 import sys
 import time
 import math
+import distutils.util
 
 from pyEVT import EvtExchanger
 
@@ -74,7 +75,7 @@ class RGB_Led_Control(item.item):
 			oslogger.info("Cannot find ResponseBox: Using Keyboard instead")
 
 
-		if not type(self.var._responseTimeout) == int:
+		if not type(self.var._responseTimeout) == int and not type(self.var._responseTimeout) == float:
 			self.var._responseTimeout = -1
 		# Recode Allowed buttons to AllowedEventLines
 		self.var.AllowedEventLines = 0
@@ -102,7 +103,7 @@ class RGB_Led_Control(item.item):
 		self.InCorrectColor = hexprepend + self.var._inCorrectColor[1:]
 		CC=int(self.CorrectColor,16)
 		IC=int(self.InCorrectColor,16)
-		oslogger.info(self.colors)
+
 		BLC = [0,0,0,0]
 		for b in range(4):
 			BLC[b] = int(self.colors[b] , 16)			
@@ -130,11 +131,13 @@ class RGB_Led_Control(item.item):
 					int(self.var._correctButton), int(self.var._correctButton)+10)
 		
 			# Call the 'wait for event' function in the EventExchanger C# object.
-
+						
 			(self.var.Response,self.var.RT) = \
 				(self.EE.WaitForDigEvents(self.var.AllowedEventLines,
 							self.var._responseTimeout)) 
-			self.var.Response = math.log2(self.var.Response) + 1;   
+
+			if (self.var.Response != -1):
+				self.var.Response = math.log2(self.var.Response) + 1;   
 
 			#FEEDBACK:
 			if self.var._feedback == u'yes':
@@ -148,13 +151,19 @@ class RGB_Led_Control(item.item):
 			self.var.Response, self.var.RT= self.Keyboard.get_key(timeout=self.var._responseTimeout)
 
 		#HOUSEHOLD:
-		self.CorrectResponse = \
-			(self.var.Response == self.var._correctButton)
+		
+		self.var.correct = \
+			bool(self.var.Response == self.var._correctButton)
+
+		self.var.correct = distutils.util.strtobool(str(self.var.correct))
+			
+		print(self.var.correct)
 		# Add all response related data to the Opensesame responses instance.
 		self.experiment.responses.add(response_time=self.var.RT, \
-								correct=self.CorrectResponse, \
+								correct=self.var.correct, \
 								response=self.var.Response, \
 								item=self.name)
+		
 		#Report success		
 		return True
 
