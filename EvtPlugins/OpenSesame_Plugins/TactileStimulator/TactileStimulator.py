@@ -59,7 +59,8 @@ class TactileStimulator(item.item):
 		
 	def prepare(self):
 		self.experiment.set("ShockDuration", self.var._duration)
-		self.var._min_intershock_interval = 1
+		self.var._minIntershockInterval = 1
+		self.var._intershockBlockingTime = 8
 		item.item.prepare(self)
 		self.EE = EvtExchanger()
 		Device = self.EE.Select(self.var._productName)
@@ -113,7 +114,7 @@ class TactileStimulator(item.item):
 				
 			td = time.time() - lst
 			# This line is to prevent the possibility to shock if the previous shock was less then the minimum time ago
-			if (td > self.var._min_intershock_interval):
+			if (td > self.var._minIntershockInterval):
 				oslogger.info("In (Hardware) Shock: shocking with value: " + str(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration"))))
 				self.EE.SetLines(0)
 				self.EE.PulseLines(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")), self.var._duration)
@@ -155,8 +156,16 @@ class TactileStimulator(item.item):
 				#self.EE.SetLines(0) 
 				self.EE.PulseLines(math.floor((xperc/100.0) * 255), self.var._duration)
 				self.canvas['TestBox'].color = "blue"
-				self.canvas.show()	
-				time.sleep(8)
+				self.canvas.show()
+				
+				self.canvas['wait... '].color = "green"
+				for n in range (1, self.var._intershockBlockingTime):
+					self.canvas['wait... '].text = "wait... " + str(self.var._intershockBlockingTime-n)
+					self.canvas.show()
+					time.sleep(1)
+				self.canvas['wait... '].color = "black"
+				self.canvas['wait... '].text = "wait... " + str(0)
+				
 				self.canvas['TestBox'].color = "red"
 				self.canvas.show()	
 				
@@ -212,7 +221,7 @@ class TactileStimulator(item.item):
 						 self.canvas.width  / 10,
 						 self.canvas.height / 10,
 						 fill=True,
-						 color = "Red")
+						 color = "red")
 						 
 		self.canvas['TestText'] = RichText("Test", 
 						x=(-self.canvas.width / 3)+(self.canvas.width / 20),
@@ -224,7 +233,7 @@ class TactileStimulator(item.item):
 						 -self.canvas.width / 10,
 						 self.canvas.height / 10,
 						 fill=True,
-						 color = "Green")
+						 color = "green")
 						 
 		self.canvas['OKText'] = RichText("OK", 
 						x=(self.canvas.width / 3)-(self.canvas.width / 20),
@@ -240,7 +249,11 @@ class TactileStimulator(item.item):
 						x=0,
 						y=-(self.canvas.height / 4)+(self.canvas.height / 12),
 						color = "green")
-
+		
+		self.canvas['wait... '] = RichText(str(round(0)), 
+						x=0,
+						y=-(self.canvas.height / 10)+(self.canvas.height / 2),
+						color = "black")
 
 class qtTactileStimulator(TactileStimulator, qtautoplugin):
 	def __init__(self, name, experiment, string = None):
