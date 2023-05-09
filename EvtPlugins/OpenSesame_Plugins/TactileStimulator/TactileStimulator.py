@@ -44,10 +44,9 @@ import sys
 
 from pyEVT import EvtExchanger
 
-class Shocker(item.item):
+class TactileStimulator(item.item):
 
-
-	description = u"Allows the calibration *and* the use of the tactile stimulator."
+	description = u"Allows the calibration *and* the use of the Tactile Stimulator."
 
 	def reset(self):
 		self.var._value = 0
@@ -70,7 +69,7 @@ class Shocker(item.item):
 				raise
 		except:
 			self.var._productName = u"DUMMY"
-			oslogger.warning("Did not find a shocker: code to debugwindow")
+			oslogger.warning("Did not find a Tactile Stimulator: code to debugwindow")
 			
 		if self.var._calibrate == u"Calibrate":
 			self.Calibrate_Prepare()
@@ -101,7 +100,7 @@ class Shocker(item.item):
 		try:
 			self.experiment.get("ShockerCalibration")
 		except:
-			oslogger.error("No calibration step taken: First run a Shocker in calibration mode!")
+			oslogger.error("No calibration step taken: First run a Tactile Stimulator in calibration mode!")
 			return
 		
 		if (self.var._productName == u"DUMMY"):
@@ -150,7 +149,6 @@ class Shocker(item.item):
 				self.canvas['Slider'].w = (xperc / 100) * ((2 * self.canvas.width / 2.2) - 12)
 				self.canvas['ValuePerc'].text = "("+str(round(xperc,1)) + "%)"
 				self.canvas['ValuemAh'].text = str(round(5*(xperc/100.0),1)) + "mAh"
-				
 				self.canvas.show()	
 
 			if (x, y) in self.canvas['TestBox']:
@@ -244,11 +242,11 @@ class Shocker(item.item):
 						color = "green")
 
 
-class qtShocker(Shocker, qtautoplugin):
+class qtTactileStimulator(TactileStimulator, qtautoplugin):
 	def __init__(self, name, experiment, string = None):
 
 		#Pass the word on to the parents
-		Shocker.__init__(self, name, experiment, string)
+		TactileStimulator.__init__(self, name, experiment, string)
 		qtautoplugin.__init__(self, __file__)
 	
 	
