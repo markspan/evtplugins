@@ -255,9 +255,9 @@ class TactileStimulator(item.item):
 			#oslogger.info("Time duration inbetween shocks: " + str(td))
 			# This line is to prevent the possibility to shock if the previous shock was less then the minimum time ago
 			if (td > self.var._shockTimeOut):
-				oslogger.info("In (Hardware) Shock: shocking with value: " + str(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")))) # better in shock preparation...
+				oslogger.info("In (Hardware) Shock: shocking with value: " + str(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")))) # better do in shock preparation...
 				self.EE.PulseLines(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")), self.var._duration)
-				oslogger.warning("Shock now!")
+				#oslogger.warning("Shock now!")
 				# TODO: here?
 				#mAh = round((self.var._value/100.0) * self.experiment.get("ShockermAhCalibration"),2)
 				#self.experiment.set("BinaryShockValue", math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration"))) 
