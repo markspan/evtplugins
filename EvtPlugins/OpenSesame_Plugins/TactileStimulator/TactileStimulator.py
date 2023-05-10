@@ -59,8 +59,8 @@ class TactileStimulator(item.item):
 		
 	def prepare(self):
 		self.experiment.set("ShockDuration", self.var._duration)
-		self.var._minIntershockInterval = 1
-		self.var._intershockBlockingTime = 8
+		self.var._shockTimeOut = 1
+		self.var._shockHoldOffTime = 8
 		item.item.prepare(self)
 		self.EE = EvtExchanger()
 		Device = self.EE.Select(self.var._productName)
@@ -108,19 +108,19 @@ class TactileStimulator(item.item):
 			oslogger.info("In (Dummy) Shock: shocking with value: " + str(self.var._value))
 		else:
 			try:
-				lst = self.experiment.get("lastShockTime")
+				tLast = self.experiment.get("lastShockTime")
 			except:
-				lst = 0;
+				tLast = 0;
 				
-			td = time.time() - lst
+			td = time.time() - tLast
 			# This line is to prevent the possibility to shock if the previous shock was less then the minimum time ago
-			if (td > self.var._minIntershockInterval):
+			if (td > self.var._shockTimeOut):
 				oslogger.info("In (Hardware) Shock: shocking with value: " + str(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration"))))
 				self.EE.SetLines(0)
 				self.EE.PulseLines(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")), self.var._duration)
+				self.experiment.set("lastShockTime", time.time())
 				# TODO:
 				mAh = round((self.var._value/100.0) * self.experiment.get("ShockermAhCalibration"),2)
-				self.experiment.set("lastShockTime", time.time()) 
 				self.experiment.set("BinaryShockValue", math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration"))) 
 				self.experiment.set("ShockPercValue", self.var._value)
 				self.experiment.set("ShockMahValue", mAh)
@@ -159,8 +159,8 @@ class TactileStimulator(item.item):
 				self.canvas.show()
 				
 				self.canvas['wait... '].color = "green"
-				for n in range (1, self.var._intershockBlockingTime):
-					self.canvas['wait... '].text = "wait... " + str(self.var._intershockBlockingTime-n)
+				for n in range (1, self.var._shockHoldOffTime):
+					self.canvas['wait... '].text = "wait... " + str(self.var._shockHoldOffTime-n)
 					self.canvas.show()
 					time.sleep(1)
 				self.canvas['wait... '].color = "black"
