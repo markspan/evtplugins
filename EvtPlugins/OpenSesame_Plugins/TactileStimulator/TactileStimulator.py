@@ -240,7 +240,7 @@ class TactileStimulator(item.item):
 		try:
 			self.experiment.get("ShockerCalibration")
 		except:
-			oslogger.error("No calibration step taken: First run thwe Tactile Stimulator in calibration mode!")
+			oslogger.error("No calibration step taken: First run the Tactile Stimulator in calibration mode!")
 			return
 		
 		if (self.var._productName == u"DUMMY"):
@@ -255,10 +255,10 @@ class TactileStimulator(item.item):
 			#oslogger.info("Time duration inbetween shocks: " + str(td))
 			# This line is to prevent the possibility to shock if the previous shock was less then the minimum time ago
 			if (td > self.var._shockTimeOut):
-				oslogger.info("In (Hardware) Shock: shocking with value: " + str(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration"))))
-				#self.EE.SetLines(0)
+				oslogger.info("In (Hardware) Shock: shocking with value: " + str(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")))) # better in shock preparation...
 				self.EE.PulseLines(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")), self.var._duration)
-				# TODO:
+				oslogger.warning("Shock now!")
+				# TODO: here?
 				#mAh = round((self.var._value/100.0) * self.experiment.get("ShockermAhCalibration"),2)
 				#self.experiment.set("BinaryShockValue", math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration"))) 
 				#self.experiment.set("ShockPercValue", self.var._value)
