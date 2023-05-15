@@ -50,7 +50,7 @@ class TactileStimulator(item.item):
 
 	def reset(self):
 		self.var._value = 0
-		self.var._calibrationvalue = 100
+		#self.var._calibrationvalue = 100
 		self.var._duration = 150
 		self.var._productName = u"DUMMY"
 		self.var._calibrate = u"Calibrate"
@@ -91,7 +91,6 @@ class TactileStimulator(item.item):
 				self.Calibrate_Run()
 			elif self.var._calibrate == u"Shock":
 				self.Do_Shock_Run()
-		
 		return True
 
 
@@ -155,7 +154,7 @@ class TactileStimulator(item.item):
 						y=(self.canvas.height / 4)+(self.canvas.height / 20),
 						color = "black")
 		
-		self.canvas['ValuemAh'] = RichText(str(round(0,3)) + "mAh", 
+		self.canvas['ValuemA'] = RichText(str(round(0,3)) + "mA", 
 						x=0,
 						y=-(self.canvas.height / 4)+(self.canvas.height / 20),
 						color = "green")
@@ -197,7 +196,7 @@ class TactileStimulator(item.item):
 				xperc = min((x + self.canvas.width / 2.2) / (2 * ((self.canvas.width / 2.2) - 6)) * 100.0, 100)
 				self.canvas['Slider'].w = (xperc / 100) * ((2 * self.canvas.width / 2.2) - 12)
 				self.canvas['ValuePerc'].text = "("+str(round(xperc,1)) + "%)"
-				self.canvas['ValuemAh'].text = str(round(5*(xperc/100.0),1)) + "mAh"
+				self.canvas['ValuemA'].text = str(round(5*(xperc/100.0),1)) + "mA"
 				self.canvas.show()	
 
 			if (x, y) in self.canvas['TestBox']:
@@ -223,10 +222,10 @@ class TactileStimulator(item.item):
 				
 			if (x, y) in self.canvas['OKBox']:
 				self.var.ShockerCalibrationBinvalue = math.floor((xperc/100.0) * 255)
-				self.var.ShockerCalibrationmAhvalue = round(5*(xperc/100.0),1)
-				oslogger.info("Shocker calibration value (binary, mAh): {}, {:1}".format(self.var.ShockerCalibrationBinvalue, self.var.ShockerCalibrationmAhvalue))
+				self.var.ShockerCalibrationmAvalue = round(5*(xperc/100.0),1)
+				oslogger.info("Shocker calibration value (binary, mA): {}, {:1}".format(self.var.ShockerCalibrationBinvalue, self.var.ShockerCalibrationmAvalue))
 				self.experiment.set("ShockerCalibration", self.var.ShockerCalibrationBinvalue)
-				self.experiment.set("ShockermAhCalibration", self.var.ShockerCalibrationmAhvalue)
+				self.experiment.set("ShockermACalibration", self.var.ShockerCalibrationmAvalue)
 				break
 				
 												
@@ -259,10 +258,10 @@ class TactileStimulator(item.item):
 				self.EE.PulseLines(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")), self.var._duration)
 				#oslogger.warning("Shock now!")
 				# TODO: here?
-				#mAh = round((self.var._value/100.0) * self.experiment.get("ShockermAhCalibration"),2)
+				#mA = round((self.var._value/100.0) * self.experiment.get("ShockermACalibration"),2)
 				#self.experiment.set("BinaryShockValue", math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration"))) 
 				#self.experiment.set("ShockPercValue", self.var._value)
-				#self.experiment.set("ShockMahValue", mAh)
+				#self.experiment.set("ShockMaValue", mA)
 			else:
 				oslogger.warning("In Shock: the shock came too early: please don't give shocks in rapid succession!")
 			
