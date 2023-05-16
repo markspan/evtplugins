@@ -24,7 +24,7 @@ controls:
     tooltip: "Select desired mode: "
 -
     type: "line_edit"
-    var: "_percOfCalibrValue"
+    var: "_percOfCalibrationValue"
     label: "Percentage [%]: "
     name: "value_widget"
     tooltip: "Value: give the percentage of the calibration value to be used."
