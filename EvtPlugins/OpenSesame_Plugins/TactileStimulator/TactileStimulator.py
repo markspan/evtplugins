@@ -49,47 +49,45 @@ class TactileStimulator(item.item):
 	description = u"Allows the calibration *and* the use of the Tactile Stimulator."
 
 	def reset(self):
-		self.var._value = 0
-		#self.var._calibrationvalue = 100
-		self.var._duration = 150
-		self.var._productName = u"DUMMY"
-		self.var._calibrate = u"Calibrate"
-		# time in seconds.
+		self.var._percOfCalibrValue = 0
+		self.var._shockDuration = 150 # fixed value
+		self.var._deviceName = u"DUMMY"
+		self.var._mode = u"Calibrate"
 
 				
 	def prepare(self):
-		self.experiment.set("ShockDuration", self.var._duration)
+		self.experiment.set("shocker_shock_duration", self.var._shockDuration)
 		self.var._shockTimeOut = 1
 		self.var._interShockHoldOffTime = 8
 		item.item.prepare(self)
 		self.EE = EvtExchanger()
-		Device = self.EE.Select(self.var._productName)
+		Device = self.EE.Select(self.var._deviceName)
 
 		try:
 			if Device is None:
 				raise
 		except:
-			self.var._productName = u"DUMMY"
+			self.var._deviceName = u"DUMMY"
 			oslogger.warning("Did not find a Tactile Stimulator: code to debugwindow")
 			
-		if self.var._calibrate == u"Calibrate":
+		if self.var._mode == u"Calibrate":
 			self.Calibrate_Prepare()
-		elif self.var._calibrate == u"Shock":
+		elif self.var._mode == u"Shock":
 			self.Do_Shock_Prepare()
 
 			
 	def run(self):
 		self.set_item_onset()
-		if 	self.var._productName == u"DUMMY":
-			if self.var._calibrate == u"Shock":
-				oslogger.info('dummy shock: {} for {} ms'.format(self.var._value, self.var._duration) )
+		if 	self.var._deviceName == u"DUMMY":
+			if self.var._mode == u"Shock":
+				oslogger.info('dummy shock: {} for {} ms'.format(self.var._percOfCalibrValue, self.var._shockDuration) )
 			else:
 				self.Calibrate_Run()			
 		else:
 			#self.EE.Select(self.PATH)
-			if self.var._calibrate == u"Calibrate":
+			if self.var._mode == u"Calibrate":
 				self.Calibrate_Run()
-			elif self.var._calibrate == u"Shock":
+			elif self.var._mode == u"Shock":
 				self.Do_Shock_Run()
 		return True
 
@@ -169,7 +167,7 @@ class TactileStimulator(item.item):
 						y=-(self.canvas.height / 10)+(self.canvas.height / 2),
 						color = "black")
 						
-		if not (self.var._productName == u"DUMMY"):
+		if not (self.var._deviceName == u"DUMMY"):
 			self.EE.SetLines(0)
 			oslogger.info("In (Hardware) Shock: reset port")
 
@@ -195,15 +193,15 @@ class TactileStimulator(item.item):
 			if (x, y) in self.canvas['SliderBox']:				
 				xperc = min((x + self.canvas.width / 2.2) / (2 * ((self.canvas.width / 2.2) - 6)) * 100.0, 100)
 				self.canvas['Slider'].w = (xperc / 100) * ((2 * self.canvas.width / 2.2) - 12)
-				self.canvas['ValuePerc'].text = "("+str(round(xperc,1)) + "%)"
-				self.canvas['ValuemA'].text = str(round(5*(xperc/100.0),1)) + "mA"
+				self.canvas['ValuePerc'].text = "(" + str(round(xperc, 1)) + "%)"
+				self.canvas['ValuemA'].text = str( round(5*(xperc/100.0), 1) ) + "mA"
 				self.canvas.show()	
 
 			if (x, y) in self.canvas['TestBox']:
-				if (self.var._productName == u"DUMMY"):
+				if (self.var._deviceName == u"DUMMY"):
 					oslogger.info("In (Dummy) Shock: shocking with value: {}".format(math.floor( (xperc/100.0) * 255) ) )
 				else:
-					self.EE.PulseLines(math.floor((xperc/100.0) * 255), self.var._duration)
+					self.EE.PulseLines(math.floor( (xperc/100.0) * 255 ), self.var._shockDuration)
 				
 				self.canvas['TestBox'].color = "blue"
 				self.canvas.show()
@@ -223,29 +221,29 @@ class TactileStimulator(item.item):
 				self.var.ShockerCalibrationBinvalue = math.floor((xperc/100.0) * 255)
 				self.var.ShockerCalibrationmAvalue = round(5*(xperc/100.0),1)
 				oslogger.info("Shocker calibration value (binary, mA): {}, {:1}".format(self.var.ShockerCalibrationBinvalue, self.var.ShockerCalibrationmAvalue))
-				self.experiment.set("ShockerCalibration", self.var.ShockerCalibrationBinvalue)
-				self.experiment.set("ShockermACalibration", self.var.ShockerCalibrationmAvalue)
+				self.experiment.set("shocker_calibration_val", self.var.ShockerCalibrationBinvalue)
+				self.experiment.set("shocker_calibration_mamp", self.var.ShockerCalibrationmAvalue)
 				break
 
 
 	def Do_Shock_Prepare(self):
-		if not (self.var._productName == u"DUMMY"):
+		if not (self.var._deviceName == u"DUMMY"):
 			self.EE.SetLines(0)
 			oslogger.info("In (Hardware) Shock: reset port")
 
 
 	def Do_Shock_Run(self):
 		try:
-			self.experiment.get("ShockerCalibration")
+			self.experiment.get("shocker_calibration_val")
 		except:
 			oslogger.error("No calibration step taken: First run the Tactile Stimulator in calibration mode!")
 			return
 		
-		if (self.var._productName == u"DUMMY"):
-			oslogger.info("In (Dummy) Shock: shocking with value: " + str(self.var._value))
+		if (self.var._deviceName == u"DUMMY"):
+			oslogger.info("In (Dummy) Shock: shocking with value: " + str(self.var._percOfCalibrValue))
 		else:
 			try:
-				tLast = self.experiment.get("lastShockTime")
+				tLast = self.experiment.get("shocker_time_last_shock")
 			except:
 				tLast = 0;
 				
@@ -253,18 +251,18 @@ class TactileStimulator(item.item):
 			#oslogger.info("Time duration inbetween shocks: " + str(td))
 			# This line is to prevent the possibility to shock if the previous shock was less then the minimum time ago
 			if (td > self.var._shockTimeOut):
-				oslogger.info("In (Hardware) Shock: shocking with value: " + str(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")))) # better do in shock preparation...
-				self.EE.PulseLines(math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration")), self.var._duration)
+				oslogger.info("In (Hardware) Shock: shocking with value: " + str(math.floor((self.var._percOfCalibrValue/100.0) * self.experiment.get("shocker_calibration_val")))) # better do in shock preparation...
+				self.EE.PulseLines(math.floor( (self.var._percOfCalibrValue/100.0) * self.experiment.get("shocker_calibration_val") ), self.var._shockDuration)
 				#oslogger.warning("Shock now!")
 				# TODO: here?
-				#mA = round((self.var._value/100.0) * self.experiment.get("ShockermACalibration"),2)
-				#self.experiment.set("BinaryShockValue", math.floor((self.var._value/100.0) * self.experiment.get("ShockerCalibration"))) 
-				#self.experiment.set("ShockPercValue", self.var._value)
+				#mA = round( (self.var._percOfCalibrValue/100.0) * self.experiment.get("shocker_calibration_mamp"), 2 )
+				#self.experiment.set("BinaryShockValue", math.floor((self.var._percOfCalibrValue/100.0) * self.experiment.get("shocker_calibration_val"))) 
+				#self.experiment.set("ShockPercValue", self.var._percOfCalibrValue)
 				#self.experiment.set("ShockMaValue", mA)
 			else:
 				oslogger.warning("In Shock: the shock came too early: please don't give shocks in rapid succession!")
 			
-		self.experiment.set("lastShockTime", math.floor( time.time() ) ) # update the time stamp of the last call
+		self.experiment.set("shocker_time_last_shock", math.floor( time.time() ) ) # update the time stamp of the last call
 			
 	
 class qtTactileStimulator(TactileStimulator, qtautoplugin):
@@ -284,7 +282,7 @@ class qtTactileStimulator(TactileStimulator, qtautoplugin):
 		self.value_widget.setText(str(val))
 		 
 	def type_check(self):
-		self.value_widget.setEnabled(self.Calibrate_widget.currentText() == u'Shock')
+		self.value_widget.setEnabled(self.calibrate_widget.currentText() == u'Shock')
 	
 	def init_edit_widget(self):
 	# Pass the word on to the parent
@@ -295,11 +293,11 @@ class qtTactileStimulator(TactileStimulator, qtautoplugin):
 		# if there is no shocker attached, the selected name defaults to 'Dummy' again.
 		if listOfDevices:
 			for i in listOfDevices:
-				self.ProductName_widget.addItem(i)
+				self.deviceName_widget.addItem(i)
 		else:
-			self.var._productName = u"DUMMY"
+			self.var._deviceName = u"DUMMY"
 		
-		self.duration_widget.setEnabled(False)
+		self.duration_widget.setEnabled(False) # fixed value for shock duration, indicator only
 		self.value_widget.returnPressed.connect(self.perc_check)
-		self.Calibrate_widget.currentTextChanged.connect(self.type_check)
-		self.value_widget.setEnabled(self.Calibrate_widget.currentText() == u'Shock')
+		self.calibrate_widget.currentTextChanged.connect(self.type_check)
+		self.value_widget.setEnabled(self.calibrate_widget.currentText() == u'Shock')

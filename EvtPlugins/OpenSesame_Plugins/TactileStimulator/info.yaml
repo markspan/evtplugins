@@ -7,30 +7,30 @@ date: "2023"
 controls:
 -
     type: "combobox"
-    var: "_productName"
+    var: "_deviceName"
     label: "Select device name: "
     options:
     - "DUMMY"
-    name: "ProductName_widget"
+    name: "deviceName_widget"
     tooltip: "Select desired device name: "
 -
     type: "combobox"
-    var: "_calibrate"
-    label: "Select output mode: "
+    var: "_mode"
+    label: "Select mode of operation: "
     options:
     - "Calibrate"
     - "Shock"
-    name: "Calibrate_widget"
+    name: "calibrate_widget"
     tooltip: "Select desired mode: "
 -
     type: "line_edit"
-    var: "_value"
+    var: "_percOfCalibrValue"
     label: "Percentage [%]: "
     name: "value_widget"
     tooltip: "Value: give the percentage of the calibration value to be used."
 -
     type: "line_edit"
-    var: "_duration"
-    label: "Duration [ms]: "
+    var: "_shockDuration"
+    label: "Shock duration [ms]: "
     name: "duration_widget"
     tooltip: "Shock duration value in milliseconds"
