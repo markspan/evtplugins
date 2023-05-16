@@ -60,7 +60,7 @@ class TactileStimulator(item.item):
 	def prepare(self):
 		self.experiment.set("ShockDuration", self.var._duration)
 		self.var._shockTimeOut = 1
-		self.var._shockHoldOffTime = 8
+		self.var._interShockHoldOffTime = 8
 		item.item.prepare(self)
 		self.EE = EvtExchanger()
 		Device = self.EE.Select(self.var._productName)
@@ -209,8 +209,8 @@ class TactileStimulator(item.item):
 				self.canvas.show()
 				
 				self.canvas['wait... '].color = "green"
-				for n in range (1, self.var._shockHoldOffTime):
-					self.canvas['wait... '].text = "wait... " + str(self.var._shockHoldOffTime-n)
+				for n in range (1, self.var._interShockHoldOffTime):
+					self.canvas['wait... '].text = "wait... " + str(self.var._interShockHoldOffTime-n)
 					self.canvas.show()
 					time.sleep(1)
 				self.canvas['wait... '].color = "black"
@@ -219,7 +219,6 @@ class TactileStimulator(item.item):
 				self.canvas['TestBox'].color = "red"
 				self.canvas.show()	
 				
-				
 			if (x, y) in self.canvas['OKBox']:
 				self.var.ShockerCalibrationBinvalue = math.floor((xperc/100.0) * 255)
 				self.var.ShockerCalibrationmAvalue = round(5*(xperc/100.0),1)
@@ -227,8 +226,8 @@ class TactileStimulator(item.item):
 				self.experiment.set("ShockerCalibration", self.var.ShockerCalibrationBinvalue)
 				self.experiment.set("ShockermACalibration", self.var.ShockerCalibrationmAvalue)
 				break
-				
-												
+
+
 	def Do_Shock_Prepare(self):
 		if not (self.var._productName == u"DUMMY"):
 			self.EE.SetLines(0)
