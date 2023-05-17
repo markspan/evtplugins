@@ -16,15 +16,18 @@ VAS2 |  | not validated
 
 ## Package dependencies
 The plugins are dependent on the Python module pyevt and the underlying HIDAPI package.
+
 [https://pypi.org/project/hidapi/](https://pypi.org/project/hidapi/)
 
-pyevt and hidapi are installed from the Python Console in OpenSesame in a single command:
+pyevt and hidapi are installed from the Python Console in OpenSesame with a single command:
 
 `!pip install --user pyevt`
 
 ## Environmental settings
-The plugins can be placed in the user space e.g.: `C:\Users\username\Documents\OS_Plugins\evtplugins`
-For OpenSesame to find this location, the user must create an `environment.yaml` file in the OpenSesame program directory. See the instructions here: [https://rapunzel.cogsci.nl/manual/environment/](https://rapunzel.cogsci.nl/manual/environment/) 
+The plugins could be placed in the user space e.g.: `C:\Users\username\Documents\OS_Plugins\evtplugins`
+For OpenSesame to find this location, the user must create an `environment.yaml` file in the OpenSesame program directory. See for the instructions here:
+
+[https://rapunzel.cogsci.nl/manual/environment/](https://rapunzel.cogsci.nl/manual/environment/) 
 
 ## EVTxx
 
@@ -35,7 +38,7 @@ For OpenSesame to find this location, the user must create an `environment.yaml`
 ## TactileStimulator
 description ...
 
-List of the variables that appear in the OpenSesame variable inspector:
+List of the variables that appear in the OpenSesame variable inspector when using the TactileStimulator plugin:
 
 variable name | description
 ------------- | -----------
