@@ -19,7 +19,12 @@ The plugins are dependent on the Python module pyevt and the underlying HIDAPI p
 [https://pypi.org/project/hidapi/](https://pypi.org/project/hidapi/)
 
 pyevt and hidapi are installed from the Python Console in OpenSesame in a single command:
+
 `!pip install --user pyevt`
+
+## Environmental settings
+The plugins can be placed in the user space e.g.: `C:\Users\username\Documents\OS_Plugins\evtplugins`
+For OpenSesame to find this location, the user must create an `environment.yaml` file in the OpenSesame program directory. See the instructions here: [https://rapunzel.cogsci.nl/manual/environment/](https://rapunzel.cogsci.nl/manual/environment/) 
 
 ## EVTxx
 
@@ -39,8 +44,8 @@ shocker_calibration_milliamp | The calibration value of the stimulus current in 
 shocker_calibration_value | The byte value representation of the calibrated current
 shocker_shock_milliamp | The actual current in mA's, applied to the Tactile Stimulator hardware
 shocker_shock_value | The actual byte value representation send to the Tactile Stimulator
+shocker_shock_duration_ms | The (fixed) shock duration time in ms
 shocker_time_last_shock | Unique time stamp in seconds from the moment of the last shock
-
 
 ## VAS
 

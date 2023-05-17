@@ -51,14 +51,14 @@ class TactileStimulator(item.item):
 	def reset(self):
 		self.var._percOfCalibrationValue = 0
 		self.var._shockDuration = 150 # fixed value
+		self.var._shockTimeOut = 1.0 # fixed value
+		self.var._interShockHoldOffTime = 8 # fixed value
 		self.var._deviceName = u"DUMMY"
 		self.var._mode = u"Calibrate"
 
 				
 	def prepare(self):
-		self.experiment.set("shocker_shock_duration", self.var._shockDuration)
-		self.var._shockTimeOut = 1
-		self.var._interShockHoldOffTime = 8
+		self.experiment.set("shocker_shock_duration_ms", self.var._shockDuration)
 		item.item.prepare(self)
 		self.EE = EvtExchanger()
 		Device = self.EE.Select(self.var._deviceName)
@@ -242,18 +242,18 @@ class TactileStimulator(item.item):
 			oslogger.info("In (Dummy) Shock: shocking with value: " + str(self.var._percOfCalibrationValue))
 		else:
 			try:
-				tLast = self.experiment.get("shocker_time_last_shock")
+				timeLastShock = self.experiment.get("shocker_time_last_shock")
 			except:
-				tLast = 0;
+				timeLastShock = 0;
 				
-			td = time.time() - tLast
+			td = time.time() - timeLastShock
 			#oslogger.info("Time duration inbetween shocks: " + str(td))
 			# This line is to prevent the possibility to shock if the previous shock was less then the minimum time ago
 			if (td > self.var._shockTimeOut):
 				self.EE.PulseLines(self.experiment.get("shocker_shock_value"), self.var._shockDuration)
 				oslogger.info("Shock now!")
 			else:
-				oslogger.warning("In Shock: the shock came too early: please don't give shocks in rapid succession!")
+				oslogger.warning("In (Hardware) Shock: the shock came too early. Please don't give shocks in rapid succession!")
 			
 		self.experiment.set("shocker_time_last_shock", time.time()) # update the time stamp of the last call
 			
