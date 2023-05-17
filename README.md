@@ -46,7 +46,7 @@ shocker_calibration_perc | The percentage of the slider setting for the stimulus
 shocker_calibration_milliamp | The calibration value of the stimulus current in mA's
 shocker_calibration_value | The byte value representation of the calibrated current
 shocker_shock_milliamp | The actual current in mA's, applied to the Tactile Stimulator hardware
-shocker_shock_value | The actual byte value representation send to the Tactile Stimulator
+shocker_shock_value | The actual byte value representation that is sent to the Tactile Stimulator
 shocker_shock_duration_ms | The (fixed) shock duration time in ms
 shocker_time_last_shock | Unique time stamp in seconds from the moment of the last shock
 
