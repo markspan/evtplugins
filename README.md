@@ -42,13 +42,13 @@ List of the variables that appear in the OpenSesame variable inspector when usin
 
 variable name | description
 ------------- | -----------
-shocker_calibration_perc | The percentage of the slider setting for the stimulus current of 5mA max.
-shocker_calibration_milliamp | The calibration value of the stimulus current in mA's
-shocker_calibration_value | The byte value representation of the calibrated current
-shocker_shock_milliamp | The actual current in mA's, applied to the Tactile Stimulator hardware
-shocker_shock_value | The actual byte value representation that is sent to the Tactile Stimulator
-shocker_shock_duration_ms | The (fixed) shock duration time in ms
-shocker_time_last_shock | Unique time stamp in seconds from the moment of the last shock
+tactstim_calibration_perc | The percentage of the slider setting for the stimulus current of 5mA max.
+tactstim_calibration_milliamp | The calibration value of the stimulus current in mA's
+tactstim_calibration_value | The byte value representation of the calibrated current
+tactstim_shock_milliamp | The actual current in mA's, applied to the Tactile Stimulator hardware
+tactstim_shock_value | The actual byte value representation that is sent to the Tactile Stimulator
+tactstim_shock_duration_ms | The (fixed) shock duration time in ms
+tactstim_time_last_shock | Unique time stamp in seconds from the moment of the last shock
 
 ## VAS
 
