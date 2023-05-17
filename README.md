@@ -24,7 +24,7 @@ pyevt and hidapi are installed from the Python Console in OpenSesame with a sing
 `!pip install --user pyevt`
 
 ## Environmental settings
-The plugins could be placed in the user space e.g.: `C:\Users\username\Documents\OS_Plugins\evtplugins`
+The plugins (and the cloned git) could be placed in the user space e.g.: `C:\Users\username\Documents\OS_Plugins\evtplugins\EvtPlugins\OpenSesame_Plugins`
 For OpenSesame to find this location, the user must create an `environment.yaml` file in the OpenSesame program directory. See for the instructions here:
 
 [https://rapunzel.cogsci.nl/manual/environment/](https://rapunzel.cogsci.nl/manual/environment/) 
