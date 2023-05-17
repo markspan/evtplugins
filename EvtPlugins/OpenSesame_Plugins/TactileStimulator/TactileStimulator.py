@@ -93,6 +93,10 @@ class TactileStimulator(item.item):
 
 
 	def Calibrate_Prepare(self):
+		if not (self.var._deviceName == u"DUMMY"):
+			self.EE.SetLines(0)
+			oslogger.info("In (Hardware) Shock: reset port")
+		
 		self.canvas = Canvas(self.experiment)
 		self.canvas.set_bgcolor("black")
 		self.canvas.clear()
@@ -166,10 +170,6 @@ class TactileStimulator(item.item):
 						x=0,
 						y=-(self.canvas.height / 10)+(self.canvas.height / 2),
 						color = "black")
-						
-		if not (self.var._deviceName == u"DUMMY"):
-			self.EE.SetLines(0)
-			oslogger.info("In (Hardware) Shock: reset port")
 
 
 	def Calibrate_Run(self):
@@ -220,18 +220,15 @@ class TactileStimulator(item.item):
 			if (x, y) in self.canvas['OKBox']:
 				self.experiment.set( "shocker_calibration_perc", round(xperc, 2) )
 				self.experiment.set( "shocker_calibration_value", math.floor( xperc*255.0/100 ) )
-				self.experiment.set( "shocker_calibration_milliamp", round( xperc*5.0/100, 2 ) )
-				oslogger.info("In (Hardware) Shock: shocker calibration value (raw, mA): {}, {}".format(self.experiment.get("shocker_calibration_value"), self.experiment.get("shocker_calibration_milliamp")))
+				self.experiment.set( "shocker_calibration_milliamp", round(5*(xperc/100.0), 2) )
+				oslogger.info("In (Hardware) Shock: shocker calibration value (raw, mA): {}, {:.2f}".format(self.experiment.get("shocker_calibration_value"), self.experiment.get("shocker_calibration_milliamp")))
 				break
 
 
 	def Do_Shock_Prepare(self):
-		if not (self.var._deviceName == u"DUMMY"):
-			self.EE.SetLines(0)
-			#oslogger.info("In (Hardware) Shock: reset port")
 			self.experiment.set( "shocker_shock_value", math.floor(self.var._percOfCalibrationValue * self.experiment.get("shocker_calibration_perc") * 255.0/10000) )
-			self.experiment.set( "shocker_shock_milliamp", round(self.var._percOfCalibrationValue * self.experiment.get("shocker_calibration_perc") * 5.0/10000) )
-			oslogger.info("In (Hardware) Shock: prepared to shock with value (raw, mA): {}, {}".format(self.experiment.get("shocker_shock_value"), self.experiment.get("shocker_shock_milliamp")))
+			self.experiment.set( "shocker_shock_milliamp", round( self.var._percOfCalibrationValue * self.experiment.get("shocker_calibration_perc") * 5.0/10000, 2) )
+			oslogger.info("In (Hardware) Shock: prepared to shock with value (raw, mA): {}, {:.2f}".format(self.experiment.get("shocker_shock_value"), self.experiment.get("shocker_shock_milliamp")))
 
 
 	def Do_Shock_Run(self):
@@ -249,16 +246,16 @@ class TactileStimulator(item.item):
 			except:
 				tLast = 0;
 				
-			td = math.floor( time.time() ) - tLast
+			td = time.time() - tLast
 			#oslogger.info("Time duration inbetween shocks: " + str(td))
 			# This line is to prevent the possibility to shock if the previous shock was less then the minimum time ago
 			if (td > self.var._shockTimeOut):
 				self.EE.PulseLines(self.experiment.get("shocker_shock_value"), self.var._shockDuration)
-				#oslogger.warning("Shock now!")
+				oslogger.info("Shock now!")
 			else:
 				oslogger.warning("In Shock: the shock came too early: please don't give shocks in rapid succession!")
 			
-		self.experiment.set("shocker_time_last_shock", math.floor( time.time() ) ) # update the time stamp of the last call
+		self.experiment.set("shocker_time_last_shock", time.time()) # update the time stamp of the last call
 			
 	
 class qtTactileStimulator(TactileStimulator, qtautoplugin):
