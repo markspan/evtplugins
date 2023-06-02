@@ -45,10 +45,10 @@ variable name | description
 tactstim_calibration_perc | The percentage of the slider setting for the stimulus current of 5mA max.
 tactstim_calibration_milliamp | The calibration value of the stimulus current in mA's
 tactstim_calibration_value | The byte value representation of the calibrated current
-tactstim_shock_milliamp | The actual current in mA's, applied to the Tactile Stimulator hardware
-tactstim_shock_value | The actual byte value representation that is sent to the Tactile Stimulator
-tactstim_shock_duration_ms | The (fixed) shock duration time in ms
-tactstim_time_last_shock | Unique time stamp in seconds from the moment of the last shock
+tactstim_pulse_milliamp | The actual current in mA's, applied to the Tactile Stimulator hardware
+tactstim_pulse_value | The actual byte value representation that is sent to the Tactile Stimulator
+tactstim_pulse_duration_ms | The (fixed) shock duration time in ms
+tactstim_time_last_pulse | Unique time stamp in seconds from the moment of the last shock
 
 ## VAS
 

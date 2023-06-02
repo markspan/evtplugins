@@ -1,5 +1,5 @@
 description: Tactile Stimulator Plugin
-version: 0.2
+version: 0.2.1
 author: "M.M.Span, M.Stokroos"
 url: "http://www.rug.nl/"
 category: "\r\nResearch Support\r\n         BSS"
@@ -19,7 +19,7 @@ controls:
     label: "Select mode of operation: "
     options:
     - "Calibrate"
-    - "Shock"
+    - "Stimulate"
     name: "calibrate_widget"
     tooltip: "Select desired mode: "
 -
@@ -27,10 +27,10 @@ controls:
     var: "_percOfCalibrationValue"
     label: "Percentage [%]: "
     name: "value_widget"
-    tooltip: "Value: give the percentage of the calibration value to be used."
+    tooltip: "Value: give the percentage of the calibrated pulse intensity value to be used."
 -
     type: "line_edit"
-    var: "_shockDuration"
-    label: "Shock duration [ms]: "
+    var: "_pulseDuration"
+    label: "Pulse duration [ms]: "
     name: "duration_widget"
-    tooltip: "Shock duration value in milliseconds"
+    tooltip: "Pulse duration value in milliseconds"

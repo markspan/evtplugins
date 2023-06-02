@@ -42,7 +42,8 @@ import time
 import math
 import sys
 
-from pyEVT import EvtExchanger
+#from pyEVT import EvtExchanger
+from pyevt import EvtExchanger # for the new pyevt version
 
 class TactileStimulator(item.item):
 
@@ -50,15 +51,19 @@ class TactileStimulator(item.item):
 
 	def reset(self):
 		self.var._percOfCalibrationValue = 0
-		self.var._shockDuration = 150 # fixed value
-		self.var._shockTimeOut = 1.0 # fixed value
-		self.var._interShockHoldOffTime = 8 # fixed value
+		self.var._pulseDuration = 150 # fixed value
+		self.var._pulseTimeOut = 1.0 # fixed value
+		self.var._interPulseHoldOffTime = 8 # fixed value
 		self.var._deviceName = u"DUMMY"
 		self.var._mode = u"Calibrate"
 
 				
 	def prepare(self):
-		self.experiment.set("tactstim_shock_duration_ms", self.var._shockDuration)
+		if not 1 <= self.var._pulseDuration <= 2000:
+			oslogger.error("Pulse duration input out of range! Value set to default 150ms.")
+			self.var._pulseDuration = 150
+		self.experiment.set("tactstim_pulse_duration_ms", self.var._pulseDuration)
+
 		item.item.prepare(self)
 		self.EE = EvtExchanger()
 		Device = self.EE.Select(self.var._deviceName)
@@ -72,30 +77,30 @@ class TactileStimulator(item.item):
 			
 		if self.var._mode == u"Calibrate":
 			self.Calibrate_Prepare()
-		elif self.var._mode == u"Shock":
-			self.Do_Shock_Prepare()
+		elif self.var._mode == u"Stimulate":
+			self.Do_Pulse_Prepare()
 
 			
 	def run(self):
 		self.set_item_onset()
 		if 	self.var._deviceName == u"DUMMY":
-			if self.var._mode == u"Shock":
-				oslogger.info('dummy shock: {} for the duration of {} ms'.format(self.var._percOfCalibrationValue, self.var._shockDuration) )
+			if self.var._mode == u"Stimulate":
+				oslogger.info('dummy tactile stimulator: {} for the duration of {} ms'.format(self.var._percOfCalibrationValue, self.var._pulseDuration) )
 			else:
 				self.Calibrate_Run()			
 		else:
 			#self.EE.Select(self.PATH)
 			if self.var._mode == u"Calibrate":
 				self.Calibrate_Run()
-			elif self.var._mode == u"Shock":
-				self.Do_Shock_Run()
+			elif self.var._mode == u"Stimulate":
+				self.Do_Pulse_Run()
 		return True
 
 
 	def Calibrate_Prepare(self):
 		if not (self.var._deviceName == u"DUMMY"):
 			self.EE.SetLines(0)
-			oslogger.info("In (Hardware) Shock: reset port")
+			oslogger.info("In (Hardware) Tactile Stimulator: reset port")
 		
 		self.canvas = Canvas(self.experiment)
 		self.canvas.set_bgcolor("black")
@@ -199,16 +204,16 @@ class TactileStimulator(item.item):
 
 			if (x, y) in self.canvas['TestBox']:
 				if (self.var._deviceName == u"DUMMY"):
-					oslogger.info("In (Dummy) Shock: shocking with value: {}".format(math.floor( (xperc/100.0) * 255) ) )
+					oslogger.info("In (Dummy) Tactile Stimulator: pulsing with value: {}".format(math.floor( (xperc/100.0) * 255) ) )
 				else:
-					self.EE.PulseLines(math.floor( (xperc/100.0) * 255 ), self.var._shockDuration)
+					self.EE.PulseLines(math.floor( (xperc/100.0) * 255 ), self.var._pulseDuration)
 				
 				self.canvas['TestBox'].color = "blue"
 				self.canvas.show()
 				
 				self.canvas['wait... '].color = "green"
-				for n in range (1, self.var._interShockHoldOffTime):
-					self.canvas['wait... '].text = "wait... " + str(self.var._interShockHoldOffTime-n)
+				for n in range (1, self.var._interPulseHoldOffTime):
+					self.canvas['wait... '].text = "wait... " + str(self.var._interPulseHoldOffTime-n)
 					self.canvas.show()
 					time.sleep(1)
 				self.canvas['wait... '].color = "black"
@@ -221,41 +226,45 @@ class TactileStimulator(item.item):
 				self.experiment.set( "tactstim_calibration_perc", round(xperc, 2) )
 				self.experiment.set( "tactstim_calibration_value", math.floor( xperc*255.0/100 ) )
 				self.experiment.set( "tactstim_calibration_milliamp", round(5*(xperc/100.0), 2) )
-				oslogger.info("In (Hardware) Shock: shocker calibration value (raw, mA): {}, {:.2f}".format(self.experiment.get("tactstim_calibration_value"), self.experiment.get("tactstim_calibration_milliamp")))
+				oslogger.info("In (Hardware) Tactile Stimulator: pulse intensity calibration value (raw, mA): {}, {:.2f}".format(self.experiment.get("tactstim_calibration_value"), self.experiment.get("tactstim_calibration_milliamp")))
 				break
 
 
-	def Do_Shock_Prepare(self):
-			self.experiment.set( "tactstim_shock_value", math.floor(self.var._percOfCalibrationValue * self.experiment.get("tactstim_calibration_perc") * 255.0/10000) )
-			self.experiment.set( "tactstim_shock_milliamp", round( self.var._percOfCalibrationValue * self.experiment.get("tactstim_calibration_perc") * 5.0/10000, 2) )
-			oslogger.info("In (Hardware) Shock: prepared to shock with value (raw, mA): {}, {:.2f}".format(self.experiment.get("tactstim_shock_value"), self.experiment.get("tactstim_shock_milliamp")))
-
-
-	def Do_Shock_Run(self):
+	def Do_Pulse_Prepare(self):
 		try:
 			self.experiment.get("tactstim_calibration_value")
 		except:
 			oslogger.error("No calibration step taken: First run the Tactile Stimulator in calibration mode!")
 			return
 		
+		if not 0 <= self.var._percOfCalibrationValue <= 100:
+			oslogger.error("Percentage input out of range!")
+			self.var._percOfCalibrationValue = 0
+
+		self.experiment.set( "tactstim_pulse_value", math.floor(self.var._percOfCalibrationValue * self.experiment.get("tactstim_calibration_perc") * 255.0/10000) )
+		self.experiment.set( "tactstim_pulse_milliamp", round( self.var._percOfCalibrationValue * self.experiment.get("tactstim_calibration_perc") * 5.0/10000, 2) )
+		oslogger.info("In (Hardware) Tactile Stimulator: prepared to pulse with value (raw, mA): {}, {:.2f}".format(self.experiment.get("tactstim_pulse_value"), self.experiment.get("tactstim_pulse_milliamp")))
+
+
+	def Do_Pulse_Run(self):
 		if (self.var._deviceName == u"DUMMY"):
-			oslogger.info("In (Dummy) Shock: shocking with value: " + str(self.var._percOfCalibrationValue))
+			oslogger.info("In (Dummy) Tactile Stimulator: pulse with value: " + str(self.var._percOfCalibrationValue))
 		else:
 			try:
-				timeLastShock = self.experiment.get("tactstim_time_last_shock")
+				timeLastPulse = self.experiment.get("tactstim_time_last_pulse")
 			except:
-				timeLastShock = 0;
+				timeLastPulse = 0;
 				
-			td = time.time() - timeLastShock
-			#oslogger.info("Time duration inbetween shocks: " + str(td))
-			# This line is to prevent the possibility to shock if the previous shock was less then the minimum time ago
-			if (td > self.var._shockTimeOut):
-				self.EE.PulseLines(self.experiment.get("tactstim_shock_value"), self.var._shockDuration)
-				oslogger.info("Shock now!")
+			td = time.time() - timeLastPulse
+			#oslogger.info("Time duration inbetween pulses: " + str(td))
+			# This line is to prevent the possibility to pulse if the previous stimulus was less then the minimum time ago
+			if (td > self.var._pulseTimeOut):
+				self.EE.PulseLines(self.experiment.get("tactstim_pulse_value"), self.var._pulseDuration)
+				oslogger.info("Pulse now!")
 			else:
-				oslogger.warning("In (Hardware) Shock: the shock came too early. Please don't give shocks in rapid succession!")
+				oslogger.warning("In (Hardware) Tactile Stimulator: the next pulse came too early. Please don't pulse in rapid succession!")
 			
-		self.experiment.set("tactstim_time_last_shock", time.time()) # update the time stamp of the last call
+		self.experiment.set("tactstim_time_last_pulse", time.time()) # update the time stamp of the last call
 			
 	
 class qtTactileStimulator(TactileStimulator, qtautoplugin):
@@ -265,32 +274,42 @@ class qtTactileStimulator(TactileStimulator, qtautoplugin):
 		TactileStimulator.__init__(self, name, experiment, string)
 		qtautoplugin.__init__(self, __file__)
 
+
 	def perc_check(self):
 		try:
 			val = int(self.value_widget.text())
-			val = min(max(val,0),100)
 		except:
 			val = 0
-			
 		self.value_widget.setText(str(val))
-		 
+
+
+	def duration_check(self):
+		try:
+			val = int(self.duration_widget.text())
+		except:
+			val = 0
+		self.duration_widget.setText(str(val))
+
+
 	def type_check(self):
-		self.value_widget.setEnabled(self.calibrate_widget.currentText() == u'Shock')
-	
+		self.value_widget.setEnabled(self.calibrate_widget.currentText() == u'Stimulate')
+
+
 	def init_edit_widget(self):
 	# Pass the word on to the parent
 		qtautoplugin.init_edit_widget(self)
 
 		EE = EvtExchanger()
 		listOfDevices = EE.Attached(u"SHOCKER")
-		# if there is no shocker attached, the selected name defaults to 'Dummy' again.
+		# if there is no Tactile Stimulator attached, the selected name defaults to 'DUMMY' again.
 		if listOfDevices:
 			for i in listOfDevices:
 				self.deviceName_widget.addItem(i)
 		else:
 			self.var._deviceName = u"DUMMY"
 		
-		self.duration_widget.setEnabled(False) # fixed value for shock duration, indicator only
+		self.duration_widget.setEnabled(True)
 		self.value_widget.returnPressed.connect(self.perc_check)
+		self.value_widget.returnPressed.connect(self.duration_check)
 		self.calibrate_widget.currentTextChanged.connect(self.type_check)
-		self.value_widget.setEnabled(self.calibrate_widget.currentText() == u'Shock')
+		self.value_widget.setEnabled(self.calibrate_widget.currentText() == u'Stimulate')
