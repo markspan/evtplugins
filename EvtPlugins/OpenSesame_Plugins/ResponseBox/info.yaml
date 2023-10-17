@@ -1,16 +1,16 @@
-description: ResponseBox Buttonbox plug-in.
-version: 0.99b
-author: "Eise Hoekstra"
+description: ResponseBox (RSP) plug-in.
+version: 1.00
+author: "Eise Hoekstra, M.Stokroos"
 url: "http://www.rug.nl/"
 category: "\r\nResearch Support\r\n         BSS"
-date: "2019"
+date: "2023"
 controls:
 -
     type: "combobox"
     var: "_productName"
     label: "Select ProductName"
     options:
-    - "DUMMY"
+    - "Keyboard"
     name: "ProductName_widget"
     tooltip: "Select desired ProductName"
 -
@@ -24,7 +24,7 @@ controls:
     var: "_allowedButtons"
     label: "Allowed Buttons"
     name: "AllowedButtons_widget"
-    tooltip: "Allowed Buttons, ( 1 - 8 ) seperated by ;"
+    tooltip: "Allowed Buttons, ( 1 - 8 ) seperated by ';'= "
 -
     type: "line_edit"
     var: "_responseTimeout"

@@ -21,19 +21,19 @@ from libqtopensesame.items.qtautoplugin import qtautoplugin
 from libopensesame.py3compat import *
 from openexp.canvas import Canvas, canvas
 from openexp.canvas_elements import (
-	Line,
-	Rect,
-	Polygon,
-	Ellipse,
-	Image,
-	Gabor,
-	NoisePatch,
-	Circle,
-	FixDot,
-	ElementFactory,
-	RichText,
-	Arrow,
-	Text
+    Line,
+    Rect,
+    Polygon,
+    Ellipse,
+    Image,
+    Gabor,
+    NoisePatch,
+    Circle,
+    FixDot,
+    ElementFactory,
+    RichText,
+    Arrow,
+    Text
 )
 from openexp.mouse import mouse
 
@@ -41,9 +41,7 @@ import os
 import time
 import math
 import sys
-
-#from pyEVT import EvtExchanger
-from pyevt import EvtExchanger # for the new pyevt version
+from pyevt import EvtExchanger # for the new pyevt version instead of pyEVT
 
 class TactileStimulator(item.item):
 

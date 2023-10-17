@@ -22,7 +22,8 @@ from libopensesame.py3compat import *
 import os
 import sys
 
-from pyEVT import EvtExchanger
+#from pyEVT import EvtExchanger
+from pyevt import EvtExchanger # for the new pyevt version
 
 class EVTxx(item.item):
 

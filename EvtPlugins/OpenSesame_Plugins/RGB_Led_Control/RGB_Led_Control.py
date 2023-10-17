@@ -26,7 +26,8 @@ import time
 import math
 import distutils.util
 
-from pyEVT import EvtExchanger
+#from pyEVT import EvtExchanger
+from pyevt import EvtExchanger # for the new pyevt version
 
 
 class RGB_Led_Control(item.item):

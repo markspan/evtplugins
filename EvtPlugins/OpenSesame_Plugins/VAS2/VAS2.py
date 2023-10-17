@@ -32,7 +32,8 @@ import sys
 import numpy as np
 
 
-from pyEVT import EvtExchanger
+#from pyEVT import EvtExchanger
+from pyevt import EvtExchanger # for the new pyevt version
 
 
 class VAS2(item):

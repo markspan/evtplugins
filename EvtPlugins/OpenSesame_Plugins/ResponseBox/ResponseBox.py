@@ -14,18 +14,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
-from openexp.keyboard import Keyboard
 
 from libopensesame import item
 from libopensesame.oslogging import oslogger
-
 from libopensesame.base_response_item import base_response_item
 from libqtopensesame.items.qtautoplugin import qtautoplugin
+from openexp.keyboard import Keyboard
 import os
 import sys
 import math
 
-from pyEVT import EvtExchanger
+#from pyEVT import EvtExchanger
+from pyevt import EvtExchanger # for the new pyevt version
 
 class ResponseBox(item.item):
 
@@ -41,7 +41,7 @@ class ResponseBox(item.item):
 
 	def reset(self):
 		# Set the default values of the plug-in items in the GUI
-		self.var._productName		 = u'DUMMY'
+		self.var._productName		 = u'Keyboard'
 		self.var._correctButton		 = u''
 		self.var._allowedButtons	 = u'1;2;3;4'
 		self.var._responseTimeout	 = u'infinite'
@@ -56,7 +56,7 @@ class ResponseBox(item.item):
 			if Device is None:
 				raise
 		except:
-			self.var._productName = u'DUMMY'
+			self.var._productName = u'Keyboard'
 			self.Keyboard = Keyboard(self.experiment);
 			if not type(self.var._responseTimeout) == int:
 				self.var._responseTimeout = None
@@ -79,7 +79,7 @@ class ResponseBox(item.item):
 		t0 = self.set_item_onset()
 		# Call the 'wait for event' function in the EventExchanger C# object.
 
-		if 	self.var._productName != u'DUMMY':
+		if 	self.var._productName != u'Keyboard':
 			(self.var.Response,self.var.RT) = \
 				(self.EE.WaitForDigEvents(self.var.AllowedEventLines,
 							self.var._responseTimeout)) 
@@ -101,7 +101,6 @@ class ResponseBox(item.item):
 
 
 class qtResponseBox(ResponseBox, qtautoplugin):
-
 
 	def __init__(self, name, experiment, string = None):
 
