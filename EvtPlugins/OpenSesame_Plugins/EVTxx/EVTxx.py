@@ -21,69 +21,65 @@ from libqtopensesame.items.qtautoplugin import qtautoplugin
 from libopensesame.py3compat import *
 import os
 import sys
+from pyevt import EvtExchanger
 
-#from pyEVT import EvtExchanger
-from pyevt import EvtExchanger # for the new pyevt version
 
 class EVTxx(item.item):
 
-	"""
-		This class (the class with the same name as the module)
-		handles the basic functionality of the item. It does
-		not deal with GUI stuff.
-	"""
+    """
+        This class (the class with the same name as the module)
+        handles the basic functionality of the item. It does
+        not deal with GUI stuff.
+    """
 
+    description = u"Allows setting or pulsing values of pins on the \
+                    output port of various EventExchanger devices"
 
-	description = u"Allows setting or pulsing values of pins on the "  \
-					"output port of various EventExchanger devices"
+    def reset(self):
+        self.var._value = 0
+        self.var._duration = 500
+        self.var._productName = u'DUMMY'
+        self.var._outputMode = u'Pulse Output Lines'
 
-	def reset(self):
-		self.var._value = 0
-		self.var._duration = 500
-		self.var._productName = u'DUMMY'
-		self.var._outputMode = u'Pulse Output Lines'
+    def prepare(self):
+        item.item.prepare(self)
+        self.EE = EvtExchanger()
+        Device = self.EE.Select(self.var._productName)
 
-	def prepare(self):
-		item.item.prepare(self)
-		self.EE = EvtExchanger()
-		Device = self.EE.Select(self.var._productName)
-		
-		try:
-			if Device is None:
-				raise
-		except:
-			self.var._productName = u'DUMMY'
-			oslogger.info("Cannot find eventexchanger: code to debugwindow")
+        try:
+            if Device is None:
+                raise
+        except Exception:
+            self.var._productName = u'DUMMY'
+            oslogger.info(
+                "Cannot find eventexchanger: code to debugwindow")
 
-						
-	def run(self):
-		self.set_item_onset()
-		#self.EE.Select(self.PATH)
-		if 	self.var._productName == u'DUMMY':
-			oslogger.info('dummy code: {} for {} ms'.format(self.var._value, self.var._duration) )
-		else:
-			if self.var._outputMode == u'Set Output Lines':
-				self.EE.SetLines(self.var._value)
-			elif self.var._outputMode == u'Pulse Output Lines':
-				# make sure that the code starts at, and returns to zero.
-				self.EE.SetLines(0)
-				self.EE.PulseLines(self.var._value, self.var._duration)
-		
-		return True
+    def run(self):
+        self.set_item_onset()
+        # self.EE.Select(self.PATH)
+        if self.var._productName == u'DUMMY':
+            oslogger.info('dummy code: {} for {} ms'.
+                          format(self.var._value, self.var._duration))
+        else:
+            if self.var._outputMode == u'Set Output Lines':
+                self.EE.SetLines(self.var._value)
+            elif self.var._outputMode == u'Pulse Output Lines':
+                # make sure that the code starts at, and returns to zero.
+                self.EE.SetLines(0)
+                self.EE.PulseLines(self.var._value, self.var._duration)
+        return True
+
 
 class qtEVTxx(EVTxx, qtautoplugin):
-	def __init__(self, name, experiment, string = None):
+    def __init__(self, name, experiment, string=None):
+        EVTxx.__init__(
+            self, name, experiment, string)  # Pass the word on to the parents
+        qtautoplugin.__init__(self, __file__)
 
-		#Pass the word on to the parents
-		EVTxx.__init__(self, name, experiment, string)
-		qtautoplugin.__init__(self, __file__)
-
-	def init_edit_widget(self):
-	# Pass the word on to the parent
-		qtautoplugin.init_edit_widget(self)
-
-		EE = EvtExchanger()
-		listofdevices = EE.Attached()
-		for i in listofdevices:
-			if "SHOCKER" not in i:
-				self.ProductName_widget.addItem(i)
+    def init_edit_widget(self):
+        qtautoplugin.init_edit_widget(self)  # Pass the word on to the parent
+        EE = EvtExchanger()
+        listofdevices = EE.Attached()
+        for i in listofdevices:
+            if "SHOCKER" not in i:
+                self.ProductName_widget.addItem(i)

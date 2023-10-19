@@ -23,98 +23,95 @@ from openexp.keyboard import Keyboard
 import os
 import sys
 import math
+from pyevt import EvtExchanger
 
-#from pyEVT import EvtExchanger
-from pyevt import EvtExchanger # for the new pyevt version
 
 class ResponseBox(item.item):
 
-	"""
-		This class (the class with the same name as the module)
-		handles the basic functionality of the item. It does
-		not deal with GUI stuff.
-	"""
+    """
+        This class (the class with the same name as the module)
+        handles the basic functionality of the item. It does
+        not deal with GUI stuff.
+    """
 
+    description = u"Aquires buttonpress-responses and/or digital \
+        events\r\nfrom EventExchanger-based digital input device."
 
-	description = u"Aquires buttonpress-responses and/or digital events\r\n" \
-		" from EventExchanger-based digital input device. "
+    def reset(self):
+        # Set the default values of the plug-in items in the GUI
+        self.var._productName = u'Keyboard'
+        self.var._correctButton = u''
+        self.var._allowedButtons = u'1;2;3;4'
+        self.var._responseTimeout = u'infinite'
 
-	def reset(self):
-		# Set the default values of the plug-in items in the GUI
-		self.var._productName		 = u'Keyboard'
-		self.var._correctButton		 = u''
-		self.var._allowedButtons	 = u'1;2;3;4'
-		self.var._responseTimeout	 = u'infinite'
+    def prepare(self):
+        item.item.prepare(self)
+        self.EE = EvtExchanger()
+        Device = self.EE.Select(self.var._productName)
 
+        try:
+            if Device is None:
+                raise
+            
+        except Exception:
+            self.var._productName = u'Keyboard'
+            self.Keyboard = Keyboard(self.experiment)
+            if not type(self.var._responseTimeout) == int:
+                self.var._responseTimeout = None
+            oslogger.info(
+                "Cannot find ResponseBox: Using Keyboard instead")
 
-	def prepare(self):
-		item.item.prepare(self)
-		self.EE = EvtExchanger()
-		Device = self.EE.Select(self.var._productName)
-		
-		try:
-			if Device is None:
-				raise
-		except:
-			self.var._productName = u'Keyboard'
-			self.Keyboard = Keyboard(self.experiment);
-			if not type(self.var._responseTimeout) == int:
-				self.var._responseTimeout = None
-			oslogger.info("Cannot find ResponseBox: Using Keyboard instead")
+        if not type(self.var._responseTimeout) == int:
+            self.var._responseTimeout = -1
+        # Recode Allowed buttons to AllowedEventLines
+        self.var.AllowedEventLines = 0
+        try:
+            AllowedList = self.var._allowedButtons.split(";")
+            for x in AllowedList:
+                self.var.AllowedEventLines += (1 << (int(x, 10) - 1))
+        except Exception:
+            x = self.var._allowedButtons
+            self.var.AllowedEventLines = (1 << (x - 1))
 
-		if not type(self.var._responseTimeout) == int:
-			self.var._responseTimeout = -1
-		# Recode Allowed buttons to AllowedEventLines
-		self.var.AllowedEventLines = 0
-		try:
-			AllowedList = self.var._allowedButtons.split(";")
-			for x in AllowedList:
-				self.var.AllowedEventLines +=  (1 << (int(x,10) -1))
-		except:
-			x = self.var._allowedButtons
-			self.var.AllowedEventLines =  (1 << (x-1))
+    def run(self):
+        # Save the current time ...
+        t0 = self.set_item_onset()
+        # Call the 'wait for event' function in the EventExchanger C# object.
 
-	def run(self):
-		# Save the current time ...
-		t0 = self.set_item_onset()
-		# Call the 'wait for event' function in the EventExchanger C# object.
+        if self.var._productName != u'Keyboard':
+            (self.var.Response, self.var.RT) = (
+                self.EE.WaitForDigEvents(self.var.AllowedEventLines,
+                                         self.var._responseTimeout))
+            self.var.Response = math.log2(self.var.Response) + 1
 
-		if 	self.var._productName != u'Keyboard':
-			(self.var.Response,self.var.RT) = \
-				(self.EE.WaitForDigEvents(self.var.AllowedEventLines,
-							self.var._responseTimeout)) 
-			self.var.Response = math.log2(self.var.Response) + 1;   
-			
-		else:
-			# demo mode: keyboard response.....
-			self.var.Response, self.var.RT= self.Keyboard.get_key(timeout=self.var._responseTimeout)
+        else:
+            # demo mode: keyboard response...
+            self.var.Response, self.var.RT = self.Keyboard.get_key(
+                timeout=self.var._responseTimeout)
 
-		self.CorrectResponse = \
-			(self.var.Response == self.var._correctButton)
-		# Add all response related data to the Opensesame responses instance.
-		self.experiment.responses.add(response_time=self.var.RT, \
-								correct=self.CorrectResponse, \
-								response=self.var.Response, \
-								item=self.name)
-		#Report success		
-		return True
+        self.CorrectResponse = \
+            (self.var.Response == self.var._correctButton)
+        # Add all response related data to the Opensesame responses instance.
+        self.experiment.responses.add(
+            response_time=self.var.RT,
+            correct=self.CorrectResponse,
+            response=self.var.Response,
+            item=self.name)
+        # Report success
+        return True
 
 
 class qtResponseBox(ResponseBox, qtautoplugin):
 
-	def __init__(self, name, experiment, string = None):
+    def __init__(self, name, experiment, string=None):
+        # Pass the word on to the parents
+        ResponseBox.__init__(self, name, experiment, string)
+        qtautoplugin.__init__(self, __file__)
 
-		#Pass the word on to the parents
-		ResponseBox.__init__(self, name, experiment, string)
-		qtautoplugin.__init__(self, __file__)
-
-
-	def init_edit_widget(self):
-
-	# Pass the word on to the parent
-		qtautoplugin.init_edit_widget(self)
-
-		EE = EvtExchanger()
-		listofdevices = EE.Attached()
-		for i in listofdevices:
-			self.ProductName_widget.addItem(i)
+    def init_edit_widget(self):
+        # Pass the word on to the parent
+        qtautoplugin.init_edit_widget(self)
+        EE = EvtExchanger()
+        listofdevices = EE.Attached()
+        for i in listofdevices:
+            self.ProductName_widget.addItem(i)
