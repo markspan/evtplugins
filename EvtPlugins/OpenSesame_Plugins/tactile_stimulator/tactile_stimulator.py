@@ -15,10 +15,18 @@ You should have received a copy of the GNU General Public License
 along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from libopensesame import item
-from libopensesame.oslogging import oslogger
-from libqtopensesame.items.qtautoplugin import qtautoplugin
+import os
+import time
+import math
+import sys
+from pyevt import EvtExchanger
 from libopensesame.py3compat import *
+from libopensesame.item import Item
+from libopensesame.oslogging import oslogger
+from libqtopensesame.items.qtautoplugin import QtAutoPlugin
+from openexp.canvas import Canvas
+
+"""
 from openexp.canvas import Canvas, canvas
 from openexp.canvas_elements import (
     Line,
@@ -36,15 +44,9 @@ from openexp.canvas_elements import (
     Text
 )
 from openexp.mouse import mouse
+"""
 
-import os
-import time
-import math
-import sys
-from pyevt import EvtExchanger
-
-
-class TactileStimulator(item.item):
+class TactileStimulator(Item):
     """"Class for using the Tactile Stimulator."""
 
     description = u"Plugin for the calibration and the use \
@@ -314,14 +316,14 @@ class TactileStimulator(item.item):
             time.time())  # update the time stamp of the last call
 
 
-class qtTactileStimulator(TactileStimulator, qtautoplugin):
-    def __init__(self, name, experiment, string=None):
+class qttactile_stimulator(TactileStimulator, QtAutoPlugin):
+    def __init__(self, name, experiment, script=None):
 
         TactileStimulator.__init__(self,
                                    name,
                                    experiment,
-                                   string)  # Pass the word on to the parents
-        qtautoplugin.__init__(self, __file__)
+                                   script)
+        QtAutoPlugin.__init__(self, __file__)
 
     def perc_check(self):
         try:
@@ -341,10 +343,12 @@ class qtTactileStimulator(TactileStimulator, qtautoplugin):
         self.value_widget.setEnabled(
             self.calibrate_widget.currentText() == u'Stimulate')
 
-    def init_edit_widget(self):  # Pass the word on to the parent
-        qtautoplugin.init_edit_widget(self)
+    def init_edit_widget(self):
+        super().init_edit_widget()
+        # QtAutoPlugin.init_edit_widget(self)
         EE = EvtExchanger()
         listOfDevices = EE.Attached(u"SHOCKER")
+
         """
         If there is no Tactile Stimulator attached,
         the selected name defaults to 'DUMMY' again.
