@@ -15,18 +15,19 @@ You should have received a copy of the GNU General Public License
 along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from libopensesame import item
-from libopensesame.oslogging import oslogger
-from libopensesame.base_response_item import base_response_item
-from libqtopensesame.items.qtautoplugin import qtautoplugin
-from openexp.keyboard import Keyboard
 import os
 import sys
 import math
 from pyevt import EvtExchanger
+from libopensesame.item import Item
+from libopensesame.oslogging import oslogger
+from libopensesame.base_response_item import base_response_item
+from libqtopensesame.items.qtautoplugin import QtAutoPlugin
+from openexp.canvas import Canvas
+from openexp.keyboard import Keyboard
 
 
-class ResponseBox(item.item):
+class ResponseBox(Item):
 
     """
         This class (the class with the same name as the module)
@@ -34,8 +35,8 @@ class ResponseBox(item.item):
         not deal with GUI stuff.
     """
 
-    description = u"Aquires buttonpress-responses and/or digital \
-        events\r\nfrom EventExchanger-based digital input device."
+    description = u"Acquires buttonpress-responses and/or digital \
+        events\r\nfrom Event Exchanger-based digital input device."
 
     def reset(self):
         # Set the default values of the plug-in items in the GUI
@@ -45,7 +46,7 @@ class ResponseBox(item.item):
         self.var._responseTimeout = u'infinite'
 
     def prepare(self):
-        item.item.prepare(self)
+        #item.item.prepare(self)
         self.EE = EvtExchanger()
         Device = self.EE.Select(self.var._productName)
 
@@ -101,16 +102,15 @@ class ResponseBox(item.item):
         return True
 
 
-class qtResponseBox(ResponseBox, qtautoplugin):
+class qtresponse_box(ResponseBox, QtAutoPlugin):
 
-    def __init__(self, name, experiment, string=None):
-        # Pass the word on to the parents
-        ResponseBox.__init__(self, name, experiment, string)
-        qtautoplugin.__init__(self, __file__)
+    def __init__(self, name, experiment, script=None):
+        ResponseBox.__init__(self, name, experiment, script)
+        QtAutoPlugin.__init__(self, __file__)
 
     def init_edit_widget(self):
-        # Pass the word on to the parent
-        qtautoplugin.init_edit_widget(self)
+        super().init_edit_widget()
+        # QtAutoPlugin.init_edit_widget(self)
         EE = EvtExchanger()
         listofdevices = EE.Attached()
         for i in listofdevices:

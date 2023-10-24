@@ -15,16 +15,16 @@ You should have received a copy of the GNU General Public License
 along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from libopensesame import item
-from libopensesame.oslogging import oslogger
-from libqtopensesame.items.qtautoplugin import qtautoplugin
-from libopensesame.py3compat import *
 import os
 import sys
 from pyevt import EvtExchanger
+from libopensesame.item import Item
+from libopensesame.py3compat import *
+from libopensesame.oslogging import oslogger
+from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 
 
-class EVTxx(item.item):
+class EvtXx(Item):
 
     """
         This class (the class with the same name as the module)
@@ -33,7 +33,7 @@ class EVTxx(item.item):
     """
 
     description = u"Allows setting or pulsing values of pins on the \
-                    output port of various EventExchanger devices"
+                    output port of various Event Exchanger devices"
 
     def reset(self):
         self.var._value = 0
@@ -42,7 +42,7 @@ class EVTxx(item.item):
         self.var._outputMode = u'Pulse Output Lines'
 
     def prepare(self):
-        item.item.prepare(self)
+        #item.item.prepare(self)
         self.EE = EvtExchanger()
         Device = self.EE.Select(self.var._productName)
 
@@ -70,16 +70,19 @@ class EVTxx(item.item):
         return True
 
 
-class qtEVTxx(EVTxx, qtautoplugin):
-    def __init__(self, name, experiment, string=None):
-        EVTxx.__init__(
-            self, name, experiment, string)  # Pass the word on to the parents
-        qtautoplugin.__init__(self, __file__)
+class qtevt_xx(EvtXx, QtAutoPlugin):
+    def __init__(self, name, experiment, script=None):
+        EvtXx.__init__(self,
+                       name,
+                       experiment,
+                       script)  # Pass the word on to the parents
+        QtAutoPlugin.__init__(self, __file__)
 
     def init_edit_widget(self):
-        qtautoplugin.init_edit_widget(self)  # Pass the word on to the parent
+        super().init_edit_widget()
         EE = EvtExchanger()
         listofdevices = EE.Attached()
+        
         for i in listofdevices:
-            if "SHOCKER" not in i:
+            if "EVT" not in i:
                 self.ProductName_widget.addItem(i)

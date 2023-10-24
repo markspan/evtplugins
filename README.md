@@ -1,7 +1,6 @@
-# evtplugins
-OpenSesame Plugins for communication with the RUG/BSS Event Exchanger and Event Exchanger derivatives hardware.
-
-The currently supported OpenSesame version is v3.3
+# evt_plug_collection
+OpenSesame Plugins for communication with the RUG/BSS Event Exchanger (EVT) devices.
+The currently supported OpenSesame version is v4.0
 
 The following plugin collection is available:
 
@@ -19,7 +18,7 @@ The plugins are dependent on the Python module pyevt and the underlying HIDAPI p
 
 [https://pypi.org/project/hidapi/](https://pypi.org/project/hidapi/)
 
-pyevt and hidapi are installed from the Python Console in OpenSesame with a single command:
+pyevt and hidapi are installed from the Python Console in OpenSesame with the single command:
 
 `!pip install --user pyevt`
 
@@ -29,13 +28,13 @@ For OpenSesame to find this location, the user must create an `environment.yaml`
 
 [https://rapunzel.cogsci.nl/manual/environment/](https://rapunzel.cogsci.nl/manual/environment/) 
 
-## EVTxx
+## evt_xx
 
-## ResponseBox
+## response_box
 
 ## RGB_Led_Control
 
-## TactileStimulator
+## tactile_stimulator
 description ...
 
 List of the variables that appear in the OpenSesame variable inspector when using the TactileStimulator plugin:
