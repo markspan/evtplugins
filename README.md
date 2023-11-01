@@ -1,17 +1,17 @@
-# evt_plug_collection
-OpenSesame Plugins for communication with the RUG/BSS Event Exchanger (EVT) devices.
+# evt_plugins
+OpenSesame plugins for communication with the RUG/BSS Event Exchanger (EVT) devices.
 The currently supported OpenSesame version is v4.0
 
 The following plugin collection is available:
 
 Plugin | Description | Status
 ------ | ----------- | ------
-EVTxx | Event Exchanger variants | not validated
-ResponseBox | Button response box variants with 1-4 buttons | not validated
-RGB_Led_Control |  | not validated
-TactileStimulator | Tactile Stimulator 0-5mA | validated
-VAS |  | not validated
-VAS2 |  | not validated
+evt_xx | Event Exchanger variants | not validated
+response_box | Button response box variants with 1-4 buttons | not validated
+rgb_led_control |  | not validated
+tactile_stimulator | Tactile Stimulator 0-5mA | validated
+vas |  | not validated
+vas_2 |  | not validated
 
 ## Package dependencies
 The plugins are dependent on the Python module pyevt and the underlying HIDAPI package.
@@ -23,16 +23,14 @@ pyevt and hidapi are installed from the Python Console in OpenSesame with the si
 `!pip install --user pyevt`
 
 ## Environmental settings
-The plugins (and the cloned git) could be placed in the user space e.g.: `C:\Users\username\Documents\OS_Plugins\evtplugins\EvtPlugins\OpenSesame_Plugins`
-For OpenSesame to find this location, the user must create an `environment.yaml` file in the OpenSesame program directory. See for the instructions here:
-
-[https://rapunzel.cogsci.nl/manual/environment/](https://rapunzel.cogsci.nl/manual/environment/) 
+Default the OpenSesame 4.0 plugins are installed as python site-package and automatically loaded at startup.
+When the plugins are located somewhere else, add your path to the python-path of OpenSesame in the `environment.yaml` file in the OpenSesame program directory. See for the instructions here: [https://rapunzel.cogsci.nl/manual/environment/](https://rapunzel.cogsci.nl/manual/environment/) 
 
 ## evt_xx
 
 ## response_box
 
-## RGB_Led_Control
+## rgb_led_control
 
 ## tactile_stimulator
 description ...
@@ -49,7 +47,7 @@ tactstim_pulse_value | The actual byte value representation that is sent to the 
 tactstim_pulse_duration_ms | The (fixed) shock duration time in ms
 tactstim_time_last_pulse | Unique time stamp in seconds from the moment of the last shock
 
-## VAS
+## vas
 
-## VAS2
+## vas_2
 

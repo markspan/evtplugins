@@ -1,7 +1,7 @@
 """A plug-in for using the Tactile Stimulator."""
 
 # authors = ["M.M.Span", "M.Stokroos"]
-category = "evt_plugin_collection"
+category = "RUG/BSS hardware"
 # Defines the GUI controls
 controls = [
     {

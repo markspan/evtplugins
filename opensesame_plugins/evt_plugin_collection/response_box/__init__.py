@@ -1,7 +1,7 @@
 """A plug-in for using responsebox devices"""
 
 # The category determines the group for the plugin in the item toolbar
-category = "evt_plugin_collection"
+category = "RUG/BSS hardware"
 # Defines the GUI controls
 controls = [
     {
