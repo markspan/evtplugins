@@ -1,2 +1,0 @@
-# Event Exchanger Plugin Collection
-

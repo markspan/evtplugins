@@ -1,4 +1,0 @@
-recursive-include evt_plugin_collection/* *
-global-exclude *.pyc
-global-exclude *.pyo
-global-exclude .DS_Store
