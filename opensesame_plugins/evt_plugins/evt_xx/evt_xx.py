@@ -18,19 +18,14 @@ along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 from pyevt import EvtExchanger
-from libopensesame.item import Item
 from libopensesame.py3compat import *
+from libopensesame.item import Item
 from libopensesame.oslogging import oslogger
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 
 
 class EvtXx(Item):
-
-    """
-        This class (the class with the same name as the module)
-        handles the basic functionality of the item. It does
-        not deal with GUI stuff.
-    """
+    """Resets plug-in to initial values."""
 
     description = u"Allows setting or pulsing values of pins on the \
                     output port of various Event Exchanger devices"
@@ -42,7 +37,7 @@ class EvtXx(Item):
         self.var._outputMode = u'Pulse Output Lines'
 
     def prepare(self):
-        #item.item.prepare(self)
+        super().prepare()
         self.EE = EvtExchanger()
         Device = self.EE.Select(self.var._productName)
 
@@ -56,7 +51,6 @@ class EvtXx(Item):
 
     def run(self):
         self.set_item_onset()
-        # self.EE.Select(self.PATH)
         if self.var._productName == u'DUMMY':
             oslogger.info('dummy code: {} for {} ms'.
                           format(self.var._value, self.var._duration))
@@ -70,12 +64,12 @@ class EvtXx(Item):
         return True
 
 
-class qtevt_xx(EvtXx, QtAutoPlugin):
+class QtEvtXx(EvtXx, QtAutoPlugin):
     def __init__(self, name, experiment, script=None):
         EvtXx.__init__(self,
                        name,
                        experiment,
-                       script)  # Pass the word on to the parents
+                       script)
         QtAutoPlugin.__init__(self, __file__)
 
     def init_edit_widget(self):

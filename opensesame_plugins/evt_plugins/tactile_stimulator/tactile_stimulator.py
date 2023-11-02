@@ -61,6 +61,9 @@ class TactileStimulator(Item):
         self.var._mode = u"Calibrate"
 
     def prepare(self):
+        """The preparation phase of the plug-in goes here."""
+        # Call the parent constructor.
+        super().prepare()
         if not 1 <= self.var._pulseDuration <= 2000:
             oslogger.error("Pulse duration out of range!")
             self.var._pulseDuration = 150

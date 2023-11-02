@@ -19,9 +19,9 @@ import os
 import sys
 import math
 from pyevt import EvtExchanger
+from libopensesame.py3compat import *
 from libopensesame.item import Item
 from libopensesame.oslogging import oslogger
-from libopensesame.base_response_item import base_response_item
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 from openexp.canvas import Canvas
 from openexp.keyboard import Keyboard
@@ -46,7 +46,7 @@ class ResponseBox(Item):
         self.var._responseTimeout = u'infinite'
 
     def prepare(self):
-        #item.item.prepare(self)
+        super().prepare()
         self.EE = EvtExchanger()
         Device = self.EE.Select(self.var._productName)
 
@@ -110,8 +110,11 @@ class qtresponse_box(ResponseBox, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        # QtAutoPlugin.init_edit_widget(self)
         EE = EvtExchanger()
         listofdevices = EE.Attached()
         for i in listofdevices:
             self.ProductName_widget.addItem(i)
+
+    self.line_edit_widget.setEnabled(self.checkbox_widget.isChecked())
+    self.checkbox_widget.stateChanged.connect(
+        self.line_edit_widget.setEnabled)
