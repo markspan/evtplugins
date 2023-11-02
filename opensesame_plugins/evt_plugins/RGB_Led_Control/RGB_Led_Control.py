@@ -14,20 +14,20 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
-from openexp.keyboard import Keyboard
-from libopensesame import item
-from libqtopensesame.items.qtautoplugin import qtautoplugin
-from libopensesame.oslogging import oslogger
+
 import os
 import sys
 import time
 import math
 import distutils.util
 from pyevt import EvtExchanger
+from libopensesame.item import Item
+from libqtopensesame.items.qtautoplugin import QtAutoPlugin
+from openexp.canvas import Canvas
+from libopensesame.oslogging import oslogger
+from openexp.keyboard import Keyboard
 
-
-class RGB_Led_Control(item.item):
-
+class RgbLedControl(Item):
     """
         This class (the class with the same name as the module)
         handles the basic functionality of the item. It does
@@ -53,7 +53,7 @@ class RGB_Led_Control(item.item):
         self.var._inCorrectColor = "#FF0000"
 
     def prepare(self):
-        item.item.prepare(self)
+        Item.prepare(self)
         self.EE = EvtExchanger()
         Device = self.EE.Select(self.var._productName)
 
@@ -67,7 +67,7 @@ class RGB_Led_Control(item.item):
                 self.var._responseTimeout = None
             oslogger.info("Cannot find ResponseBox: Using Keyboard instead")
 
-        if not type(self.var._responseTimeout) == int
+        if not type(self.var._responseTimeout) == int \
         and not type(self.var._responseTimeout) == float:
             self.var._responseTimeout = -1
         # Recode Allowed buttons to AllowedEventLines
@@ -160,15 +160,13 @@ class RGB_Led_Control(item.item):
         return True
 
 
-class qtRGB_Led_Control(RGB_Led_Control, qtautoplugin):
-    def __init__(self, name, experiment, string=None):
-        # Pass the word on to the parents
-        RGB_Led_Control.__init__(self, name, experiment, string)
-        qtautoplugin.__init__(self, __file__)
+class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
+    def __init__(self, name, experiment, script=None):
+        RgbLedControl.__init__(self, name, experiment, script)
+        QtAutoPlugin.__init__(self, __file__)
 
     def init_edit_widget(self):
-        # Pass the word on to the parent
-        qtautoplugin.init_edit_widget(self)
+        super().init_edit_widget()
         EE = EvtExchanger()
         listofdevices = EE.Attached()
         for i in listofdevices:

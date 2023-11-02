@@ -1,15 +1,15 @@
 # evt_plugins
-OpenSesame plugins for communication with the RUG/BSS Event Exchanger (EVT) devices.
+OpenSesame plugins for using RUG/BSS Event Exchanger (EVT) devices.
 The currently supported OpenSesame version is v4.0
 
 The following plugin collection is available:
 
 Plugin | Description | Status
 ------ | ----------- | ------
-evt_xx | Event Exchanger variants | not validated
+evt_xx | Plugin for Event Exchanger (EVT) 2,3 and 4 variants for event-marking and triggering | not validated
 response_box | Button response box variants with 1-4 buttons | not validated
-rgb_led_control |  | not validated
-tactile_stimulator | Tactile Stimulator 0-5mA | validated
+rgb_led_control | multi-color LED control | not validated
+tactile_stimulator | Electrotactile Stimulator 0-5mA | validated
 vas |  | not validated
 vas_2 |  | not validated
 

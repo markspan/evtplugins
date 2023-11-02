@@ -4,22 +4,21 @@
 No rights reserved. All files in this repository are released into the public
 domain.
 """
-
-from libopensesame.py3compat import *
-from libopensesame.item import item
-from libqtopensesame.items.qtautoplugin import qtautoplugin
-from openexp.canvas import Canvas, canvas
-from libopensesame.oslogging import oslogger
-from openexp.keyboard import Keyboard
-from openexp.mouse import Mouse
-from libopensesame.exceptions import osexception
 import os
 import sys
 import numpy as np
 from pyevt import EvtExchanger
+from libopensesame.py3compat import *
+from libopensesame.item import Item
+from libqtopensesame.items.qtautoplugin import QtAutoPlugin
+from openexp.canvas import Canvas
+from libopensesame.oslogging import oslogger
+from openexp.keyboard import Keyboard
+from openexp.mouse import Mouse
+from libopensesame.exceptions import osexception
 
 
-class VAS(item):
+class Vas(Item):
 
     """
     This class (the class with the same name as the module) handles the basic
@@ -53,7 +52,7 @@ class VAS(item):
     def prepare(self):
 
         """The preparation phase of the plug-in goes here."""
-        item.prepare(self)
+        super().prepare()
         self.EE = EvtExchanger()
         Devices = self.EE.Select(self.var.VAS_ENCODER_ID)
 
@@ -172,7 +171,7 @@ class VAS(item):
                                       item=self.name)
 
 
-class qtVAS(VAS, qtautoplugin):
+class QtVas(Vas, QtAutoPlugin):
 
     """
     This class handles the GUI aspect of the plug-in.
@@ -195,8 +194,8 @@ class qtVAS(VAS, qtautoplugin):
 
         # We don't need to do anything here, except call the parent
         # constructors.
-        VAS.__init__(self, name, experiment, script)
-        qtautoplugin.__init__(self, __file__)
+        Vas.__init__(self, name, experiment, script)
+        QtAutoPlugin.__init__(self, __file__)
 
     def c(self):
         self.VAS_TIMERNAME_widget.setEnabled(
@@ -217,7 +216,7 @@ class qtVAS(VAS, qtautoplugin):
 
         # First, call the parent constructor, which constructs the GUI controls
         # based on info.json.
-        qtautoplugin.init_edit_widget(self)
+        super().init_edit_widget()
         # If you specify a 'name' for a control in info.json, this control will
         # be available self.[name]. The type of the object depends on the
         # control. A checkbox will be a QCheckBox, a line_edit will be a
