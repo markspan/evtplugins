@@ -1,6 +1,6 @@
 # EVT-based response box (RSP-12x) plug-in
 
-The RSP_PYGAME plug-in handles input from RSP-12x devices. The RSP_PYGAME uses the joystick module of PyGame for flawless integration with OpenSesame 4.
+The RSP_PYGAME plug-in handles input from RSP-12x devices. The RSP_PYGAME uses the joystick module of PyGame for flawless integration with OpenSesame 4. Please use the PyGame engine for the OpenSesame project.
 
 ## Connecting multiple RSP-12x (or EVT-x) devices
 

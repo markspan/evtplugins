@@ -1,4 +1,4 @@
-"""Collects input from a RSP responsebox"""
+"""Collects input from a RSP-12x responsebox"""
 
 authors = ["Edwin Dalmaijer", "Sebastiaan Mathot", "Martin Stokroos"]
 category = "RUG/BSS hardware"
@@ -6,7 +6,7 @@ controls = [
     {
         "type": "combobox",
         "var": "_dummy",
-        "label": "Dummy mode (use keyboard instead of joystick)",
+        "label": "Dummy mode (use keyboard instead of RSP-12x)",
         "options": [
             "no",
             "yes"
