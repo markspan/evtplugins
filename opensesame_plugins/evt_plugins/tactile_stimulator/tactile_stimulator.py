@@ -25,26 +25,8 @@ from libopensesame.item import Item
 from libopensesame.oslogging import oslogger
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 from openexp.canvas import Canvas
+# from openexp.mouse import mouse
 
-"""
-from openexp.canvas import Canvas, canvas
-from openexp.canvas_elements import (
-    Line,
-    Rect,
-    Polygon,
-    Ellipse,
-    Image,
-    Gabor,
-    NoisePatch,
-    Circle,
-    FixDot,
-    ElementFactory,
-    RichText,
-    Arrow,
-    Text
-)
-from openexp.mouse import mouse
-"""
 
 class TactileStimulator(Item):
     """"Class for using the Tactile Stimulator."""
@@ -62,7 +44,6 @@ class TactileStimulator(Item):
 
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
-        # Call the parent constructor.
         super().prepare()
         if not 1 <= self.var._pulseDuration <= 2000:
             oslogger.error("Pulse duration out of range!")
@@ -319,7 +300,7 @@ class TactileStimulator(Item):
             time.time())  # update the time stamp of the last call
 
 
-class qttactile_stimulator(TactileStimulator, QtAutoPlugin):
+class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
     def __init__(self, name, experiment, script=None):
 
         TactileStimulator.__init__(self,
