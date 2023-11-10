@@ -25,13 +25,28 @@ from libopensesame.item import Item
 from libopensesame.oslogging import oslogger
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 from openexp.canvas import Canvas
+from openexp.canvas_elements import (
+	Line,
+	Rect,
+	Polygon,
+	Ellipse,
+	Image,
+	Gabor,
+	NoisePatch,
+	Circle,
+	FixDot,
+	ElementFactory,
+	RichText,
+	Arrow,
+	Text
+)
 # from openexp.mouse import mouse
 
 
 class TactileStimulator(Item):
-    """"Class for using the Tactile Stimulator."""
+    """"Class for handling the Tactile Stimulator."""
 
-    description = u"Plugin for the calibration and the use \
+    description = u"Plugin for the calibration and the usage \
     of the Tactile Stimulator."
 
     def reset(self):
@@ -39,7 +54,7 @@ class TactileStimulator(Item):
         self.var._pulseDuration = 150  # fixed value
         self.var._pulseTimeOut = 1.0  # fixed value
         self.var._interPulseHoldOffTime = 8  # fixed value
-        self.var._deviceName = u"DUMMY"
+        self.var._device = u"DUMMY"
         self.var._mode = u"Calibrate"
 
     def prepare(self):
@@ -48,8 +63,7 @@ class TactileStimulator(Item):
         if not 1 <= self.var._pulseDuration <= 2000:
             oslogger.error("Pulse duration out of range!")
             self.var._pulseDuration = 150
-        self.experiment.set("tactstim_pulse_duration_ms",
-                            self.var._pulseDuration)
+        # self.experiment.set("tactstim_pulse_duration_ms", self.var._pulseDuration)
         self.EE = EvtExchanger()
         Device = self.EE.Select(self.var._deviceName)
 
@@ -64,24 +78,7 @@ class TactileStimulator(Item):
         if self.var._mode == u"Calibrate":
             self.Calibrate_Prepare()
         elif self.var._mode == u"Stimulate":
-            self.Do_Pulse_Prepare()
-
-    def run(self):
-        self.set_item_onset()
-        if self.var._deviceName == u"DUMMY":
-            if self.var._mode == u"Stimulate":
-                oslogger.info('dummy stimulator: \
-                              {}, duration is {} ms'
-                              .format(self.var._percOfCalibrationValue,
-                                      self.var._pulseDuration))
-            else:
-                self.Calibrate_Run()
-        else:
-            if self.var._mode == u"Calibrate":
-                self.Calibrate_Run()
-            elif self.var._mode == u"Stimulate":
-                self.Do_Pulse_Run()
-        return True
+            self.Stimulate_Prepare()
 
     def Calibrate_Prepare(self):
         if not (self.var._deviceName == u"DUMMY"):
@@ -89,8 +86,8 @@ class TactileStimulator(Item):
             oslogger.info("In (Hardware) Tactile Stimulator: reset port")
 
         self.canvas = Canvas(self.experiment)
-        self.canvas.set_bgcolor("black")
-        self.canvas.clear()
+        # self.canvas.set_bgcolor("black")
+        # self.canvas.clear()
         self.canvas['Title'] = RichText(
             "Tactile Stimulator Calibration",
             center=True,
@@ -171,6 +168,44 @@ class TactileStimulator(Item):
             y=-(self.canvas.height / 10)+(self.canvas.height / 2),
             color="black")
 
+    def Stimulate_Prepare(self):
+        try:
+            self.experiment.get("tactstim_calibration_value")
+        except Exception:
+            oslogger.error("No calibration step taken: First run \
+                           the Tactile Stimulator in calibration mode!")
+
+        if not 0 <= self.var._percOfCalibrationValue <= 100:
+            oslogger.error("Percentage input out of range!")
+            self.var._percOfCalibrationValue = 0
+
+        # self.experiment.set("tactstim_pulse_value", math.floor(self.var._percOfCalibrationValue * self.experiment.get("tactstim_calibration_perc") * 255.0 / 10000))
+        # self.experiment.set("tactstim_pulse_milliamp", round(self.var._percOfCalibrationValue * self.experiment.get("tactstim_calibration_perc") * 5.0 / 10000, 2))
+        oslogger.info("In (Hardware) Tactile Stimulator: \
+                      prepared to pulse with value \
+                      (raw, mA): {}, {:.2f}".
+                      format(self.experiment.get(
+                          "tactstim_pulse_value"),
+                          self.experiment.get(
+                              "tactstim_pulse_milliamp")))
+
+    def run(self):
+        # self.set_item_onset()
+        if self.var._deviceName == u"DUMMY":
+            if self.var._mode == u"Stimulate":
+                oslogger.info('dummy stimulator: \
+                              {}, duration is {} ms'
+                              .format(self.var._percOfCalibrationValue,
+                                      self.var._pulseDuration))
+            else:
+                self.Calibrate_Run()
+        else:
+            if self.var._mode == u"Calibrate":
+                self.Calibrate_Run()
+            elif self.var._mode == u"Stimulate":
+                self.Stimulate_Run()
+        return True
+
     def Calibrate_Run(self):
         slmouse = mouse(self.experiment, timeout=20, visible=True)
         slmouse.show_cursor(True)
@@ -223,12 +258,9 @@ class TactileStimulator(Item):
                 self.canvas.show()
 
             if (x, y) in self.canvas['OKBox']:
-                self.experiment.set("tactstim_calibration_perc",
-                                    round(xperc, 2))
-                self.experiment.set("tactstim_calibration_value",
-                                    math.floor(xperc * 255.0 / 100))
-                self.experiment.set("tactstim_calibration_milliamp",
-                                    round(5*(xperc / 100.0), 2))
+                # self.experiment.set("tactstim_calibration_perc", round(xperc, 2))
+                # self.experiment.set("tactstim_calibration_value", math.floor(xperc * 255.0 / 100))
+                # self.experiment.set("tactstim_calibration_milliamp", round(5*(xperc / 100.0), 2))
                 oslogger.info("In (Hardware) Tactile Stimulator: \
                               pulse intensity calibration value \
                               (raw, mA): {}, {:.2f}"
@@ -238,36 +270,7 @@ class TactileStimulator(Item):
                                       "tactstim_calibration_milliamp")))
                 break
 
-    def Do_Pulse_Prepare(self):
-        try:
-            self.experiment.get("tactstim_calibration_value")
-        except Exception:
-            oslogger.error("No calibration step taken: First run \
-                           the Tactile Stimulator in calibration mode!")
-
-        if not 0 <= self.var._percOfCalibrationValue <= 100:
-            oslogger.error("Percentage input out of range!")
-            self.var._percOfCalibrationValue = 0
-
-        self.experiment.set(
-            "tactstim_pulse_value",
-            math.floor(self.var._percOfCalibrationValue *
-                       self.experiment.get(
-                           "tactstim_calibration_perc") * 255.0 / 10000))
-        self.experiment.set(
-            "tactstim_pulse_milliamp", round(
-                self.var._percOfCalibrationValue *
-                self.experiment.get(
-                    "tactstim_calibration_perc") * 5.0 / 10000, 2))
-        oslogger.info("In (Hardware) Tactile Stimulator: \
-                      prepared to pulse with value \
-                      (raw, mA): {}, {:.2f}".
-                      format(self.experiment.get(
-                          "tactstim_pulse_value"),
-                          self.experiment.get(
-                              "tactstim_pulse_milliamp")))
-
-    def Do_Pulse_Run(self):
+    def Stimulate_Run(self):
         if (self.var._deviceName == u"DUMMY"):
             oslogger.info("In (Dummy) Tactile Stimulator: \
                           pulse with value: " + str(
@@ -295,18 +298,13 @@ class TactileStimulator(Item):
                 oslogger.warning("In (Hardware) Tactile Stimulator: \
                                  the next pulse came too early. \
                                  Please don't pulse in rapid succession!")
-        self.experiment.set(
-            "tactstim_time_last_pulse",
-            time.time())  # update the time stamp of the last call
+        # self.experiment.set("tactstim_time_last_pulse", time.time())  # update the time stamp of the last call
 
 
 class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
-    def __init__(self, name, experiment, script=None):
 
-        TactileStimulator.__init__(self,
-                                   name,
-                                   experiment,
-                                   script)
+    def __init__(self, name, experiment, script=None):
+        TactileStimulator.__init__(self, name, experiment, script)
         QtAutoPlugin.__init__(self, __file__)
 
     def perc_check(self):
@@ -329,7 +327,6 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        # QtAutoPlugin.init_edit_widget(self)
         EE = EvtExchanger()
         listOfDevices = EE.Attached(u"SHOCKER")
 
@@ -339,7 +336,7 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
         """
         if listOfDevices:
             for i in listOfDevices:
-                self.deviceName_widget.addItem(i)
+                self.device_widget.addItem(i)
         else:
             self.var._deviceName = u"DUMMY"
 

@@ -1,7 +1,7 @@
 """Collects input from a RSP-12x responsebox"""
 
-# The category determines the group for the plugin in the item toolbar
 authors = ["M. Stokroos", "M. M. Span"]
+# The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
 help_url = 'www'
 # Defines the GUI controls

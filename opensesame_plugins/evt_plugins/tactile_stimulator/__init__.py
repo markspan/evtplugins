@@ -1,6 +1,7 @@
-"""A plug-in for using the Tactile Stimulator."""
+"""A plug-in for handling the Tactile Stimulator."""
 
-# authors = ["M.M.Span", "M.Stokroos"]
+authors = ["M.M.Span", "M.Stokroos"]
+# The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
 # Defines the GUI controls
 controls = [
@@ -11,9 +12,10 @@ controls = [
         "options": [
             "DUMMY"
         ],
-        "name": "deviceName_widget",
+        "name": "device_widget",
         "tooltip": "Select the Tactile Stimulator or Dummy if not connected: "
-    }, {
+    },
+    {
         "type": "combobox",
         "var": "_mode",
         "label": "Select mode of operation: ",
@@ -23,13 +25,15 @@ controls = [
         ],
         "name": "calibrate_widget",
         "tooltip": "Select the mode of operation: "    
-    }, {
+    },
+    {
         "type": "line_edit",
         "var": "_percOfCalibrationValue",
         "label": "Percentage [%]",
         "name": "value_widget",
         "tooltip": "Give the percentage of the calibrated pulse intensity value to be used."
-    }, {
+    },
+    {
         "type": "line_edit",
         "var": "_pulseDuration",
         "label": "Pulse duration [ms]: ",
