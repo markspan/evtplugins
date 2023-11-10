@@ -25,6 +25,7 @@ from libopensesame.item import Item
 from libopensesame.oslogging import oslogger
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 from openexp.canvas import Canvas
+from openexp.mouse import mouse
 from openexp.canvas_elements import (
 	Line,
 	Rect,
@@ -40,7 +41,6 @@ from openexp.canvas_elements import (
 	Arrow,
 	Text
 )
-# from openexp.mouse import mouse
 
 
 class TactileStimulator(Item):
@@ -64,6 +64,7 @@ class TactileStimulator(Item):
             oslogger.error("Pulse duration out of range!")
             self.var._pulseDuration = 150
         # self.experiment.set("tactstim_pulse_duration_ms", self.var._pulseDuration)
+        self.var.tactstim_pulse_duration_ms = u"self.var._pulseDuration"
         self.EE = EvtExchanger()
         Device = self.EE.Select(self.var._deviceName)
 
@@ -85,88 +86,90 @@ class TactileStimulator(Item):
             self.EE.SetLines(0)
             oslogger.info("In (Hardware) Tactile Stimulator: reset port")
 
-        self.canvas = Canvas(self.experiment)
-        # self.canvas.set_bgcolor("black")
-        # self.canvas.clear()
-        self.canvas['Title'] = RichText(
+        self.c = Canvas(self.experiment)
+        self.c.background_color=u'black'
+        # self.c.clear()
+        self.c['Title'] = RichText(
             "Tactile Stimulator Calibration",
             center=True,
             x=0,
-            y=-int(self.canvas.height/3),
+            y=-int(self.c.height/3),
             color="white",
             font_family="mono",
             font_size=28)
 
-        self.canvas['Instruction'] = RichText(
+        self.c['Instruction'] = RichText(
             "Point at the desired value position"
             " on the axis and click ... "
             "Then click TEST",
             center=True,
             x=0,
-            y=-int(self.canvas.height / 8),
+            y=-int(self.c.height / 8),
             color="white")
 
-        self.canvas.set_fgcolor("white")  # Draw the slider axis
-        self.canvas['SliderBox'] = Rect(
-            -self.canvas.width / 2.2,
+        self.c.color = u"white"  # Draw the slider axis (was fgcolor ?)
+        self.c['SliderBox'] = Rect(
+            -self.c.width / 2.2,
             0,
-            2 * self.canvas.width / 2.2,
+            2 * self.c.width / 2.2,
             28,
             fill=False)
 
-        self.canvas.set_fgcolor("white")
-        self.canvas['Slider'] = Rect(
-            (-self.canvas.width / 2.2) + 6,
+        self.c.color = u"white"
+        self.c['Slider'] = Rect(
+            (-self.c.width / 2.2) + 6,
             6,
-            (2 * self.canvas.width / 2.2) - 12,
+            (2 * self.c.width / 2.2) - 12,
             16,
             fill=True)
 
-        self.canvas['TestBox'] = Rect(
-            (-self.canvas.width / 3),
-            self.canvas.height / 4,
-            self.canvas.width / 10,
-            self.canvas.height / 10,
+        self.c['TestBox'] = Rect(
+            (-self.c.width / 3),
+            self.c.height / 4,
+            self.c.width / 10,
+            self.c.height / 10,
             fill=True,
             color="red")
 
-        self.canvas['TestText'] = RichText(
+        self.c['TestText'] = RichText(
             "TEST",
-            x=(-self.canvas.width / 3)+(self.canvas.width / 20),
-            y=(self.canvas.height / 4)+(self.canvas.height / 20),
+            x=(-self.c.width / 3)+(self.c.width / 20),
+            y=(self.c.height / 4)+(self.c.height / 20),
             color="black")
 
-        self.canvas['OKBox'] = Rect(
-            (self.canvas.width / 3),
-            self.canvas.height / 4,
-            -self.canvas.width / 10,
-            self.canvas.height / 10,
+        self.c['OKBox'] = Rect(
+            (self.c.width / 3),
+            self.c.height / 4,
+            -self.c.width / 10,
+            self.c.height / 10,
             fill=True,
             color="green")
 
-        self.canvas['OKText'] = RichText(
+        self.c['OKText'] = RichText(
             "OK",
-            x=(self.canvas.width / 3)-(self.canvas.width / 20),
-            y=(self.canvas.height / 4)+(self.canvas.height / 20),
+            x=(self.c.width / 3)-(self.c.width / 20),
+            y=(self.c.height / 4)+(self.c.height / 20),
             color="black")
 
-        self.canvas['ValuemA'] = RichText(
+        self.c['ValuemA'] = RichText(
             str(round(0, 3)) + "mA",
             x=0,
-            y=-(self.canvas.height / 4)+(self.canvas.height / 20),
+            y=-(self.c.height / 4)+(self.c.height / 20),
             color="green")
 
-        self.canvas['ValuePerc'] = RichText(
+        self.c['ValuePerc'] = RichText(
             "("+str(round(0)) + "%)",
             x=0,
-            y=-(self.canvas.height / 4)+(self.canvas.height / 12),
+            y=-(self.c.height / 4)+(self.c.height / 12),
             color="green")
 
-        self.canvas['wait... '] = RichText(
+        self.c['wait... '] = RichText(
             str(round(0)),
             x=0,
-            y=-(self.canvas.height / 10)+(self.canvas.height / 2),
+            y=-(self.c.height / 10)+(self.c.height / 2),
             color="black")
+
+        self.c.show()
 
     def Stimulate_Prepare(self):
         try:
@@ -179,8 +182,14 @@ class TactileStimulator(Item):
             oslogger.error("Percentage input out of range!")
             self.var._percOfCalibrationValue = 0
 
-        # self.experiment.set("tactstim_pulse_value", math.floor(self.var._percOfCalibrationValue * self.experiment.get("tactstim_calibration_perc") * 255.0 / 10000))
-        # self.experiment.set("tactstim_pulse_milliamp", round(self.var._percOfCalibrationValue * self.experiment.get("tactstim_calibration_perc") * 5.0 / 10000, 2))
+        self.experiment.set("tactstim_pulse_value",
+        math.floor(self.var._percOfCalibrationValue \
+            * self.experiment.get("tactstim_calibration_perc") \
+                * 255.0 / 10000))
+        self.experiment.set("tactstim_pulse_milliamp",
+        round(self.var._percOfCalibrationValue \
+            * self.experiment.get("tactstim_calibration_perc") \
+                * 5.0 / 10000, 2))
         oslogger.info("In (Hardware) Tactile Stimulator: \
                       prepared to pulse with value \
                       (raw, mA): {}, {:.2f}".
@@ -211,9 +220,9 @@ class TactileStimulator(Item):
         slmouse.show_cursor(True)
         slmouse.set_pos(pos=(0, 0))
         xperc = 0
-        self.canvas['Slider'].w = (xperc / 100) * (
-            (2*self.canvas.width / 2.2) - 12)
-        self.canvas.show()
+        self.c['Slider'].w = (xperc / 100) * (
+            (2*self.c.width / 2.2) - 12)
+        self.c.show()
 
         while True:  # Poll the mouse for buttonclicks
             button = None
@@ -224,18 +233,18 @@ class TactileStimulator(Item):
             pos, mtime = slmouse.get_pos()
             x, y = pos
 
-            if (x, y) in self.canvas['SliderBox']:
-                xperc = min((x + self.canvas.width / 2.2) / (
-                    2 * ((self.canvas.width / 2.2) - 6)) * 100.0, 100)
-                self.canvas['Slider'].w = (xperc / 100)*(
-                    (2 * self.canvas.width / 2.2) - 12)
-                self.canvas['ValuePerc'].text = "(" + \
+            if (x, y) in self.c['SliderBox']:
+                xperc = min((x + self.c.width / 2.2) / (
+                    2 * ((self.c.width / 2.2) - 6)) * 100.0, 100)
+                self.c['Slider'].w = (xperc / 100)*(
+                    (2 * self.c.width / 2.2) - 12)
+                self.c['ValuePerc'].text = "(" + \
                     str(round(xperc, 1)) + "%)"
-                self.canvas['ValuemA'].text = str(
+                self.c['ValuemA'].text = str(
                     round(5*(xperc / 100.0), 1)) + "mA"
-                self.canvas.show()
+                self.c.show()
 
-            if (x, y) in self.canvas['TestBox']:
+            if (x, y) in self.c['TestBox']:
                 if (self.var._deviceName == u"DUMMY"):
                     oslogger.info(
                         "In (Dummy) Tactile Stimulator: pulsing with value: {}"
@@ -244,23 +253,26 @@ class TactileStimulator(Item):
                     self.EE.PulseLines(math.floor((xperc / 100.0) * 255),
                                        self.var._pulseDuration)
 
-                self.canvas['TestBox'].color = "blue"
-                self.canvas.show()
-                self.canvas['wait... '].color = "green"
+                self.c['TestBox'].color = 'blue'
+                self.c.show()
+                self.c['wait... '].color = 'green'
                 for n in range(1, self.var._interPulseHoldOffTime):
-                    self.canvas['wait... '].text = "wait... " + str(
+                    self.c['wait... '].text = "wait... " + str(
                         self.var._interPulseHoldOffTime - n)
-                    self.canvas.show()
+                    self.c.show()
                     time.sleep(1)
-                self.canvas['wait... '].color = "black"
-                self.canvas['wait... '].text = "wait... " + str(0)
-                self.canvas['TestBox'].color = "red"
-                self.canvas.show()
+                self.c['wait... '].color = 'black'
+                self.c['wait... '].text = "wait... " + str(0)
+                self.c['TestBox'].color = 'red'
+                self.c.show()
 
-            if (x, y) in self.canvas['OKBox']:
-                # self.experiment.set("tactstim_calibration_perc", round(xperc, 2))
-                # self.experiment.set("tactstim_calibration_value", math.floor(xperc * 255.0 / 100))
-                # self.experiment.set("tactstim_calibration_milliamp", round(5*(xperc / 100.0), 2))
+            if (x, y) in self.c['OKBox']:
+                self.experiment.set("tactstim_calibration_perc",
+                round(xperc, 2))
+                self.experiment.set("tactstim_calibration_value",
+                math.floor(xperc * 255.0 / 100))
+                self.experiment.set("tactstim_calibration_milliamp",
+                round(5*(xperc / 100.0), 2))
                 oslogger.info("In (Hardware) Tactile Stimulator: \
                               pulse intensity calibration value \
                               (raw, mA): {}, {:.2f}"
@@ -298,7 +310,7 @@ class TactileStimulator(Item):
                 oslogger.warning("In (Hardware) Tactile Stimulator: \
                                  the next pulse came too early. \
                                  Please don't pulse in rapid succession!")
-        # self.experiment.set("tactstim_time_last_pulse", time.time())  # update the time stamp of the last call
+        self.experiment.set("tactstim_time_last_pulse", time.time())  # update the time stamp of the last call
 
 
 class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
