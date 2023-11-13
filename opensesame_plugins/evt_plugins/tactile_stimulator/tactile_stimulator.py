@@ -95,8 +95,8 @@ class TactileStimulator(Item):
             y=-int(self.c.height/3),
             color='white',
             font_family='mono',
-            font_size=28)
-
+            font_size=28
+        )
         self.c['Instruction'] = RichText(
             "Point at the desired value position"
             " on the axis and click ... "
@@ -104,70 +104,70 @@ class TactileStimulator(Item):
             center=True,
             x=0,
             y=-int(self.c.height / 8),
-            color='white')
-
+            color='white'
+        )
         self.c.color = u"white"  # Draw the slider axis (was fgcolor ?)
         self.c['SliderBox'] = Rect(
             -self.c.width / 2.2,
             0,
             2 * self.c.width / 2.2,
             28,
-            fill=False)
-
+            fill=False
+        )
         self.c.color = u"white"
         self.c['Slider'] = Rect(
             (-self.c.width / 2.2) + 6,
             6,
             (2 * self.c.width / 2.2) - 12,
             16,
-            fill=True)
-
+            fill=True
+        )
         self.c['TestBox'] = Rect(
             -self.c.width / 3,
             self.c.height / 4,
             self.c.width / 10,
             self.c.height / 10,
             fill=True,
-            color='red')
-
+            color='red'
+        )
         self.c['TestText'] = RichText(
             "TEST",
             x=(-self.c.width / 3) + (self.c.width / 20),
             y=(self.c.height / 4) + (self.c.height / 20),
-            color='black')
-
+            color='black'
+        )
         self.c['OKBox'] = Rect(
             self.c.width / 3,
             self.c.height / 4,
             -self.c.width / 10,
             self.c.height / 10,
             fill=True,
-            color='green')
-
+            color='green'
+        )
         self.c['OKText'] = RichText(
             "OK",
             x=(self.c.width / 3)-(self.c.width / 20),
             y=(self.c.height / 4)+(self.c.height / 20),
-            color='black')
-
+            color='black'
+        )
         self.c['ValuemA'] = RichText(
             str(round(0, 3)) + "mA",
             x=0,
             y=-(self.c.height / 4)+(self.c.height / 20),
-            color='green')
-
+            color='green'
+        )
         self.c['ValuePerc'] = RichText(
             "("+str(round(0)) + "%)",
             x=0,
             y=-(self.c.height / 4)+(self.c.height / 12),
-            color='green')
-
+            color='green'
+        )
         self.c['wait... '] = RichText(
             str(round(0)),
             x=0,
             y=-(self.c.height / 10)+(self.c.height / 2),
-            color='black')
-
+            color='black'
+        )
         self.c.show()
 
     def Stimulate_Prepare(self):
@@ -183,7 +183,7 @@ class TactileStimulator(Item):
         self.experiment.var.tactstim_pulse_value = math.floor(
             self.var._percOfCalibrationValue * \
                 self.experiment.var.tactstim_calibration_perc * 255.0 / 10000)
-        self.experiment.set.tactstim_pulse_milliamp = round(
+        self.experiment.var.tactstim_pulse_milliamp = round(
             self.var._percOfCalibrationValue * \
                 self.experiment.var.tactstim_calibration_perc * 5.0 / 10000, 2)
         oslogger.info("In (Hardware) Tactile Stimulator: \
@@ -246,18 +246,63 @@ class TactileStimulator(Item):
                 else:
                     self.eedev.PulseLines(math.floor((xperc / 100.0) * 255),
                                        self.var._pulseDuration)
-                # self.c['TestBox'].color = 'blue' # color setter not working! ?
+                # self.c['TestBox'].color = 'blue' # color setter not working! For now we redraw the box/items...
+                self.c.rect(
+                    -self.c.width / 3,
+                    self.c.height / 4,
+                    self.c.width / 10,
+                    self.c.height / 10,
+                    fill=True,
+                    color='blue'
+                )
                 self.c.show()
 
                 # self.c['wait... '].color = 'green'
+                self.c.text(
+                    str(round(0)),
+                    x=0,
+                    y=-(self.c.height / 10)+(self.c.height / 2),
+                    color='green'
+                )
                 for n in range(1, self.var._interPulseHoldOffTime):
-                    self.c['wait... '].text = "wait... " + str(
-                        self.var._interPulseHoldOffTime - n)
+                    #self.c['wait... '].text = "wait... " + str(self.var._interPulseHoldOffTime - n)
+                    self.c.text(
+                        "wait... " + str(self.var._interPulseHoldOffTime - n),
+                        x=0,
+                        y=-(self.c.height / 10)+(self.c.height / 2),
+                        color='green'
+                    )
                     self.c.show()
                     time.sleep(1)
+                    self.c.text(
+                        "wait... " + str(self.var._interPulseHoldOffTime - n),
+                        x=0,
+                        y=-(self.c.height / 10)+(self.c.height / 2),
+                        color='black'
+                    )
                 # self.c['wait... '].color = 'black'
-                self.c['wait... '].text = "wait... " + str(0)
+                self.c.text(
+                    str(round(0)),
+                    x=0,
+                    y=-(self.c.height / 10)+(self.c.height / 2),
+                    color='black'
+                )
+                # self.c['wait... '].text = "wait... " + str(0)
                 # self.c['TestBox'].color = 'red'
+                self.c.text(
+                    "wait... " + str(0),
+                    x=0,
+                    y=-(self.c.height / 10)+(self.c.height / 2),
+                    color='red'
+                )
+                self.c.rect(
+                    -self.c.width / 3,
+                    self.c.height / 4,
+                    self.c.width / 10,
+                    self.c.height / 10,
+                    fill=True,
+                    color='red'
+                )
                 self.c.show()
 
             if (x, y) in self.c['OKBox']:
