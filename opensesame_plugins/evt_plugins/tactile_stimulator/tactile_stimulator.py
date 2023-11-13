@@ -63,10 +63,9 @@ class TactileStimulator(Item):
         if not 1 <= self.var._pulseDuration <= 2000:
             oslogger.error("Pulse duration out of range!")
             self.var._pulseDuration = 150
-        # self.experiment.set("tactstim_pulse_duration_ms", self.var._pulseDuration)
-        self.var.tactstim_pulse_duration_ms = u"self.var._pulseDuration"
-        self.EE = EvtExchanger()
-        Device = self.EE.Select(self.var._deviceName)
+        self.experiment.var.tactstim_pulse_duration_ms = self.var._pulseDuration
+        self.eedev = EvtExchanger()
+        Device = self.eedev.Select(self.var._deviceName)
 
         try:
             if Device is None:
@@ -83,7 +82,7 @@ class TactileStimulator(Item):
 
     def Calibrate_Prepare(self):
         if not (self.var._deviceName == u"DUMMY"):
-            self.EE.SetLines(0)
+            self.eedev.SetLines(0)
             oslogger.info("In (Hardware) Tactile Stimulator: reset port")
 
         self.c = Canvas(self.experiment)
@@ -94,8 +93,8 @@ class TactileStimulator(Item):
             center=True,
             x=0,
             y=-int(self.c.height/3),
-            color="white",
-            font_family="mono",
+            color='white',
+            font_family='mono',
             font_size=28)
 
         self.c['Instruction'] = RichText(
@@ -105,7 +104,7 @@ class TactileStimulator(Item):
             center=True,
             x=0,
             y=-int(self.c.height / 8),
-            color="white")
+            color='white')
 
         self.c.color = u"white"  # Draw the slider axis (was fgcolor ?)
         self.c['SliderBox'] = Rect(
@@ -124,56 +123,56 @@ class TactileStimulator(Item):
             fill=True)
 
         self.c['TestBox'] = Rect(
-            (-self.c.width / 3),
+            -self.c.width / 3,
             self.c.height / 4,
             self.c.width / 10,
             self.c.height / 10,
             fill=True,
-            color="red")
+            color='red')
 
         self.c['TestText'] = RichText(
             "TEST",
-            x=(-self.c.width / 3)+(self.c.width / 20),
-            y=(self.c.height / 4)+(self.c.height / 20),
-            color="black")
+            x=(-self.c.width / 3) + (self.c.width / 20),
+            y=(self.c.height / 4) + (self.c.height / 20),
+            color='black')
 
         self.c['OKBox'] = Rect(
-            (self.c.width / 3),
+            self.c.width / 3,
             self.c.height / 4,
             -self.c.width / 10,
             self.c.height / 10,
             fill=True,
-            color="green")
+            color='green')
 
         self.c['OKText'] = RichText(
             "OK",
             x=(self.c.width / 3)-(self.c.width / 20),
             y=(self.c.height / 4)+(self.c.height / 20),
-            color="black")
+            color='black')
 
         self.c['ValuemA'] = RichText(
             str(round(0, 3)) + "mA",
             x=0,
             y=-(self.c.height / 4)+(self.c.height / 20),
-            color="green")
+            color='green')
 
         self.c['ValuePerc'] = RichText(
             "("+str(round(0)) + "%)",
             x=0,
             y=-(self.c.height / 4)+(self.c.height / 12),
-            color="green")
+            color='green')
 
         self.c['wait... '] = RichText(
             str(round(0)),
             x=0,
             y=-(self.c.height / 10)+(self.c.height / 2),
-            color="black")
+            color='black')
 
         self.c.show()
 
     def Stimulate_Prepare(self):
         try:
-            self.experiment.get("tactstim_calibration_value")
+            self.experiment.var.tactstim_calibration_value
         except Exception:
             oslogger.error("No calibration step taken: First run \
                            the Tactile Stimulator in calibration mode!")
@@ -181,25 +180,20 @@ class TactileStimulator(Item):
         if not 0 <= self.var._percOfCalibrationValue <= 100:
             oslogger.error("Percentage input out of range!")
             self.var._percOfCalibrationValue = 0
-
-        self.experiment.set("tactstim_pulse_value",
-        math.floor(self.var._percOfCalibrationValue \
-            * self.experiment.get("tactstim_calibration_perc") \
-                * 255.0 / 10000))
-        self.experiment.set("tactstim_pulse_milliamp",
-        round(self.var._percOfCalibrationValue \
-            * self.experiment.get("tactstim_calibration_perc") \
-                * 5.0 / 10000, 2))
+        self.experiment.var.tactstim_pulse_value = math.floor(
+            self.var._percOfCalibrationValue * \
+                self.experiment.var.tactstim_calibration_perc * 255.0 / 10000)
+        self.experiment.set.tactstim_pulse_milliamp = round(
+            self.var._percOfCalibrationValue * \
+                self.experiment.var.tactstim_calibration_perc * 5.0 / 10000, 2)
         oslogger.info("In (Hardware) Tactile Stimulator: \
                       prepared to pulse with value \
                       (raw, mA): {}, {:.2f}".
-                      format(self.experiment.get(
-                          "tactstim_pulse_value"),
-                          self.experiment.get(
-                              "tactstim_pulse_milliamp")))
+                      format(self.experiment.var.tactstim_pulse_value,
+                             self.experiment.var.tactstim_pulse_milliamp))
 
     def run(self):
-        # self.set_item_onset()
+        self.set_item_onset()
         if self.var._deviceName == u"DUMMY":
             if self.var._mode == u"Stimulate":
                 oslogger.info('dummy stimulator: \
@@ -250,36 +244,31 @@ class TactileStimulator(Item):
                         "In (Dummy) Tactile Stimulator: pulsing with value: {}"
                         .format(math.floor((xperc / 100.0) * 255)))
                 else:
-                    self.EE.PulseLines(math.floor((xperc / 100.0) * 255),
+                    self.eedev.PulseLines(math.floor((xperc / 100.0) * 255),
                                        self.var._pulseDuration)
-
-                self.c['TestBox'].color = 'blue'
+                # self.c['TestBox'].color = 'blue' # color setter not working! ?
                 self.c.show()
-                self.c['wait... '].color = 'green'
+
+                # self.c['wait... '].color = 'green'
                 for n in range(1, self.var._interPulseHoldOffTime):
                     self.c['wait... '].text = "wait... " + str(
                         self.var._interPulseHoldOffTime - n)
                     self.c.show()
                     time.sleep(1)
-                self.c['wait... '].color = 'black'
+                # self.c['wait... '].color = 'black'
                 self.c['wait... '].text = "wait... " + str(0)
-                self.c['TestBox'].color = 'red'
+                # self.c['TestBox'].color = 'red'
                 self.c.show()
 
             if (x, y) in self.c['OKBox']:
-                self.experiment.set("tactstim_calibration_perc",
-                round(xperc, 2))
-                self.experiment.set("tactstim_calibration_value",
-                math.floor(xperc * 255.0 / 100))
-                self.experiment.set("tactstim_calibration_milliamp",
-                round(5*(xperc / 100.0), 2))
+                self.experiment.var.tactstim_calibration_perc = round(xperc, 2)
+                self.experiment.var.tactstim_calibration_value = math.floor(xperc * 255.0 / 100)
+                self.experiment.var.tactstim_calibration_milliamp = round(5*(xperc / 100.0), 2)
                 oslogger.info("In (Hardware) Tactile Stimulator: \
                               pulse intensity calibration value \
                               (raw, mA): {}, {:.2f}"
-                              .format(self.experiment.get(
-                                  "tactstim_calibration_value"),
-                                  self.experiment.get(
-                                      "tactstim_calibration_milliamp")))
+                              .format(self.experiment.var.tactstim_calibration_value,
+                                  self.experiment.var.tactstim_calibration_milliamp))
                 break
 
     def Stimulate_Run(self):
@@ -289,28 +278,25 @@ class TactileStimulator(Item):
                               self.var._percOfCalibrationValue))
         else:
             try:
-                timeLastPulse = self.experiment.get(
-                    "tactstim_time_last_pulse")
+                timeLastPulse = self.experiment.var.tactstim_time_last_pulse
             except Exception:
                 timeLastPulse = 0
             td = time.time() - timeLastPulse
-            """
-            oslogger.info("Time duration inbetween pulses: " + str(td))
-            """
+            # oslogger.info("Time duration inbetween pulses: " + str(td))
+            
             if (td > self.var._pulseTimeOut):
                 """
                 This if statement is to prevent the possibility
                 to pulse if the previous stimulus was less then
                 the minimum time ago
                 """
-                self.EE.PulseLines(self.experiment.get(
-                    "tactstim_pulse_value"), self.var._pulseDuration)
+                self.eedev.PulseLines(self.experiment.var.tactstim_pulse_value, self.var._pulseDuration)
                 oslogger.info("Pulse now!")
             else:
                 oslogger.warning("In (Hardware) Tactile Stimulator: \
                                  the next pulse came too early. \
                                  Please don't pulse in rapid succession!")
-        self.experiment.set("tactstim_time_last_pulse", time.time())  # update the time stamp of the last call
+        self.experiment.var.tactstim_time_last_pulse = time.time()  # update the time stamp of the last call
 
 
 class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
@@ -339,8 +325,8 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        EE = EvtExchanger()
-        listOfDevices = EE.Attached(u"SHOCKER")
+        eedev = EvtExchanger()
+        listOfDevices = eedev.Attached(u"SHOCKER")
 
         """
         If there is no Tactile Stimulator attached,
