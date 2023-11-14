@@ -4,17 +4,18 @@ The currently supported OpenSesame version is v4.0
 
 The following plugin collection is available:
 
-Plugin | Description | Status
------- | ----------- | ------
-evt_xx | Plugin for Event Exchanger (EVT) 2,3 and 4 variants for event-marking and triggering | not validated
-response_box | Button response box variants with 1-4 buttons | not validated
-rgb_led_control | multi-color LED control | not validated
-tactile_stimulator | Electrotactile Stimulator 0-5mA | validated
-vas |  | not validated
-vas_2 |  | not validated
+Plugin | Description | Desktop | OS compatibility | Status
+------ | ----------- | ------- | ---------------- | ------
+evt_xx | Plugin for Event Exchanger (EVT) 2,3 and 4 variants for event-marking and triggering | pygame(legacy) | Win | not validated
+rsp_pyevt | Button response box variants with 1-8 buttons | pygame(legacy) | Windows | not validated
+rsp_pygame | Button response box variants with 1-8 buttons | pygame(legacy) | Windows/Linux | validated
+rgb_led_control | multi-color LED control | pygame(legacy) | Windows | not validated
+tactile_stimulator | Electrotactile Stimulator 0-5mA | pygame(legacy) | Windows | not validated
+vas | | pygame(legacy) | Windows | not validated
+vas_2 | | pygame(legacy) | Windows | not validated
 
 ## Package dependencies
-The plugins are dependent on the Python module pyevt and the underlying HIDAPI package.
+The plugins are dependent on the Python module pyevt and the underlying hidapi package.
 
 [https://pypi.org/project/hidapi/](https://pypi.org/project/hidapi/)
 
@@ -28,7 +29,9 @@ When the plugins are located somewhere else, add your path to the python-path of
 
 ## evt_xx
 
-## response_box
+## rsp_pyevt
+
+## rsp_pygame
 
 ## rgb_led_control
 

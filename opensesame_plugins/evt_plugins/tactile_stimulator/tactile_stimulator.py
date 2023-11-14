@@ -46,8 +46,7 @@ from openexp.canvas_elements import (
 class TactileStimulator(Item):
     """"Class for handling the Tactile Stimulator."""
 
-    description = u"Plugin for the calibration and the usage \
-    of the Tactile Stimulator."
+    description = u"Plugin for the calibration and the usage of the Tactile Stimulator."
 
     def reset(self):
         self.var._percOfCalibrationValue = 0

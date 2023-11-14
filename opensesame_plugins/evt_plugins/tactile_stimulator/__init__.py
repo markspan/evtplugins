@@ -29,9 +29,9 @@ controls = [
     {
         "type": "line_edit",
         "var": "_percOfCalibrationValue",
-        "label": "Percentage [%]",
+        "label": "Percentage of the calibrated value applied to the subject [%]",
         "name": "value_widget",
-        "tooltip": "Give the percentage of the calibrated pulse intensity value to be used."
+        "tooltip": "Give the percentage of the calibrated pulse intensity applied to the subject."
     },
     {
         "type": "line_edit",
