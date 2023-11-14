@@ -6,13 +6,13 @@ The following plugin collection is available:
 
 Plugin | Description | Desktop | OS compatibility | Status
 ------ | ----------- | ------- | ---------------- | ------
-evt_xx | Plugin for Event Exchanger (EVT) 2,3 and 4 variants for event-marking and triggering | pygame(legacy) | Win | not validated
-rsp_pyevt | Button response box variants with 1-8 buttons | pygame(legacy) | Windows | not validated
-rsp_pygame | Button response box variants with 1-8 buttons | pygame(legacy) | Windows/Linux | validated
-rgb_led_control | multi-color LED control | pygame(legacy) | Windows | not validated
-tactile_stimulator | Electrotactile Stimulator 0-5mA | pygame(legacy) | Windows | not validated
-vas | | pygame(legacy) | Windows | not validated
-vas_2 | | pygame(legacy) | Windows | not validated
+evt_xx | Plugin for Event Exchanger EVT-2,3 and 4 variants for event-marking and triggering | pygame(legacy) | Win | not validated
+rsp_pyevt | Plugin for RSP12x button response box variants with 1-8 buttons | pygame(legacy) | Windows | not validated
+rsp_pygame | Plugin for RSP12x button response box variants with 1-8 buttons | pygame(legacy) | Windows/Linux | validated
+rgb_led_control | Plugin for multi-color LED control | pygame(legacy) | Windows | not validated
+tactile_stimulator | Plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | pygame(legacy) | Windows | not validated
+vas | Plugin for the linear slider | pygame(legacy) | Windows | not validated
+vas_2 | Plugin for the linear slider | pygame(legacy) | Windows | not validated
 
 ## Package dependencies
 The plugins are dependent on the Python module pyevt and the underlying hidapi package.
