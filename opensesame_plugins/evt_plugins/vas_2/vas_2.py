@@ -7,7 +7,6 @@ domain.
 import os
 import sys
 import numpy as np
-from pyevt import EvtExchanger
 from libopensesame.py3compat import *
 from libopensesame.item import Item
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
@@ -61,9 +60,9 @@ class Vas2(Item):
         my_canvas = self.experiment.items[self.var.VAS_CANVAS_NAME].canvas
 
         try:
-            if my_canvas[self.var.VAS_BODY_NAME] is None or
-            if my_canvas[self.var.VAS_EXITBUTTON_NAME] is None:
-                oslogger.info("Should not occur")
+            if my_canvas[self.var.VAS_BODY_NAME] is None or \
+                my_canvas[self.var.VAS_EXITBUTTON_NAME] is None:
+                    oslogger.info("Should not occur")
         except Exception as e:
             raise osexception(u"Prepare: READ the VAS manual:\n\r\
                               No VAS elements found on the named canvas")
@@ -71,30 +70,30 @@ class Vas2(Item):
         self.useLabels = True
 
         try:
-            if my_canvas[self.var.VAS_MAXLABEL_NAME] is None or
-            if my_canvas[self.var.VAS_MAXLABEL_NAME] is None:
-                oslogger.info("Should not occur")
+            if my_canvas[self.var.VAS_MAXLABEL_NAME] is None or \
+                my_canvas[self.var.VAS_MAXLABEL_NAME] is None:
+                    oslogger.info("Should not occur")
         except Exception as e:
             self.uselabels = False
 
         self.c = self.experiment.items[self.var.VAS_CANVAS_NAME].canvas
         self.ypos = -1
         # is the vasbody a line or a rect?
-        if hasattr(self.c[self.var.VAS_BODY_NAME], 'ex') and
-        hasattr(self.c[self.var.VAS_BODY_NAME], 'sx'):
-            self.VASLENGTH = self.c[self.var.VAS_BODY_NAME].ex - \
-                self.c[self.var.VAS_BODY_NAME].sx
-            self.ypos = (self.c[self.var.VAS_BODY_NAME].sy +
-                         self.c[self.var.VAS_BODY_NAME].ey) / 2
-            self.sx = self.c[self.var.VAS_BODY_NAME].sx
+        if hasattr(self.c[self.var.VAS_BODY_NAME], 'ex') and \
+            hasattr(self.c[self.var.VAS_BODY_NAME], 'sx'):
+                self.VASLENGTH = self.c[self.var.VAS_BODY_NAME].ex - \
+                    self.c[self.var.VAS_BODY_NAME].sx
+                self.ypos = (self.c[self.var.VAS_BODY_NAME].sy + \
+                             self.c[self.var.VAS_BODY_NAME].ey) / 2
+                self.sx = self.c[self.var.VAS_BODY_NAME].sx
 
-        if hasattr(self.c[self.var.VAS_BODY_NAME], 'w') and
-        hasattr(self.c[self.var.VAS_BODY_NAME], 'y') and
-        hasattr(self.c[self.var.VAS_BODY_NAME], 'h'):
-            self.VASLENGTH = self.c[self.var.VAS_BODY_NAME].w
-            self.ypos = self.c[self.var.VAS_BODY_NAME].y + \
-                (self.c[self.var.VAS_BODY_NAME].h / 2)
-            self.sx = self.c[self.var.VAS_BODY_NAME].x
+        if hasattr(self.c[self.var.VAS_BODY_NAME], 'w') and \
+            hasattr(self.c[self.var.VAS_BODY_NAME], 'y') and \
+                hasattr(self.c[self.var.VAS_BODY_NAME], 'h'):
+                    self.VASLENGTH = self.c[self.var.VAS_BODY_NAME].w
+                    self.ypos = self.c[self.var.VAS_BODY_NAME].y + \
+                        (self.c[self.var.VAS_BODY_NAME].h / 2)
+                    self.sx = self.c[self.var.VAS_BODY_NAME].x
 
         if self.ypos == -1:
             raise TypeError("VasBody should be a line or a Rect")
@@ -193,22 +192,8 @@ class QtVas2(Vas2, QtAutoPlugin):
     """
 
     def __init__(self, name, experiment, script=None):
-
-        """
-        Constructor.
-
-        Arguments:
-        name        --    The name of the plug-in.
-        experiment    --    The experiment object.
-
-        Keyword arguments:
-        script        --    A definition script. (default=None)
-        """
-
-        # We don't need to do anything here, except call the parent
-        # constructors.
         Vas2.__init__(self, name, experiment, script)
-        QtautoPlugin.__init__(self, __file__)
+        QtAutoPlugin.__init__(self, __file__)
 
     def init_edit_widget(self):
 
@@ -218,20 +203,9 @@ class QtVas2(Vas2, QtAutoPlugin):
         such as controls that are grayed out under certain conditions, you need
         to implement this here.
         """
-
-        # First, call the parent constructor, which constructs the GUI controls
-        # based on info.json.
         super().init_edit_widget()
-        # If you specify a 'name' for a control in info.json, this control will
-        # be available self.[name]. The type of the object depends on the
-        # control. A checkbox will be a QCheckBox, a line_edit will be a
-        # QLineEdit. Here we connect the stateChanged signal of the QCheckBox,
-        # to the setEnabled() slot of the QLineEdit. This has the effect of
-        # disabling the QLineEdit when the QCheckBox is uncheckhed. We also
-        # explictly set the starting state.
-        # self.line_edit_widget.setEnabled(self.checkbox_widget.isChecked())
-        # self.checkbox_widget.stateChanged.connect(
-        # self.line_edit_widget.setEnabled)
+
         self.line_edit_widget.setEnabled(self.checkbox_widget.isChecked())
         self.checkbox_widget.stateChanged.connect(
             self.line_edit_widget.setEnabled)
+

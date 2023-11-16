@@ -32,6 +32,7 @@ from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 
 class RspPygame(BaseResponseItem):
 
+    description = u"Collects input from a RSP-12x responsebox or a generic joystick device"
     process_feedback = True
 
     def reset(self):

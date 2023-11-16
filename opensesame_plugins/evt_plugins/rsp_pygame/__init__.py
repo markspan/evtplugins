@@ -1,4 +1,4 @@
-"""Collects input from a RSP-12x responsebox"""
+"""Collects input from a RSP-12x responsebox or a generic joystick device"""
 
 authors = ["Edwin Dalmaijer", "Sebastiaan Mathot", "Martin Stokroos"]
 category = "RUG/BSS hardware"
