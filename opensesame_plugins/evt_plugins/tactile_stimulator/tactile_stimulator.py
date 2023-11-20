@@ -63,8 +63,8 @@ class TactileStimulator(Item):
             oslogger.error("Pulse duration out of range!")
             self.var._pulseDuration = 150
         self.experiment.var.tactstim_pulse_duration_ms = self.var._pulseDuration
-        self.eedev = EvtExchanger()
-        Device = self.eedev.Select(self.var._deviceName)
+        self.evt = EvtExchanger()
+        Device = self.evt.Select(self.var._deviceName)
 
         try:
             if Device is None:
@@ -81,7 +81,7 @@ class TactileStimulator(Item):
 
     def Calibrate_Prepare(self):
         if not (self.var._deviceName == u"DUMMY"):
-            self.eedev.SetLines(0)
+            self.evt.SetLines(0)
             oslogger.info("In (Hardware) Tactile Stimulator: reset port")
 
         self.c = Canvas(self.experiment)
@@ -243,7 +243,7 @@ class TactileStimulator(Item):
                         "In (Dummy) Tactile Stimulator: pulsing with value: {}"
                         .format(math.floor((xperc / 100.0) * 255)))
                 else:
-                    self.eedev.PulseLines(math.floor((xperc / 100.0) * 255),
+                    self.evt.PulseLines(math.floor((xperc / 100.0) * 255),
                                        self.var._pulseDuration)
                 # self.c['TestBox'].color = 'blue' # color setter not working! For now we redraw the box/items...
                 self.c.rect(
@@ -334,7 +334,7 @@ class TactileStimulator(Item):
                 to pulse if the previous stimulus was less then
                 the minimum time ago
                 """
-                self.eedev.PulseLines(self.experiment.var.tactstim_pulse_value, self.var._pulseDuration)
+                self.evt.PulseLines(self.experiment.var.tactstim_pulse_value, self.var._pulseDuration)
                 oslogger.info("Pulse now!")
             else:
                 oslogger.warning("In (Hardware) Tactile Stimulator: \
@@ -369,8 +369,8 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        eedev = EvtExchanger()
-        listOfDevices = eedev.Attached(u"SHOCKER")
+        evt = EvtExchanger()
+        listOfDevices = evt.Attached(u"SHOCKER")
 
         """
         If there is no Tactile Stimulator attached,

@@ -11,8 +11,8 @@ rsp_pyevt | Plugin for RSP12x button response box variants with 1-8 buttons | py
 rsp_pygame | Plugin for RSP12x button response box variants with 1-8 buttons | pygame(legacy) | Windows/Linux | validated
 rgb_led_control | Plugin for multi-color LED control | pygame(legacy) | Windows | not validated
 tactile_stimulator | Plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | pygame(legacy) | Windows | not validated
-vas | Plugin for the linear slider | pygame(legacy) | Windows | not validated
-vas_2 | Plugin for the linear slider | pygame(legacy) | Windows | not validated
+vas_evt | A Virtual Analog Slider plugin controlled via an encoder knob connected to the EVT-2 | pygame(legacy) | Windows | not validated
+vas_gui | A Virtual Analog Slider plugin controlled via the PC-mouse and GUI | pygame(legacy) | Windows | not validated
 
 ## Package dependencies
 The plugins are dependent on the Python module pyevt and the underlying hidapi package.
@@ -35,7 +35,7 @@ When the plugins are located somewhere else, add your path to the python-path of
 
 ## rgb_led_control
 
-## tactile_stimulator
+## tactile_stimulator - A
 description ...
 
 List of the variables that appear in the OpenSesame variable inspector when using the TactileStimulator plugin:
@@ -50,7 +50,8 @@ tactstim_pulse_value | The actual byte value representation that is sent to the 
 tactstim_pulse_duration_ms | The pulse duration time in ms
 tactstim_time_last_pulse | Unique time stamp in seconds from the moment of the shock
 
-## vas
+## vas_evt
+The *vas_evt* plugin does not work standalone, but requires a link with a custom designed sketchpad screen to build the GUI!
 
-## vas_2
-
+## vas_gui
+The *vas_gui* plugin does not work standalone, but requires a link with a custom designed sketchpad screen to build the GUI!

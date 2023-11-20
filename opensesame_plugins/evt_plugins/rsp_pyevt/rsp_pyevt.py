@@ -8,23 +8,21 @@ the Free Software Foundation, either version 3 of the License, or
 
 OpenSesame is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PAresponse_timeICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
-import sys
-import math
+
 from pyevt import EvtExchanger
-from openexp.keyboard import Keyboard
-from libopensesame.item import Item
-from libopensesame.oslogging import oslogger
+from libopensesame.py3compat import *
 from libopensesame.base_response_item import BaseResponseItem
+from openexp.keyboard import Keyboard
+from libopensesame.oslogging import oslogger
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 
-class RspPyevt(Item):
+class RspPyevt(BaseResponseItem):
 
     """
         This class (the class with the same name as the module)
@@ -32,69 +30,73 @@ class RspPyevt(Item):
         not deal with GUI stuff.
     """
 
-    description = u"Aquires buttonpress-responses and/or digital events\r\n" \
-        " from EventExchanger-based digital input device. "
+    description = u"Collects input from a RSP-12x response box or from a generic keyboard"
+    process_feedback = True
 
     def reset(self):
         # Set the default values of the plug-in items in the GUI
         self.var.device = u'Keyboard'
-        self.var.correct_button = u'1'
-        self.var.allowed_buttons = u'1;2'
+        self.var.correct_response = u'1'
+        self.var.allowed_responses = u'1;2'
         self.var.timeout = u'infinite'
 
-    def prepare(self):
+    def validate_response(self, response):
+        try:
+            response = int(response)
+        except ValueError:
+            return False
+        return response >= 0 or response <= 255
+
+    def _get_button_press(self):
+        r"""Calls libjoystick.get_button_press() with the correct arguments."""
+        oslogger.info("Button pressed!")
+        return
+
+    def prepare_response_func(self):
         """The preparation phase of the plug-in goes here."""
-        # Call the parent constructor.
-        super().prepare()
-        self.EE = EvtExchanger()
-        Device = self.EE.Select(self.var.device)
+        self.evt = EvtExchanger()
 
         try:
-            if Device is None:
-                raise
+            Device = self.evt.Select(self.var.device)
         except:
             self.var.device = u'Keyboard'
-            self.Keyboard = Keyboard(self.experiment)
-            if not type(self.var.timeout) == int:
-                self.var.timeout = None
-            oslogger.info("Cannot find ResponseBox: Using Keyboard instead")
+            oslogger.info("Cannot find any response box: using the keyboard by default")
+        
+        if not isinstance(self.var.timeout, int):
+            self._timeout = None
+        self._keyboard = Keyboard(
+            self.experiment,
+            keylist=(
+                self._allowed_responses if self._allowed_responses
+                else list(range(0, 9))  # Only numeric keys
+            ),
+            timeout=self._timeout
+        )
+        if self.var.device == u'Keyboard':
+            return self._keyboard.get_key
 
-        if not type(self.var.timeout) == int:
-            self.var.timeout = -1
-        # Recode Allowed buttons to AllowedEventLines
-        self.var.AllowedEventLines = 0
-        try:
-            AllowedList = self.var.allowed_buttons.split(";")
-            for x in AllowedList:
-                self.var.AllowedEventLines +=  (1 << (int(x,10) -1))
-        except:
-            x = self.var.allowed_buttons
-            self.var.AllowedEventLines =  (1 << (x-1))
+    def response_matches(self, test, ref):
+        return safe_decode(test) in ref
 
-    def run(self):
-        # Save the current time ...
-        t0 = self.set_item_onset()
-        # Call the 'wait for event' function in the EventExchanger C# object.
-
-        if self.var.device != u'Keyboard':
-            (self.var.Response,self.var.RT) = \
-                (self.EE.WaitForDigEvents(self.var.AllowedEventLines,
-                self.var.timeout)) 
-            self.var.Response = math.log2(self.var.Response) + 1;   
-            
+    def coroutine(self):
+        if self.var.device == u'Keyboard':
+            self._keyboard.timeout = 0
         else:
-            # demo mode: keyboard response.....
-            self.var.Response, self.var.RT= self.Keyboard.get_key(timeout=self.var.timeout)
+            self._timeout = 0
+            self.var.response, self.var.response_time = \
+                (self.evt.WaitForDigEvents(self.var.allowed_responses,
+                                           self.var.timeout))
+            oslogger.info("Response %d =", self.var.response)
 
-        self.CorrectResponse = \
-            (self.var.Response == self.var.correct_button)
-        # Add all response related data to the Opensesame responses instance.
-        self.experiment.responses.add(response_time=self.var.RT, \
-                                correct=self.CorrectResponse, \
-                                response=self.var.Response, \
-                                item=self.name)
-        #Report success        
-        return True
+        alive = True
+        yield
+        self._t0 = self.set_item_onset()
+        # while alive:
+            # button, time = self._collect_response()
+            # if button is not None:
+            #    break
+            # alive = yield
+        # self.process_response((button, time))
 
 
 class QtRspPyevt(RspPyevt, QtAutoPlugin):
@@ -105,8 +107,8 @@ class QtRspPyevt(RspPyevt, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        EE = EvtExchanger()
-        listOfDevices = EE.Attached(u"EventExchanger")
+        evt = EvtExchanger()
+        listOfDevices = evt.Attached(u"EventExchanger")
         if listOfDevices:
             for i in listOfDevices:
                 self.device_widget.addItem(i)

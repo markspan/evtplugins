@@ -1,22 +1,11 @@
-"""Collects input from a RSP-12x responsebox"""
+"""Collects input from a RSP-12x responsebox or from a generic keyboard"""
 
 authors = ["M. Stokroos", "M. M. Span"]
 # The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
-help_url = 'www'
+help_url = 'https://github.com/MartinStokroos/evt-plugins'
 # Defines the GUI controls
 controls = [
-    {
-        "type": "combobox",
-        "var": "dummy",
-        "label": "Dummy mode (use keyboard instead of joystick)",
-        "options": [
-            "no",
-            "yes"
-        ],
-        "name": "dummy_widget",
-        "tooltip": "Enable dummy mode to test the experiment using a keyboard"
-    },
     {
         "type": "combobox",
         "var": "device",
@@ -29,17 +18,17 @@ controls = [
     },
     {
         "type": "line_edit",
-        "var": "correct_button",
-        "label": "Correct Button",
-        "name": "correct_button_widget",
-        "tooltip": "Choose the correct button (1-8)"
+        "var": "correct_response",
+        "label": "Correct response",
+        "name": "correct_response_widget",
+        "tooltip": "Choose the correct response, button (1-8)"
     },
     {
         "type": "line_edit",
-        "var": "allowed_buttons",
-        "label": "Allowed Buttons",
-        "name": "allowed_buttons_widget",
-        "tooltip": "Allowed Buttons, (1-8) seperated by ';'= "
+        "var": "allowed_responses",
+        "label": "Allowed responses",
+        "name": "allowed_response_widget",
+        "tooltip": "Allowed responses (buttons 1-8) seperated by ';'= "
     },
     {
         "type": "line_edit",
