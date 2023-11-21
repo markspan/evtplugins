@@ -42,11 +42,19 @@ controls = [
         "tooltip": "Enter the name of the textelement to the right of the VAS"
     }, {
         "type": "spinbox",
-        "var": "van_linesize",
-        "label": "Start value",
+        "var": "vas_marker_length",
+        "label": "Marker length in pixels",
         "min_val": 1,
-        "max_val": 1000,
-        "name": "vas_linesize_widget",
-        "tooltip": "Enter the length you want to have for the marker in pixels."
+        "max_val": 100,
+        "name": "vas_markerlength_widget",
+        "tooltip": "Enter the length of the marker in pixels."
+    }, {
+        "type": "spinbox",
+        "var": "vas_marker_width",
+        "label": "Marker width in pixels",
+        "min_val": 1,
+        "max_val": 100,
+        "name": "vas_markerwidth_widget",
+        "tooltip": "Enter the width of the marker in pixels."
     }
 ]
