@@ -6,6 +6,7 @@ domain.
 """
 from libopensesame.py3compat import *
 from libopensesame.item import Item
+from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 from libopensesame.oslogging import oslogger
 from openexp.mouse import Mouse
 from openexp.canvas import Canvas
@@ -34,6 +35,7 @@ class VasGui(Item):
         self.var.vas_minlabel_name = u'MINLABEL'
         self.var.vas_marker_length = 10
         self.var.vas_marker_width = 4
+        self.var.vas_timeout = u'infinite'
 
     def prepare(self):
 
@@ -41,6 +43,11 @@ class VasGui(Item):
 
         self.my_mouse = Mouse(self.experiment)
         self.my_mouse.buttonlist = [1]
+
+        try:
+            self._timeout = int(self.var.vas_timeout)
+        except ValueError:
+            self._timeout = -1
 
         # Checking the excistence of the VAS elements is only possible
         # in the runphase as only then the full canvas is available
@@ -52,12 +59,13 @@ class VasGui(Item):
             if my_canvas[self.var.vas_body_name] is None or my_canvas[self.var.vas_exitbutton_name] is None:
                 oslogger.info("Should not occur")
         except Exception:
-            oslogger.error(u"READ the VAS manual: no VAS-elements found on the given canvas")
+            oslogger.error(u"No VAS-elements found on the sketchpad canvas")
+        
         self.useLabels = True
 
         try:
             if my_canvas[self.var.vas_maxlabel_name] is None or my_canvas[self.var.vas_maxlabel_name] is None:
-                oslogger.info("Should not occur")
+                oslogger.info("Not using min and max labels")
         except Exception:
             self.uselabels = False
 
@@ -74,16 +82,23 @@ class VasGui(Item):
             self.ypos = self.c[self.var.vas_body_name].y + (self.c[self.var.vas_body_name].h / 2)
             self.sx = self.c[self.var.vas_body_name].x
         if self.ypos == -1:
-            raise oslogger.error("The VAS Body should be a line or a rectangle")
+            raise oslogger.error("The VAS-body should be a line or a rectangle")
 
     def run(self):
         start_time = self.clock.time()
-        xpos = -1
 
         self.my_mouse.set_pos(pos=(0, 0))
         self.my_mouse.show_cursor(show=True)
 
+        xpos = -1
         while(True):
+            # Check if timeout
+            if self._timeout >= 0:
+                if self.clock.time() - start_time >= self._timeout:
+                    self.experiment.var.vas_response_time = self._timeout
+                    self.experiment.var.vas_response = -1
+                    break
+
             # Poll the mouse for button clicks
             button, position, timestamp = self.my_mouse.get_click(timeout=20)
 
@@ -152,9 +167,45 @@ class VasGui(Item):
 
                 if (x, y) in self.c[self.var.vas_exitbutton_name]:
                     if xpos != -1:
+                        self.experiment.var.vas_response_time = self.clock.time() - start_time
+                        self.experiment.var.vas_response = round(xpos, 2)
                         break
 
                 self.c.show()
 
-        self.experiment.var.vas_response_time = self.clock.time() - start_time
-        self.experiment.var.vas_response = round(xpos, 2)
+
+class QtVasGui(VasGui, QtAutoPlugin):
+    """This class handles the GUI aspect of the plug-in. The name should be the
+    same as that of the runtime class with the added prefix Qt.
+    
+    Important: defining a GUI class is optional, and only necessary if you need
+    to implement non-standard interfaces or interactions. In this case, we use
+    the GUI class to dynamically enable/ disable some controls (see below).
+    """
+    
+    def __init__(self, name, experiment, script=None):
+        # We don't need to do anything here, except call the parent
+        # constructors. Since the parent constructures take different arguments
+        # we cannot use super().
+        VasGui.__init__(self, name, experiment, script)
+        QtAutoPlugin.__init__(self, __file__)
+
+    def init_edit_widget(self):
+        """Constructs the GUI controls. Usually, you can omit this function
+        altogether, but if you want to implement more advanced functionality,
+        such as controls that are grayed out under certain conditions, you need
+        to implement this here.
+        """
+        # First, call the parent constructor, which constructs the GUI controls
+        # based on __init_.py.
+        super().init_edit_widget()
+        # If you specify a 'name' for a control in __init__.py, this control
+        # will be available self.[name]. The type of the object depends on
+        # the control. A checkbox will be a QCheckBox, a line_edit will be a
+        # QLineEdit. Here we connect the stateChanged signal of the QCheckBox,
+        # to the setEnabled() slot of the QLineEdit. This has the effect of
+        # disabling the QLineEdit when the QCheckBox is uncheckhed. We also
+        # explictly set the starting state.
+        # self.line_edit_widget.setEnabled(self.checkbox_widget.isChecked())
+        # self.checkbox_widget.stateChanged.connect(
+        #    self.line_edit_widget.setEnabled)
