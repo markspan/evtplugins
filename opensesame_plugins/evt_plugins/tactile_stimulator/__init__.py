@@ -8,7 +8,7 @@ controls = [
     {
         "type": "combobox",
         "var": "_deviceName",
-        "label": "Select device: ",
+        "label": "Select device :",
         "options": [
             "DUMMY"
         ],
@@ -18,7 +18,7 @@ controls = [
     {
         "type": "combobox",
         "var": "_mode",
-        "label": "Select mode of operation: ",
+        "label": "Select mode of operation :",
         "options": [
             "Calibrate",
             "Stimulate"
@@ -29,14 +29,14 @@ controls = [
     {
         "type": "line_edit",
         "var": "_percOfCalibrationValue",
-        "label": "Percentage of the calibrated value applied to the subject [%]",
+        "label": "Percentage of the calibrated value applied to the subject [%] :",
         "name": "value_widget",
         "tooltip": "Give the percentage of the calibrated pulse intensity applied to the subject."
     },
     {
         "type": "line_edit",
         "var": "_pulseDuration",
-        "label": "Pulse duration [ms]: ",
+        "label": "Pulse duration [ms] :",
         "name": "duration_widget",
         "tooltip": "Pulse duration value in milliseconds"
     }

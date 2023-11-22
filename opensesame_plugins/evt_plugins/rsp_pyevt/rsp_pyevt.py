@@ -14,15 +14,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
-
+import os
+import sys
+import math
 from pyevt import EvtExchanger
-from libopensesame.py3compat import *
-from libopensesame.base_response_item import BaseResponseItem
 from openexp.keyboard import Keyboard
+from libopensesame.item import Item
 from libopensesame.oslogging import oslogger
+from libopensesame.base_response_item import BaseResponseItem
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 
-class RspPyevt(BaseResponseItem):
+class RspPyevt(Item):
 
     """
         This class (the class with the same name as the module)
@@ -30,8 +32,7 @@ class RspPyevt(BaseResponseItem):
         not deal with GUI stuff.
     """
 
-    description = u"Collects input from a RSP-12x response box or from a generic keyboard"
-    process_feedback = True
+    description = u"Collects input from a RSP-12x responsebox or from a generic keyboard"
 
     def reset(self):
         # Set the default values of the plug-in items in the GUI
@@ -40,63 +41,59 @@ class RspPyevt(BaseResponseItem):
         self.var.allowed_responses = u'1;2'
         self.var.timeout = u'infinite'
 
-    def validate_response(self, response):
-        try:
-            response = int(response)
-        except ValueError:
-            return False
-        return response >= 0 or response <= 255
-
-    def _get_button_press(self):
-        r"""Calls libjoystick.get_button_press() with the correct arguments."""
-        oslogger.info("Button pressed!")
-        return
-
-    def prepare_response_func(self):
+    def prepare(self):
         """The preparation phase of the plug-in goes here."""
-        self.evt = EvtExchanger()
+        super().prepare()
 
+        if not isinstance(self.var.timeout, int):
+            self.var.timeout = None
+
+        self.evt = EvtExchanger()
         try:
             Device = self.evt.Select(self.var.device)
         except:
             self.var.device = u'Keyboard'
             oslogger.info("Cannot find any response box: using the keyboard by default")
-        
-        if not isinstance(self.var.timeout, int):
-            self._timeout = None
-        self._keyboard = Keyboard(
-            self.experiment,
-            keylist=(
-                self._allowed_responses if self._allowed_responses
-                else list(range(0, 9))  # Only numeric keys
-            ),
-            timeout=self._timeout
-        )
-        if self.var.device == u'Keyboard':
-            return self._keyboard.get_key
 
-    def response_matches(self, test, ref):
-        return safe_decode(test) in ref
+        try:
+            isinstance(self.var.timeout, int)
+            self.my_keyboard = Keyboard(self.experiment, timeout=self.var.timeout)
+        except:
+            self.my_keyboard = Keyboard(self.experiment, timeout=None)
 
-    def coroutine(self):
-        if self.var.device == u'Keyboard':
-            self._keyboard.timeout = 0
-        else:
-            self._timeout = 0
+        self.var.AllowedEventLines = 0
+        try:
+            AllowedList = self.var.allowed_responses.split(";")
+            for x in AllowedList:
+                self.var.AllowedEventLines +=  (1 << (int(x, 10) -1))
+        except:
+            x = self.var.allowed_responses
+            self.var.AllowedEventLines =  (1 << (x-1))
+
+    def run(self):
+        # Save the current time ...
+        t0 = self.set_item_onset()
+        # Call the 'wait for event' function in the EventExchanger C# object.
+
+        if self.var.device != u'Keyboard':
             self.var.response, self.var.response_time = \
-                (self.evt.WaitForDigEvents(self.var.allowed_responses,
-                                           self.var.timeout))
-            oslogger.info("Response %d =", self.var.response)
+                (self.evt.WaitForDigEvents(self.var.AllowedEventLines,
+                                           self.var.timeout)) 
+            self.var.response = math.log2(self.var.response) + 1;   
+            
+        else:
+            # get keyboard response...
+            self.var.response, self.var.response_time = self.my_keyboard.get_key(timeout=self.var.timeout)
 
-        alive = True
-        yield
-        self._t0 = self.set_item_onset()
-        # while alive:
-            # button, time = self._collect_response()
-            # if button is not None:
-            #    break
-            # alive = yield
-        # self.process_response((button, time))
+        self.CorrectResponse = (
+            self.var.response == self.var.correct_response)
+        # Add all response related data to the Opensesame responses instance.
+        self.experiment.responses.add(response_time=self.var.response_time, \
+                                correct=self.CorrectResponse, \
+                                response=self.var.response, \
+                                item=self.name)
+        #Report success        
+        return True
 
 
 class QtRspPyevt(RspPyevt, QtAutoPlugin):
@@ -108,9 +105,10 @@ class QtRspPyevt(RspPyevt, QtAutoPlugin):
     def init_edit_widget(self):
         super().init_edit_widget()
         evt = EvtExchanger()
+        
         listOfDevices = evt.Attached(u"EventExchanger")
         if listOfDevices:
             for i in listOfDevices:
                 self.device_widget.addItem(i)
-            else:
-                self.var.device = u"Keyboard"
+        else:
+            self.var.device = u"Keyboard"

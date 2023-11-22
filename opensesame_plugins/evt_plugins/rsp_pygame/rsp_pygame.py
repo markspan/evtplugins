@@ -18,7 +18,7 @@ along with OpenSesame. If not, see <http://www.gnu.org/licenses/>.
 
 This file is adapted from the Joystick core plugin of 
 OpenSesame by: M. Stokroos, 2023
-This plugin now supports RSP HID devices, developed by the
+This plugin now accepts EVT/RSP devices, developed by the
 Research Support team from the faculty of Behavioural and Social Sciences
 from the University of Groningen.
 """
@@ -32,14 +32,13 @@ from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 
 class RspPygame(BaseResponseItem):
 
-    description = u"Collects input from a RSP-12x responsebox or a generic joystick device"
+    description = u"Collects input from a RSP-12x responsebox or from a generic keyboard"
     process_feedback = True
 
     def reset(self):
         self.var.timeout = u'infinite'
         self.var.allowed_responses = u'1;2'
         self.var.correct_response = u'1'
-        self.var._dummy = u'no'
         self.var._device = u'Keyboard'
 
     def validate_response(self, response):
@@ -66,7 +65,7 @@ class RspPygame(BaseResponseItem):
             ),
             timeout=self._timeout
         )
-        if self.var._dummy == u'yes':
+        if self.var._device == u'Keyboard':
             return self._keyboard.get_key
         # Dynamically load a joystick instance
         if not hasattr(self.experiment, u'joystick'):
@@ -83,7 +82,7 @@ class RspPygame(BaseResponseItem):
         return safe_decode(test) in ref
 
     def coroutine(self):
-        if self.var._dummy == u'yes':
+        if self.var._device == u'Keyboard':
             self._keyboard.timeout = 0
         else:
             self._timeout = 0
