@@ -1,8 +1,8 @@
-# evt_plugins
-OpenSesame plugins for using RUG/BSS Event Exchanger (EVT) devices.
+# evt-plugins
+OpenSesame plugin collection for using the RUG/BSS Event Exchanger (EVT) devices.
 The currently supported OpenSesame version is v4.0
 
-The following plugin collection is available:
+The following plugins are available:
 
 Plugin | Description | Desktop | OS compatibility | Status
 ------ | ----------- | ------- | ---------------- | ------
@@ -38,7 +38,7 @@ When the plugins are located somewhere else, add your path to the python-path of
 ## tactile_stimulator
 description ...
 
-List of the variables that appear in the OpenSesame variable inspector when using the TactileStimulator plugin:
+List of the variables that appear in the OpenSesame variable inspector when using the tactile_stimulator plugin:
 
 variable name | description
 ------------- | -----------
@@ -55,3 +55,10 @@ The *vas_evt* plugin does not work standalone, but requires a link with a custom
 
 ## vas_gui
 The *vas_gui* plugin does not work standalone, but requires a link with a custom designed sketchpad screen to build the GUI!
+
+List of the variables that appear in the OpenSesame variable inspector when using the vas_gui plugin:
+
+variable name | description
+------------- | -----------
+vas_response | This value is the reading from the VAS object, ranging from 0 to 100.
+vas_response_time | this is the repsonse time in ms. The value -1 means that the timeout period was reached.
