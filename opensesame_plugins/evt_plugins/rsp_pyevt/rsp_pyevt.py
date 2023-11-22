@@ -56,10 +56,9 @@ class RspPyevt(Item):
             oslogger.info("Cannot find any response box: using the keyboard by default")
 
         try:
-            isinstance(self.var.timeout, int)
-            self.my_keyboard = Keyboard(self.experiment, timeout=self.var.timeout)
-        except:
-            self.my_keyboard = Keyboard(self.experiment, timeout=None)
+            self._timeout = int(self.var.timeout)
+        except Exception:
+            self._timeout = -1
 
         self.var.AllowedEventLines = 0
         try:
@@ -78,12 +77,15 @@ class RspPyevt(Item):
         if self.var.device != u'Keyboard':
             self.var.response, self.var.response_time = \
                 (self.evt.WaitForDigEvents(self.var.AllowedEventLines,
-                                           self.var.timeout)) 
-            self.var.response = math.log2(self.var.response) + 1;   
+                                           self._timeout))
+            if self.var.response > 0:
+                self.var.response = math.log2(self.var.response) + 1
+            else:
+                self.var.response = -1
             
         else:
             # get keyboard response...
-            self.var.response, self.var.response_time = self.my_keyboard.get_key(timeout=self.var.timeout)
+            self.var.response, self.var.response_time = self.my_keyboard.get_key(timeout=self._timeout)
 
         self.CorrectResponse = (
             self.var.response == self.var.correct_response)
