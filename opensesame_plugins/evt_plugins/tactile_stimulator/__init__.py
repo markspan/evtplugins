@@ -13,31 +13,31 @@ controls = [
             "DUMMY"
         ],
         "name": "device_widget",
-        "tooltip": "Select the Tactile Stimulator or Dummy if not connected: "
+        "tooltip": "Select the connected Tactile Stimulator or DUMMY for testing purposes: "
     },
     {
         "type": "combobox",
         "var": "_mode",
-        "label": "Select mode of operation :",
+        "label": "Select the mode of operation :",
         "options": [
             "Calibrate",
             "Stimulate"
         ],
         "name": "calibrate_widget",
-        "tooltip": "Select the mode of operation: "    
+        "tooltip": "Select the mode of operation"    
     },
     {
         "type": "line_edit",
         "var": "_percOfCalibrationValue",
-        "label": "Percentage of the calibrated value applied to the subject [%] :",
+        "label": "Percentage of the calibrated intensity value applied to the subject [%] :",
         "name": "value_widget",
-        "tooltip": "Give the percentage of the calibrated pulse intensity applied to the subject."
+        "tooltip": "Give the percentage of the calibrated pulse intensity applied to the subject"
     },
     {
         "type": "line_edit",
         "var": "_pulseDuration",
         "label": "Pulse duration [ms] :",
         "name": "duration_widget",
-        "tooltip": "Pulse duration value in milliseconds"
+        "tooltip": "Pulse duration value between 1 and 2000 milliseconds"
     }
 ]
