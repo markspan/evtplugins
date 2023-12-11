@@ -174,7 +174,7 @@ class TactileStimulator(Item):
             self.experiment.var.tactstim_calibration_value
         except Exception:
             oslogger.error("No calibration step taken: First run \
-                           the Tactile Stimulator in calibration mode!")
+            the Tactile Stimulator in calibration mode!")
 
         if not 0 <= self.var._percOfCalibrationValue <= 100:
             oslogger.error("Percentage input out of range!")
