@@ -29,14 +29,14 @@ controls = [
     {
         "type": "line_edit",
         "var": "_percOfCalibrationValue",
-        "label": "Percentage of the calibrated intensity value applied to the subject [%] :",
+        "label": "Percentage of the calibrated intensity value applied to the subject 0-100[%] :",
         "name": "value_widget",
         "tooltip": "Give the percentage of the calibrated pulse intensity applied to the subject"
     },
     {
         "type": "line_edit",
         "var": "_pulseDuration",
-        "label": "Pulse duration [ms] :",
+        "label": "Pulse duration 1-2000[ms] :",
         "name": "duration_widget",
         "tooltip": "Pulse duration value between 1 and 2000 milliseconds"
     }
