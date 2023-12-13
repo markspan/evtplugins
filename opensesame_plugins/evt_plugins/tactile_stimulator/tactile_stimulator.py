@@ -164,7 +164,7 @@ class TactileStimulator(Item):
             y=-(self.c.height / 4)+(self.c.height / 12),
             color='green'
         )
-        self.c['wait... '] = RichText(
+        self.c['wait'] = RichText(
             str(round(0)),
             x=0,
             y=-(self.c.height / 10)+(self.c.height / 2),
@@ -240,63 +240,18 @@ class TactileStimulator(Item):
                 else:
                     self.evt.PulseLines(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX),
                                        self.var._pulseDuration)
-                # self.c['TestBox'].color = 'blue' # color setter not working! For now we redraw the box/items...
-                self.c.rect(
-                    -self.c.width / 3,
-                    self.c.height / 4,
-                    self.c.width / 10,
-                    self.c.height / 10,
-                    fill=True,
-                    color='blue'
-                )
+                self.c['TestBox'].color = 'blue' # color setter not working! For now we redraw the box/items...
                 self.c.show()
+                self.c['wait'].color = 'green'
 
-                # self.c['wait... '].color = 'green'
-                self.c.text(
-                    str(round(0)),
-                    x=0,
-                    y=-(self.c.height / 10)+(self.c.height / 2),
-                    color='green'
-                )
                 for n in range(1, self.var._interPulseHoldOffTime):
-                    #self.c['wait... '].text = "wait... " + str(self.var._interPulseHoldOffTime - n)
-                    self.c.text(
-                        "wait... " + str(self.var._interPulseHoldOffTime - n),
-                        x=0,
-                        y=-(self.c.height / 10)+(self.c.height / 2),
-                        color='green'
-                    )
+                    self.c['wait'].text = "wait... " + str(self.var._interPulseHoldOffTime - n)
+                    self.c['wait'].color = 'green'
                     self.c.show()
                     time.sleep(1)
-                    self.c.text(
-                        "wait... " + str(self.var._interPulseHoldOffTime - n),
-                        x=0,
-                        y=-(self.c.height / 10)+(self.c.height / 2),
-                        color='black'
-                    )
-                # self.c['wait... '].color = 'black'
-                self.c.text(
-                    str(round(0)),
-                    x=0,
-                    y=-(self.c.height / 10)+(self.c.height / 2),
-                    color='black'
-                )
-                # self.c['wait... '].text = "wait... " + str(0)
-                # self.c['TestBox'].color = 'red'
-                self.c.text(
-                    "wait... " + str(0),
-                    x=0,
-                    y=-(self.c.height / 10)+(self.c.height / 2),
-                    color='red'
-                )
-                self.c.rect(
-                    -self.c.width / 3,
-                    self.c.height / 4,
-                    self.c.width / 10,
-                    self.c.height / 10,
-                    fill=True,
-                    color='red'
-                )
+                    self.c['wait'].color = 'black'
+                self.c['wait'].text = "wait... " + str(0)
+                self.c['TestBox'].color = 'red'
                 self.c.show()
 
             if (x, y) in self.c['OKBox']:
@@ -321,7 +276,7 @@ class TactileStimulator(Item):
             except Exception:
                 timeLastPulse = 0
             td = time.time() - timeLastPulse
-            # oslogger.info("Time duration inbetween pulses: " + str(td))
+            # oslogger.info("Time duration between pulses: " + str(td))
             
             if (td > self.var._pulseTimeOut):
                 """
