@@ -204,9 +204,9 @@ class TactileStimulator(Item):
         return True
 
     def calibrate(self):
-        slmouse = mouse(self.experiment, timeout=20, visible=True)
-        slmouse.show_cursor(True)
+        slmouse = mouse(self.experiment, timeout=None, visible=True)
         slmouse.set_pos(pos=(0, 0))
+        slmouse.show_cursor(True)
         xperc = 0
         self.c['Slider'].w = (xperc / 100) * (
             (2*self.c.width / 2.2) - 12)
