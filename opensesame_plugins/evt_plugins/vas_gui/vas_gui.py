@@ -43,7 +43,7 @@ class VasGui(Item):
 
         self.my_mouse = Mouse(self.experiment)
         self.my_mouse.buttonlist = [1]
-
+        
         try:
             self._timeout = int(self.var.vas_timeout)
         except ValueError:
@@ -85,12 +85,10 @@ class VasGui(Item):
             raise oslogger.error("The VAS-body should be a line or a rectangle")
 
     def run(self):
-        start_time = self.clock.time()
-
-        self.my_mouse.set_pos(pos=(0, 0))
-        self.my_mouse.show_cursor(show=True)
-
         xpos = -1
+        self.my_mouse.set_pos(pos=(0, 0)) # This function might be unreliable on some systems. See OS4 doc.
+        self.my_mouse.show_cursor(show=True)
+        start_time = self.clock.time()
         while(True):
             # Check if timeout
             if self._timeout >= 0:
@@ -100,7 +98,7 @@ class VasGui(Item):
                     break
 
             # Poll the mouse for button clicks
-            button, position, timestamp = self.my_mouse.get_click(timeout=20)
+            button, position, timestamp = self.my_mouse.get_click(timeout=None, visible=True)
 
             if button is not None:
                 (x, y), time = self.my_mouse.get_pos()
@@ -117,11 +115,13 @@ class VasGui(Item):
                                  self.ypos + self.var.vas_marker_length / 2,
                                  color=self.var.vas_cursor_color,
                                  penwidth=self.var.vas_marker_width)
+                        self.c.show()
                     else:
                         # move it
                         xpos = 100 * ((x - self.sx) / self.vas_length)
                         self.c['VASCursorLine'].sx = x
                         self.c['VASCursorLine'].ex = x
+                        self.c.show()
 
                 if self.useLabels:
                     if (x, y) in self.c[self.var.vas_maxlabel_name]:
@@ -137,12 +137,14 @@ class VasGui(Item):
                                      self.ypos + self.var.vas_marker_length / 2,
                                      color=self.var.vas_cursor_color,
                                      penwidth=self.var.vas_marker_width)
+                            self.c.show()
                         else:
                             # move it
                             xpos = 100
                             x = self.sx+self.vas_length
                             self.c['VASCursorLine'].sx = x
                             self.c['VASCursorLine'].ex = x
+                            self.c.show()
 
                 if (x, y) in self.c[self.var.vas_minlabel_name]:
                     # clicked on the minlabel: either create the
@@ -158,20 +160,20 @@ class VasGui(Item):
                                  self.ypos + self.var.vas_marker_length / 2,
                                  color=self.var.vas_cursor_color,
                                  penwidth=self.var.vas_marker_width)
+                        self.c.show()
                     else:
                         # move it
                         xpos = 0
                         x = self.sx
                         self.c['VASCursorLine'].sx = x
                         self.c['VASCursorLine'].ex = x
+                        self.c.show()
 
                 if (x, y) in self.c[self.var.vas_exitbutton_name]:
                     if xpos != -1:
                         self.experiment.var.vas_response_time = self.clock.time() - start_time
                         self.experiment.var.vas_response = round(xpos, 2)
                         break
-
-                self.c.show()
 
 
 class QtVasGui(VasGui, QtAutoPlugin):
