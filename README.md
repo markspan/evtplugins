@@ -19,7 +19,7 @@ The plugins are dependent on the Python module pyevt and the underlying hidapi p
 
 [https://pypi.org/project/hidapi/](https://pypi.org/project/hidapi/)
 
-pyevt and hidapi are installed from the Python Console in OpenSesame with the single command:
+*pyevt* and *hidapi* are installed from the Python Console in OpenSesame with the single command:
 
 `!pip install --user pyevt`
 
@@ -42,13 +42,13 @@ List of the variables that appear in the OpenSesame variable inspector when usin
 
 variable name | description
 ------------- | -----------
-tactstim_calibration_perc | The percentage of the slider setting for the stimulus current of up to 5mA rms max.
-tactstim_calibration_milliamp | The calibration value of the stimulus current in mA's. This is the max. current applied to the subject.
-tactstim_calibration_value | The byte value representation of the calibrated current.
-tactstim_pulse_milliamp | The actual current in mA's, applied to the subject when pulsing.
-tactstim_pulse_value | The actual byte value representation that is sent to the tactile stimulator.
-tactstim_pulse_duration_ms | The pulse duration time in ms.
-tactstim_time_last_pulse | Unique time stamp in seconds from the moment of the shock.
+*tactstim_calibration_perc* | The percentage of the slider setting for the stimulus current of up to 5mA rms max.
+*tactstim_calibration_milliamp* | The calibration value of the stimulus current in mA's. This is the max. current applied to the subject.
+*tactstim_calibration_value* | The byte value representation of the calibrated current.
+*tactstim_pulse_milliamp* | The actual current in mA's, applied to the subject when pulsing.
+*tactstim_pulse_value* | The actual byte value representation that is sent to the tactile stimulator.
+*tactstim_pulse_duration_ms* | The pulse duration time in ms.
+*tactstim_time_last_pulse* | Unique time stamp in seconds from the moment of the shock.
 
 ## vas_evt
 The *vas_evt* plugin does not work standalone, but requires a linkage to a custom designed sketchpad screen from the GUI!
@@ -60,7 +60,7 @@ Here below is the list of the variables that will appear in the OpenSesame varia
 
 variable name | description
 ------------- | -----------
-vas_response | This value is the reading from the VAS object, ranging from 0 to 100.
-vas_response_time | this is the repsonse time in ms. The value -1 means that the timeout period was reached.
+*vas_response* | This value is the reading from the VAS object, ranging from 0 to 100.
+*vas_response_time* | this is the repsonse time in ms. The value -1 means that the timeout period was reached.
 
 ## rgb_led_control
