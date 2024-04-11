@@ -4,15 +4,15 @@ The currently supported OpenSesame version is v4.0
 
 The following plugins are available:
 
-Plugin | Description | Desktop | OS compatibility | Status
------- | ----------- | ------- | ---------------- | ------
-evt_xx | Plugin for Event Exchanger EVT-2,3 and 4 variants for event-marking and triggering | pygame(legacy) | Win | not validated
-rsp_pyevt | Plugin for RSP12x button response box variants with 1-8 buttons | pygame(legacy) | Windows | not validated
-rsp_pygame | Plugin for RSP12x button response box variants with 1-8 buttons | pygame(legacy) | Windows/Linux | **validated**
+Plugin | Description | OpenSesame back-end | operating system | Status | Note
+------ | ----------- | ------------------- | ---------------- | ------ | ----
+evt | Plugin for event exchanger EVT-2,3 and 4 variants for event-marking and triggering | PyGame | Win | **validated**
+rsp_pyevt | Plugin for RSP12x button response box variants with 1-8 buttons | PyGame, PsychoPy | Windows | **validated** | Keyboard timeout 'infinite' does not work under PsychoPy.
+rsp_pygame | Plugin for RSP12x button response box variants with 1-8 buttons | PyGame | Windows/Linux | **validated**
+tactile_stimulator | Plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | PyGame(legacy) | Windows | **validated**
+vas_evt | A Visual Analog Slider plugin controlled via an encoder knob connected to the EVT-2 | PyGame | Windows | not validated
+vas_gui | A Visual Analog Slider plugin controlled via the PC-mouse on a predefined canvas (sketchpad) | PyGame | Windows | **validated**
 rgb_led_control | Plugin for multi-color LED control | pygame(legacy) | Windows | not validated
-tactile_stimulator | Plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | pygame(legacy) | Windows | not validated
-vas_evt | A Visual Analog Slider plugin controlled via an encoder knob connected to the EVT-2 | pygame(legacy) | Windows | not validated
-vas_gui | A Visual Analog Slider plugin controlled via the PC-mouse on a predefined canvas (sketchpad) | pygame(legacy) | Windows | **validated**
 
 ## Package dependencies
 The plugins are dependent on the Python module pyevt and the underlying hidapi package.
@@ -29,13 +29,11 @@ NOTE: Currently, the plugin package is not released as pip package yet. Instead,
 By default the OpenSesame 4.0 plugins are installed as python site-package and automatically loaded at startup.
 When the plugins are located somewhere else, add your path to the python-path of OpenSesame in the `environment.yaml` file in the OpenSesame program directory (The OPENSESAME_PLUGIN_PATH is old style). See for the instructions here: [https://rapunzel.cogsci.nl/manual/environment/](https://rapunzel.cogsci.nl/manual/environment/) 
 
-## evt_xx
+## evt
 
 ## rsp_pyevt
 
 ## rsp_pygame
-
-## rgb_led_control
 
 ## tactile_stimulator
 description ...
@@ -64,3 +62,5 @@ variable name | description
 ------------- | -----------
 vas_response | This value is the reading from the VAS object, ranging from 0 to 100.
 vas_response_time | this is the repsonse time in ms. The value -1 means that the timeout period was reached.
+
+## rgb_led_control

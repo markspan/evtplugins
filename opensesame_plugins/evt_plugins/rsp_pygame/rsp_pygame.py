@@ -16,7 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with OpenSesame. If not, see <http://www.gnu.org/licenses/>.
 
-This file is adapted from the Joystick core plugin of 
+This file has been modified from the Joystick core plugin of 
 OpenSesame by: M. Stokroos, 2023
 This plugin now accepts EVT/RSP devices, developed by the
 Research Support team from the faculty of Behavioural and Social Sciences
@@ -107,6 +107,6 @@ class QtRspPygame(RspPygame, QtAutoPlugin):
         super().init_edit_widget()
         pygame.joystick.init()
         for x in range(pygame.joystick.get_count()):
-            self.device_widget.addItem("RSP-12x_" + str(x)) #add device(s) to combobox list
+            self.device_widget.addItem("EVT-device_" + str(x)) #add device(s) to combobox list
             if x > 8:
                 break

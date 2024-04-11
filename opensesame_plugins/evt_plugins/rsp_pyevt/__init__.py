@@ -1,6 +1,6 @@
-"""Collects input from a RSP-12x responsebox or from a generic keyboard"""
+"""Plugin to collect input from a RSP-12x responsebox"""
 
-authors = ["M. Stokroos", "M. M. Span"]
+authors = ["M. Stokroos"]
 category = "RUG/BSS hardware"
 help_url = 'https://github.com/MartinStokroos/evt-plugins'
 
@@ -8,7 +8,7 @@ help_url = 'https://github.com/MartinStokroos/evt-plugins'
 controls = [
     {
         "type": "combobox",
-        "var": "device",
+        "var": "_device",
         "label": "Select device :",
         "options": [
             "Keyboard"
