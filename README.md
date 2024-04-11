@@ -6,13 +6,13 @@ The following plugins are available:
 
 Plugin | Description | OpenSesame back-end | operating system | Status | Note
 ------ | ----------- | ------------------- | ---------------- | ------ | ----
-evt | Plugin for event exchanger EVT-2,3 and 4 variants for event-marking and triggering | PyGame | Win | **validated**
+evt | Plugin for event exchanger EVT-2,3 and 4 variants for event-triggering | PyGame | Windows | **validated**
 rsp_pyevt | Plugin for RSP12x button response box variants with 1-8 buttons | PyGame, PsychoPy | Windows | **validated** | Keyboard timeout 'infinite' does not work under PsychoPy.
-rsp_pygame | Plugin for RSP12x button response box variants with 1-8 buttons | PyGame | Windows/Linux | **validated**
-tactile_stimulator | Plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | PyGame(legacy) | Windows | **validated**
+rsp_pygame | Plugin for RSP12x button response box variants with 1-8 buttons | PyGame | Windows, Linux | **validated**
+tactile_stimulator | Plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | PyGame | Windows | **validated**
 vas_evt | A Visual Analog Slider plugin controlled via an encoder knob connected to the EVT-2 | PyGame | Windows | not validated
 vas_gui | A Visual Analog Slider plugin controlled via the PC-mouse on a predefined canvas (sketchpad) | PyGame | Windows | **validated**
-rgb_led_control | Plugin for multi-color LED control | pygame(legacy) | Windows | not validated
+rgb_led_control | Plugin for multi-color LED control | PyGme | Windows | not validated
 
 ## Package dependencies
 The plugins are dependent on the Python module pyevt and the underlying hidapi package.
