@@ -16,7 +16,7 @@ along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from pyevt import EvtExchanger
-#from libopensesame.py3compat import *
+from libopensesame.py3compat import *
 from libopensesame.item import Item
 from libopensesame.oslogging import oslogger
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
@@ -41,9 +41,9 @@ class Evt(Item):
         self.var.value = self.clamp(self.var.value, 0, 255)
         # Dynamically load an EventExchanger RSP device
         if not hasattr(self.experiment, u'EventExchanger'):
-            self.experiment.evt = EvtExchanger()
+            self.experiment.myevt = EvtExchanger()
             try:
-                self.experiment.evt.Select(self.var.device)
+                self.experiment.myevt.Select(self.var.device)
                 oslogger.info("Connecting to EVT device.")
                 #oslogger.debug("Connecting to EVT device.")
             except:
@@ -57,14 +57,15 @@ class Evt(Item):
             oslogger.info('dummy: send code {} for the duration of {} ms'.format(self.var.value, self.var.duration))
         else:
             if self.var.outputmode == u'Set output lines':
-                self.experiment.evt.SetLines(self.var.value)
+                self.experiment.myevt.SetLines(self.var.value)
             elif self.var.outputmode == u'Pulse output lines':
-                self.experiment.evt.SetLines(0)
-                self.experiment.evt.PulseLines(self.var.value, self.var.duration)
+                self.experiment.myevt.SetLines(0)
+                self.experiment.myevt.PulseLines(self.var.value, self.var.duration)
         return True
 
 
 class QtEvt(Evt, QtAutoPlugin):
+
     def __init__(self, name, experiment, script=None):
         # We don't need to do anything here, except call the parent
         # constructors. Since the parent constructures take different arguments
@@ -74,8 +75,9 @@ class QtEvt(Evt, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        evt = EvtExchanger()
-        listOfDevices = evt.Attached(u"EventExchanger-EVT")
+
+        myevt = EvtExchanger()
+        listOfDevices = myevt.Attached(u"EventExchanger-EVT")
         if listOfDevices:
             for i in listOfDevices:
                 self.device_widget.addItem(i)

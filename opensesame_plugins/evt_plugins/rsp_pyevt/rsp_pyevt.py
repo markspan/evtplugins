@@ -71,13 +71,13 @@ class RspPyevt(BaseResponseItem):
             correct = self.response_matches(response, self._correct_responses)
         else:
                 correct = None
-        self.responses.add(
+        self.experiment.responses.add(
             response=response, response_time=t1, correct=correct,
             item=self.name, feedback=self.process_feedback)
-
+        
     def _get_button_press(self):
         r"""Calls EventExcahnger.WaitForDigEvents() with the correct arguments."""
-        return self.experiment.evt.WaitForDigEvents(self.var.allowed_events, 
+        return self.myevt.WaitForDigEvents(self.var.allowed_events, 
                                                     self.var.timeout)
 
     def prepare_response_func(self):
@@ -94,16 +94,16 @@ class RspPyevt(BaseResponseItem):
             return self._keyboard.get_key
         
         # Dynamically load an EventExchanger RSP device.
-        if not hasattr(self.experiment, u'EventExchanger-RSP-12'):
-            self.experiment.evt = EvtExchanger()
+        if not hasattr(self, u'EventExchanger-RSP-12'):
+            self.myevt = EvtExchanger()
             try:
-                Device = self.experiment.evt.Select(self.var._device)
+                Device = self.myevt.Select(self.var._device)
                 oslogger.debug("Loading the RSP-12x box.")
             except:
                 oslogger.debug("Loading the RSP-12x-box failed!")
         '''
         The next part calculates the bit mask for the allowed responses
-        to receive from the hardware.
+        to receive from the evtware.
         '''
         self.var.allowed_events = 0
         try:
@@ -120,7 +120,6 @@ class RspPyevt(BaseResponseItem):
         if self._allowed_responses is not None:
             self._allowed_responses = [int(r) for r in self._allowed_responses]
         return self._get_button_press
-    
     '''
     def response_matches(self, test, ref):
         return safe_decode(test) in ref
@@ -149,9 +148,9 @@ class QtRspPyevt(RspPyevt, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        evt = EvtExchanger()
-        
-        listOfDevices = evt.Attached(u"EventExchanger-RSP-12")
+
+        myevt = EvtExchanger()
+        listOfDevices = myevt.Attached(u"EventExchanger-RSP-12")
         if listOfDevices:
             for i in listOfDevices:
                 self.device_widget.addItem(i)

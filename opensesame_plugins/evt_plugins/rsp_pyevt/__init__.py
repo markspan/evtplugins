@@ -4,7 +4,7 @@ authors = ["M. Stokroos"]
 category = "RUG/BSS hardware"
 help_url = 'https://github.com/MartinStokroos/evt-plugins'
 
-# Defines the GUI controls
+# Defines the GUI controls:
 controls = [
     {
         "type": "combobox",
