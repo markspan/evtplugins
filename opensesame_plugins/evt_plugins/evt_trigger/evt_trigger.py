@@ -64,9 +64,8 @@ class EvtTrigger(Item):
             elif self.var.outputmode == u'Reset output lines':
                 oslogger.info('dummy: send code {}'.format(0))
             elif self.var.outputmode == u'Invert output lines':
-                self.var.value = self.experiment.var._outputValue ^ self.var.value
-                oslogger.info('dummy: send code {}'.format(self.var.value))
-                self.experiment.var._outputValue = self.var.value
+                self.experiment.var._outputValue ^= self.var.value
+                oslogger.info('dummy: send code {}'.format(self.experiment.var._outputValue))
         else:
             if self.var.outputmode == u'Write output lines':
                 self.myevt.SetLines(self.var.value)
@@ -77,9 +76,8 @@ class EvtTrigger(Item):
                 self.myevt.SetLines(0)
                 self.experiment.var._outputValue = 0
             elif self.var.outputmode == u'Invert output lines':
-                self.var.value = self.experiment.var._outputValue ^ self.var.value
-                self.myevt.SetLines(self.var.value)
-                self.experiment.var._outputValue = self.var.value
+                self.experiment.var._outputValue ^= self.var.value
+                self.myevt.SetLines(self.experiment.var._outputValue)
         return True
 
 
