@@ -1,4 +1,4 @@
-"""A plug-in for EVT devices"""
+"""A plug-in for generating triggers with EVT devices."""
 
 authors = ["M. Stokroos", "M.M. Span"]
 category = "RUG/BSS hardware"
@@ -21,8 +21,10 @@ controls = [
         "var": "outputmode",
         "label": "Select output mode :",
         "options": [
-            "Pulse output lines",
-            "Set output lines"
+            "Write output lines",
+            "Reset output lines",
+            "Invert output lines",
+            "Pulse output lines"
         ],
         "name": "output_mode_widget",
         "tooltip": "Select the desired output mode"
@@ -30,15 +32,15 @@ controls = [
     {
         "type": "line_edit",
         "var": "value",
-        "label": "Value :",
+        "label": "Bit mask value :",
         "name": "value_widget",
-        "tooltip": "Value [0-255] to pulse/set port, -1 for no initial output."
+        "tooltip": "Bit mask value [0-255]"
     },
     {
         "type": "line_edit",
         "var": "duration",
         "label": "Duration in ms :",
         "name": "duration_widget",
-        "tooltip": "Expecting a value in milliseconds"  
+        "tooltip": "Expecting a value in milliseconds"
     }
 ]

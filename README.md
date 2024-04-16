@@ -6,7 +6,7 @@ The following plugins are available:
 
 Plugin | Description | OpenSesame back-end | operating system | Status
 ------ | ----------- | ------------------- | ---------------- | ------
-evt | Plugin for event exchanger EVT-2,3 and 4 variants for event-triggering | PyGame, PsychoPy | Windows | ok
+evt_trigger | Plugin for event exchanger EVT-2,3 and 4 variants for generating triggers | PyGame, PsychoPy | Windows | ok
 rsp_pyevt | Plugin for RSP12x button response box variants with 1-8 buttons | PyGame, PsychoPy | Windows | Keyboard timeout set to 'infinite' does not work under PsychoPy.
 rsp_pygame | Plugin for RSP12x button response box variants with 1-8 buttons | PyGame | Windows, Linux | ok
 tactile_stimulator | Plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | PyGame | Windows | ok
@@ -29,7 +29,13 @@ NOTE: Currently, the plugin package is not released as pip package yet. Instead,
 By default the OpenSesame 4.0 plugins are installed as python site-package and automatically loaded at startup.
 When the plugins are located somewhere else, add your path to the python-path of OpenSesame in the `environment.yaml` file in the OpenSesame program directory (The OPENSESAME_PLUGIN_PATH is old style). See for the instructions here: [https://rapunzel.cogsci.nl/manual/environment/](https://rapunzel.cogsci.nl/manual/environment/) 
 
-## evt
+## evt_trigger
+Possible Modes:
+
+- Write output line
+- Reset output lines
+- Invert output lines
+- Pulse output lines
 
 ## rsp_pyevt
 

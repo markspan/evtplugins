@@ -18,13 +18,13 @@ along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 from pyevt import EvtExchanger
 from libopensesame.py3compat import *
 from libopensesame.item import Item
-from libopensesame.oslogging import oslogger
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
+from libopensesame.oslogging import oslogger
 
 
-class Evt(Item):
+class EvtTrigger(Item):
 
-    description = u"Plugin for setting or pulsing the EVT output lines."
+    description = u"A plug-in for generating triggers with EVT devices."
 
     """Reset plug-in to initial values."""
     def reset(self):
@@ -39,13 +39,15 @@ class Evt(Item):
     def prepare(self):
         super().prepare()
         self.var.value = self.clamp(self.var.value, 0, 255)
+        self.experiment.var._outputValue = 0
+
         # Dynamically load an EventExchanger RSP device
-        if not hasattr(self.experiment, u'EventExchanger'):
-            self.experiment.myevt = EvtExchanger()
+        if not hasattr(self, u'EventExchanger'):
+            self.myevt = EvtExchanger()
             try:
-                self.experiment.myevt.Select(self.var.device)
+                self.myevt.Select(self.var.device)
                 oslogger.info("Connecting to EVT device.")
-                #oslogger.debug("Connecting to EVT device.")
+                #oslogger.debug("Connecting to EVT device...")
             except:
                 oslogger.info("Connecting to EVT device failed! Switching to dummy mode.")
                 #oslogger.debug("Connecting to EVT device failed!")
@@ -54,23 +56,40 @@ class Evt(Item):
     def run(self):
         self.set_item_onset()
         if self.var.device == u'DUMMY':
-            oslogger.info('dummy: send code {} for the duration of {} ms'.format(self.var.value, self.var.duration))
-        else:
-            if self.var.outputmode == u'Set output lines':
-                self.experiment.myevt.SetLines(self.var.value)
+            if self.var.outputmode == u'Write output lines':
+                oslogger.info('dummy: send code {}'.format(self.var.value))
+                self.experiment.var._outputValue = self.var.value # Store as global.
             elif self.var.outputmode == u'Pulse output lines':
-                self.experiment.myevt.SetLines(0)
-                self.experiment.myevt.PulseLines(self.var.value, self.var.duration)
+                oslogger.info('dummy: send code {} for the duration of {} ms'.format(self.experiment.var._outputValue ^ self.var.value, self.var.duration))
+            elif self.var.outputmode == u'Reset output lines':
+                oslogger.info('dummy: send code {}'.format(0))
+            elif self.var.outputmode == u'Invert output lines':
+                self.var.value = self.experiment.var._outputValue ^ self.var.value
+                oslogger.info('dummy: send code {}'.format(self.var.value))
+                self.experiment.var._outputValue = self.var.value
+        else:
+            if self.var.outputmode == u'Write output lines':
+                self.myevt.SetLines(self.var.value)
+                self.experiment.var._outputValue = self.var.value # Store as global. There is no output read-back from the hardware.
+            elif self.var.outputmode == u'Pulse output lines':
+                self.myevt.PulseLines((self.experiment.var._outputValue ^ self.var.value), self.var.duration)
+            elif self.var.outputmode == u'Reset output lines':
+                self.myevt.SetLines(0)
+                self.experiment.var._outputValue = 0
+            elif self.var.outputmode == u'Invert output lines':
+                self.var.value = self.experiment.var._outputValue ^ self.var.value
+                self.myevt.SetLines(self.var.value)
+                self.experiment.var._outputValue = self.var.value
         return True
 
 
-class QtEvt(Evt, QtAutoPlugin):
+class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
     def __init__(self, name, experiment, script=None):
         # We don't need to do anything here, except call the parent
         # constructors. Since the parent constructures take different arguments
         # we cannot use super().
-        Evt.__init__(self, name, experiment, script)
+        EvtTrigger.__init__(self, name, experiment, script)
         QtAutoPlugin.__init__(self, __file__)
 
     def init_edit_widget(self):
@@ -83,3 +102,8 @@ class QtEvt(Evt, QtAutoPlugin):
                 self.device_widget.addItem(i)
         else:
             self.var.device = u'DUMMY'
+        '''
+        self.duration_widget.setEnabled(self.output_mode_widget.isChecked(u'Reset output lines'))
+        self.output_mode_widget.stateChanged.connect(
+            self.duration_widget.setEnabled)
+        '''
