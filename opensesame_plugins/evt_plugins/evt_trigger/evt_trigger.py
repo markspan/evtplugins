@@ -108,9 +108,20 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
                 self.device_combobox.addItem(i)
         else:
             self.var.device = u'DUMMY'   
-        self.output_mode_combobox.currentIndexChanged.connect(self.update_line_edit_state)
+        
+        self.output_mode_combobox.currentIndexChanged.connect(self.update_line_edit_output_mode)
+        # Connect checkbox inputs with line input and vice verse.
+        self.b0_checkbox.stateChanged.connect(self.update_line_edit_value)
+        self.b1_checkbox.stateChanged.connect(self.update_line_edit_value)
+        self.b2_checkbox.stateChanged.connect(self.update_line_edit_value)
+        self.b3_checkbox.stateChanged.connect(self.update_line_edit_value)
+        self.b4_checkbox.stateChanged.connect(self.update_line_edit_value)
+        self.b5_checkbox.stateChanged.connect(self.update_line_edit_value)
+        self.b6_checkbox.stateChanged.connect(self.update_line_edit_value)
+        self.b7_checkbox.stateChanged.connect(self.update_line_edit_value)
+        self.byte_value_line_edit.textChanged.connect(self.update_checkboxes)
     
-    def update_line_edit_state(self):
+    def update_line_edit_output_mode(self):
         # Get the current text or index from the combobox
         current_selection = self.output_mode_combobox.currentText()  # or use currentIndex() for the index
 
@@ -130,3 +141,48 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         else:
             self.byte_value_line_edit.setEnabled(False)
             self.duration_line_edit.setEnabled(False)
+
+    def update_line_edit_value(self):
+        # Calculate the decimal value from checkboxes. (How can we enumerate and loop this?)
+        tempVar = self.b0_checkbox.isChecked()
+        tempVar |= self.b1_checkbox.isChecked() << 1
+        tempVar |= self.b2_checkbox.isChecked() << 2
+        tempVar |= self.b3_checkbox.isChecked() << 3
+        tempVar |= self.b4_checkbox.isChecked() << 4
+        tempVar |= self.b5_checkbox.isChecked() << 5
+        tempVar |= self.b6_checkbox.isChecked() << 6
+        tempVar |= self.b7_checkbox.isChecked() << 7
+        # Update line edit without triggering the textChanged signal
+        self.byte_value_line_edit.blockSignals(True)
+        self.byte_value_line_edit.setText(str(tempVar))
+        self.byte_value_line_edit.blockSignals(False)
+
+    def update_checkboxes(self, text):
+        # Convert line edit text to binary and update checkboxes
+        try:
+            self.var.value = int(text)
+            if 0 <= self.var.value <= 255:
+                binary_string = format(self.var.value, '08b')
+                self.b0_checkbox.setChecked(binary_string[7] == '1')
+                self.b1_checkbox.setChecked(binary_string[6] == '1')
+                self.b2_checkbox.setChecked(binary_string[5] == '1')
+                self.b3_checkbox.setChecked(binary_string[4] == '1')
+                self.b4_checkbox.setChecked(binary_string[3] == '1')
+                self.b5_checkbox.setChecked(binary_string[2] == '1')
+                self.b6_checkbox.setChecked(binary_string[1] == '1')
+                self.b7_checkbox.setChecked(binary_string[0] == '1')
+            else:
+                raise ValueError
+        except ValueError:
+            # Handle invalid input or out of range value
+            self.byte_value_line_edit.blockSignals(True)
+            self.byte_value_line_edit.setText('')
+            self.b0_checkbox.setChecked(False)
+            self.b1_checkbox.setChecked(False)
+            self.b2_checkbox.setChecked(False)
+            self.b3_checkbox.setChecked(False)
+            self.b4_checkbox.setChecked(False)
+            self.b5_checkbox.setChecked(False)
+            self.b6_checkbox.setChecked(False)
+            self.b7_checkbox.setChecked(False)
+            self.byte_value_line_edit.blockSignals(False)

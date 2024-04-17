@@ -30,6 +30,62 @@ controls = [
         "tooltip": "Select the desired output mode"
     },
     {
+        "type": "checkbox",
+        "var": "bit0",
+        "label": "output 0",
+        "name": "b0_checkbox",
+        "tooltip": "bit 0 checkbox"
+    },
+    {
+        "type": "checkbox",
+        "var": "bit1",
+        "label": "output 1",
+        "name": "b1_checkbox",
+        "tooltip": "bit 1 checkbox"
+    },
+    {
+        "type": "checkbox",
+        "var": "bit2",
+        "label": "output 2",
+        "name": "b2_checkbox",
+        "tooltip": "bit 2 checkbox"
+    },
+    {
+        "type": "checkbox",
+        "var": "bit3",
+        "label": "output 3",
+        "name": "b3_checkbox",
+        "tooltip": "bit 3 checkbox"
+    },
+    {
+        "type": "checkbox",
+        "var": "bit4",
+        "label": "output 4",
+        "name": "b4_checkbox",
+        "tooltip": "bit 4 checkbox"
+    },
+    {
+        "type": "checkbox",
+        "var": "bit5",
+        "label": "output 5",
+        "name": "b5_checkbox",
+        "tooltip": "bit 5 checkbox"
+    },
+    {
+        "type": "checkbox",
+        "var": "bit6",
+        "label": "output 6",
+        "name": "b6_checkbox",
+        "tooltip": "bit 6 checkbox"
+    },
+    {
+        "type": "checkbox",
+        "var": "bit7",
+        "label": "output 7",
+        "name": "b7_checkbox",
+        "tooltip": "bit 7 checkbox"
+    },
+    {
         "type": "line_edit",
         "var": "value",
         "label": "Bit mask value :",
