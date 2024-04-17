@@ -46,38 +46,46 @@ class EvtTrigger(Item):
             self.myevt = EvtExchanger()
             try:
                 self.myevt.Select(self.var.device)
-                oslogger.info("Connecting to EVT device.")
-                #oslogger.debug("Connecting to EVT device...")
+                self.myevt.SetLines(0)
+                #oslogger.info("Connecting and resetting EVT device.")
+                oslogger.debug("Connecting and resetting EVT device.")
             except:
-                oslogger.info("Connecting to EVT device failed! Switching to dummy mode.")
-                #oslogger.debug("Connecting to EVT device failed!")
                 self.var.device = u'DUMMY'
+                #oslogger.info("Connecting to EVT device failed! Switching to dummy mode.")
+                oslogger.debug("Connecting to EVT device failed! Switching to the dummy mode.")
+                
 
     def run(self):
         self.set_item_onset()
         if self.var.device == u'DUMMY':
             if self.var.outputmode == u'Write output lines':
-                oslogger.info('dummy: send code {}'.format(self.var.value))
                 self.experiment.var._outputValue = self.var.value # Store as global.
+                oslogger.info('dummy: send byte code {}'.format(self.var.value))
             elif self.var.outputmode == u'Pulse output lines':
-                oslogger.info('dummy: send code {} for the duration of {} ms'.format(self.experiment.var._outputValue ^ self.var.value, self.var.duration))
+                oslogger.info('dummy: send byte code {} for the duration of {} ms'.format(
+                    self.experiment.var._outputValue ^ self.var.value, self.var.duration))
             elif self.var.outputmode == u'Reset output lines':
-                oslogger.info('dummy: send code {}'.format(0))
+                oslogger.info('dummy: send byte code {}'.format(0))
             elif self.var.outputmode == u'Invert output lines':
                 self.experiment.var._outputValue ^= self.var.value
-                oslogger.info('dummy: send code {}'.format(self.experiment.var._outputValue))
+                oslogger.info('dummy: send byte code {}'.format(self.experiment.var._outputValue))
         else:
             if self.var.outputmode == u'Write output lines':
                 self.myevt.SetLines(self.var.value)
                 self.experiment.var._outputValue = self.var.value # Store as global. There is no output read-back from the hardware.
+                oslogger.info('evt: send byte code {}'.format(self.var.value))
             elif self.var.outputmode == u'Pulse output lines':
                 self.myevt.PulseLines((self.experiment.var._outputValue ^ self.var.value), self.var.duration)
+                oslogger.info('evt: send byte code {} for the duration of {} ms'.format(
+                    self.experiment.var._outputValue ^ self.var.value, self.var.duration))
             elif self.var.outputmode == u'Reset output lines':
+                oslogger.info('evt: send byte code {}'.format(0))
                 self.myevt.SetLines(0)
                 self.experiment.var._outputValue = 0
             elif self.var.outputmode == u'Invert output lines':
                 self.experiment.var._outputValue ^= self.var.value
                 self.myevt.SetLines(self.experiment.var._outputValue)
+                oslogger.info('evt: send byte code {}'.format(self.experiment.var._outputValue))
         return True
 
 
@@ -97,11 +105,28 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         listOfDevices = myevt.Attached(u"EventExchanger-EVT")
         if listOfDevices:
             for i in listOfDevices:
-                self.device_widget.addItem(i)
+                self.device_combobox.addItem(i)
         else:
-            self.var.device = u'DUMMY'
-        '''
-        self.duration_widget.setEnabled(self.output_mode_widget.isChecked(u'Reset output lines'))
-        self.output_mode_widget.stateChanged.connect(
-            self.duration_widget.setEnabled)
-        '''
+            self.var.device = u'DUMMY'   
+        self.output_mode_combobox.currentIndexChanged.connect(self.update_line_edit_state)
+    
+    def update_line_edit_state(self):
+        # Get the current text or index from the combobox
+        current_selection = self.output_mode_combobox.currentText()  # or use currentIndex() for the index
+
+        # Enable or disable the line_edit based on the selection
+        if current_selection == 'Write output lines':
+            self.byte_value_line_edit.setEnabled(True)
+            self.duration_line_edit.setEnabled(False)
+        elif current_selection == 'Reset output lines':
+            self.byte_value_line_edit.setEnabled(False)
+            self.duration_line_edit.setEnabled(False)
+        elif current_selection == 'Invert output lines':
+            self.byte_value_line_edit.setEnabled(True)
+            self.duration_line_edit.setEnabled(False)
+        elif current_selection == 'Pulse output lines':
+            self.byte_value_line_edit.setEnabled(True)
+            self.duration_line_edit.setEnabled(True)
+        else:
+            self.byte_value_line_edit.setEnabled(False)
+            self.duration_line_edit.setEnabled(False)

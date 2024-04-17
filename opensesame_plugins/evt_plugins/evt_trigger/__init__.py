@@ -13,7 +13,7 @@ controls = [
         "options": [
             "DUMMY"
         ],
-        "name": "device_widget",
+        "name": "device_combobox",
         "tooltip": "Select the desired USB-device or dummy"
     },
     {
@@ -26,21 +26,21 @@ controls = [
             "Invert output lines",
             "Pulse output lines"
         ],
-        "name": "output_mode_widget",
+        "name": "output_mode_combobox",
         "tooltip": "Select the desired output mode"
     },
     {
         "type": "line_edit",
         "var": "value",
         "label": "Bit mask value :",
-        "name": "value_widget",
+        "name": "byte_value_line_edit",
         "tooltip": "Bit mask value [0-255]"
     },
     {
         "type": "line_edit",
         "var": "duration",
         "label": "Duration in ms :",
-        "name": "duration_widget",
+        "name": "duration_line_edit",
         "tooltip": "Expecting a value in milliseconds"
     }
 ]
