@@ -26,7 +26,7 @@ class EvtTrigger(Item):
 
     description = u"A plug-in for generating triggers with EVT devices."
 
-    """Reset plug-in to initial values."""
+    # Reset plug-in to initial values.
     def reset(self):
         self.var.value = 0
         self.var.duration = 1000
@@ -100,16 +100,16 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-
         myevt = EvtExchanger()
         listOfDevices = myevt.Attached(u"EventExchanger-EVT")
         if listOfDevices:
             for i in listOfDevices:
                 self.device_combobox.addItem(i)
-        else:
-            self.var.device = u'DUMMY'   
-        
-        self.output_mode_combobox.currentIndexChanged.connect(self.update_line_edit_output_mode)
+        del myevt # cleanup handle
+
+        self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
+        self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
+        self.output_mode_combobox.currentIndexChanged.connect(self.update_combobox_output_mode)
         # Connect checkbox inputs with line input and vice verse.
         self.b0_checkbox.stateChanged.connect(self.update_line_edit_value)
         self.b1_checkbox.stateChanged.connect(self.update_line_edit_value)
@@ -120,8 +120,25 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         self.b6_checkbox.stateChanged.connect(self.update_line_edit_value)
         self.b7_checkbox.stateChanged.connect(self.update_line_edit_value)
         self.byte_value_line_edit.textChanged.connect(self.update_checkboxes)
-    
-    def update_line_edit_output_mode(self):
+
+    def refresh_combobox_device(self):
+        if self.refresh_checkbox.isChecked():
+            number_of_items = self.device_combobox.count()
+            for i in range(number_of_items):
+                if i > 0:
+                    self.device_combobox.removeItem(i)
+            # create new list:
+            myevt = EvtExchanger()
+            listOfDevices = myevt.Attached(u"EventExchanger-EVT")
+            if listOfDevices:
+                for i in listOfDevices:
+                    self.device_combobox.addItem(i)
+            del myevt
+
+    def update_combobox_device(self):
+        self.refresh_checkbox.setChecked(False)
+
+    def update_combobox_output_mode(self):
         # Get the current text or index from the combobox
         current_selection = self.output_mode_combobox.currentText()  # or use currentIndex() for the index
 
