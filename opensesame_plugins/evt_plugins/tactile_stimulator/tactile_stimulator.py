@@ -15,10 +15,8 @@ You should have received a copy of the GNU General Public License
 along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import os
 import time
 import math
-import sys
 from pyevt import EvtExchanger
 from libopensesame.py3compat import *
 from libopensesame.item import Item
@@ -66,25 +64,23 @@ class TactileStimulator(Item):
             self.var._pulseDuration = 150
         self.experiment.var.tactstim_pulse_duration_ms = self.var._pulseDuration
         self.experiment.var.tactstim_pulse_value = 0
-        self.evt = EvtExchanger()
-        Device = self.evt.Select(self.var._deviceName)
-
+        # Dynamically load an EVT device
+        self.myevt = EvtExchanger()
         try:
-            if Device is None:
-                raise
-        except Exception:
-            self.var._deviceName = u"DUMMY"
-            oslogger.warning("Did not find "
-                             "a Tactile Stimulator device!")
-
+            self.myevt.Select(self.var._device)
+            self.myevt.SetLines(0)
+            oslogger.info("Connecting and resetting the Tactile Stimulator.")
+        except:
+            self.var._device = u'DUMMY'
+            oslogger.warning("Connecting the Tactile Stimulator device failed! Switching to dummy-mode.")
         if self.var._mode == u"Calibrate":
             self.calibrate_prepare()
         elif self.var._mode == u"Stimulate":
             self.stimulate_prepare()
 
     def calibrate_prepare(self):
-        if not (self.var._deviceName == u"DUMMY"):
-            self.evt.SetLines(0)
+        if not (self.var._device == u"DUMMY"):
+            self.myevt.SetLines(0)
             oslogger.info("Reset Tactile Stimulator Device")
 
         self.c = Canvas(self.experiment)
@@ -189,7 +185,7 @@ class TactileStimulator(Item):
 
     def run(self):
         self.set_item_onset()
-        if self.var._deviceName == u"DUMMY":
+        if self.var._device == u"DUMMY":
             if self.var._mode == u"Stimulate":
                 oslogger.info('stimulate with {}% and duration of {}ms'
                               .format(self.var._percOfCalibrationValue,
@@ -233,12 +229,12 @@ class TactileStimulator(Item):
                 self.c.show()
 
             if (x, y) in self.c['Test_Box']:
-                if (self.var._deviceName == u"DUMMY"):
+                if (self.var._device == u"DUMMY"):
                     oslogger.info(
                         "(Dummy) Tactile Stimulator pulsing at: {}%"
                         .format(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX)))
                 else:
-                    self.evt.PulseLines(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX),
+                    self.myevt.PulseLines(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX),
                                        self.var._pulseDuration)
                 self.c['Test_Box'].color = 'blue'
                 self.c.show()
@@ -266,7 +262,7 @@ class TactileStimulator(Item):
                 break
 
     def stimulate(self):
-        if (self.var._deviceName == u"DUMMY"):
+        if (self.var._device == u"DUMMY"):
             oslogger.info("In (Dummy) Tactile Stimulator: "
                           "pulse with value: " + \
                             str(self.var._percOfCalibrationValue))
@@ -291,7 +287,7 @@ class TactileStimulator(Item):
                     self.var._percOfCalibrationValue * \
                         self.experiment.var.tactstim_calibration_perc * 5.0 / 10000, 2)
 
-                self.evt.PulseLines(self.experiment.var.tactstim_pulse_value, self.var._pulseDuration)
+                self.myevt.PulseLines(self.experiment.var.tactstim_pulse_value, self.var._pulseDuration)
                 oslogger.info("Tactile-stimulator device "
                               "now pulsing at "
                               "(raw, mA): {}, {:.2f}".
@@ -312,40 +308,54 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
 
     def perc_check(self):
         try:
-            val = int(self.value_widget.text())
+            val = int(self.value_line_edit.text())
         except ValueError:
             val = 0
-        self.value_widget.setText(str(val))
+        self.value_line_edit.setText(str(val))
 
     def duration_check(self):
         try:
-            val = int(self.duration_widget.text())
+            val = int(self.duration_line_edit.text())
         except ValueError:
             val = 0
-        self.duration_widget.setText(str(val))
+        self.duration_line_edit.setText(str(val))
 
     def type_check(self):
-        self.value_widget.setEnabled(
-            self.calibrate_widget.currentText() == u'Stimulate')
+        self.value_line_edit.setEnabled(
+            self.calibrate_combobox.currentText() == u'Stimulate')
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        evt = EvtExchanger()
-        listOfDevices = evt.Attached(u"SHOCKER")
-
-        """
-        If there is no Tactile Stimulator attached,
-        the selected name defaults to 'DUMMY' again.
-        """
+        myevt = EvtExchanger()
+        listOfDevices = myevt.Attached(u"SHOCKER")
         if listOfDevices:
             for i in listOfDevices:
-                self.device_widget.addItem(i)
-        else:
-            self.var._deviceName = u"DUMMY"
+                self.device_combobox.addItem(i)
+        del myevt # cleanup device handle
+        # Prevents hangup if device is not found after reopening the project:
+        if not self.var._device in listOfDevices: 
+            self.var._device = u'DUMMY'
+        self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
+        self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
 
-        self.duration_widget.setEnabled(True)
-        self.value_widget.returnPressed.connect(self.perc_check)
-        self.value_widget.returnPressed.connect(self.duration_check)
-        self.calibrate_widget.currentTextChanged.connect(self.type_check)
-        self.value_widget.setEnabled(
-            self.calibrate_widget.currentText() == u'Stimulate')
+        self.duration_line_edit.setEnabled(True)
+        self.value_line_edit.returnPressed.connect(self.perc_check)
+        self.value_line_edit.returnPressed.connect(self.duration_check)
+        self.calibrate_combobox.currentTextChanged.connect(self.type_check)
+        self.value_line_edit.setEnabled(
+            self.calibrate_combobox.currentText() == u'Stimulate')
+
+    def refresh_combobox_device(self):
+        if self.refresh_checkbox.isChecked():
+            self.device_combobox.clear()
+            # create new list:
+            self.device_combobox.addItem(u'DUMMY', userData=None)
+            myevt = EvtExchanger()
+            listOfDevices = myevt.Attached(u"SHOCKER")
+            if listOfDevices:
+                for i in listOfDevices:
+                    self.device_combobox.addItem(i)
+            del myevt
+
+    def update_combobox_device(self):
+        self.refresh_checkbox.setChecked(False)
