@@ -92,18 +92,22 @@ class RspPyevt(BaseResponseItem):
         if self.var._device == u'Keyboard':
             # get keyboard response...
             return self._keyboard.get_key
-        
-        # Dynamically load an EventExchanger RSP device.
-        if not hasattr(self, u'EventExchanger-RSP-12'):
+        else:
+            # Dynamically load an EVT device
             self.myevt = EvtExchanger()
             try:
-                Device = self.myevt.Select(self.var._device)
-                oslogger.debug("Loading the RSP-12x box.")
+                self.myevt.Select(self.var._device)
+                self.myevt.SetLines(0)
+                #oslogger.info("Connecting the RSP-12x box.")
+                oslogger.debug("Connecting the RSP-12x box.")
             except:
+                self.var._device = u'Keyboard'
+                #oslogger.info("Loading the RSP-12x-box failed!")
                 oslogger.debug("Loading the RSP-12x-box failed!")
+
         '''
         The next part calculates the bit mask for the allowed responses
-        to receive from the evtware.
+        to receive from the evt.
         '''
         self.var.allowed_events = 0
         try:
@@ -148,11 +152,29 @@ class QtRspPyevt(RspPyevt, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-
         myevt = EvtExchanger()
         listOfDevices = myevt.Attached(u"EventExchanger-RSP-12")
         if listOfDevices:
             for i in listOfDevices:
-                self.device_widget.addItem(i)
-        else:
-            self.var._device = u"Keyboard"
+                self.device_combobox.addItem(i)
+        del myevt # cleanup device handle
+        # Prevents hangup if device is not found after reopening the project:
+        if not self.var._device in listOfDevices: 
+            self.var._device = u'Keyboard'
+        self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
+        self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
+
+    def refresh_combobox_device(self):
+        if self.refresh_checkbox.isChecked():
+            self.device_combobox.clear()
+            # create new list:
+            self.device_combobox.addItem(u'Keyboard', userData=None)
+            myevt = EvtExchanger()
+            listOfDevices = myevt.Attached(u"EventExchanger-RSP-12")
+            if listOfDevices:
+                for i in listOfDevices:
+                    self.device_combobox.addItem(i)
+            del myevt
+
+    def update_combobox_device(self):
+        self.refresh_checkbox.setChecked(False)

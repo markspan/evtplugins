@@ -40,13 +40,13 @@ class EvtTrigger(Item):
         super().prepare()
         self.var.value = self.clamp(self.var.value, 0, 255)
         self.experiment.var._outputValue = 0
-        # Dynamically load an EventExchanger RSP device
+        # Dynamically load an EVT device
         self.myevt = EvtExchanger()
         try:
             self.myevt.Select(self.var.device)
             self.myevt.SetLines(0)
-            #oslogger.info("Connecting and resetting EVT device.")
-            oslogger.debug("Connecting and resetting EVT device.")
+            #oslogger.info("Connecting and resetting the EVT device.")
+            oslogger.debug("Connecting and resetting the EVT device.")
         except:
             self.var.device = u'DUMMY'
             #oslogger.info("Connecting to EVT device failed! Switching to dummy mode.")
@@ -97,6 +97,7 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
+
         myevt = EvtExchanger()
         listOfDevices = myevt.Attached(u"EventExchanger-EVT")
         if listOfDevices:
