@@ -40,21 +40,18 @@ class EvtTrigger(Item):
         super().prepare()
         self.var.value = self.clamp(self.var.value, 0, 255)
         self.experiment.var._outputValue = 0
-
         # Dynamically load an EventExchanger RSP device
-        if not hasattr(self, u'EventExchanger'):
-            self.myevt = EvtExchanger()
-            try:
-                self.myevt.Select(self.var.device)
-                self.myevt.SetLines(0)
-                #oslogger.info("Connecting and resetting EVT device.")
-                oslogger.debug("Connecting and resetting EVT device.")
-            except:
-                self.var.device = u'DUMMY'
-                #oslogger.info("Connecting to EVT device failed! Switching to dummy mode.")
-                oslogger.debug("Connecting to EVT device failed! Switching to the dummy mode.")
-                
-
+        self.myevt = EvtExchanger()
+        try:
+            self.myevt.Select(self.var.device)
+            self.myevt.SetLines(0)
+            #oslogger.info("Connecting and resetting EVT device.")
+            oslogger.debug("Connecting and resetting EVT device.")
+        except:
+            self.var.device = u'DUMMY'
+            #oslogger.info("Connecting to EVT device failed! Switching to dummy mode.")
+            oslogger.debug("Connecting to EVT device failed! Switching to the dummy mode.")
+   
     def run(self):
         self.set_item_onset()
         if self.var.device == u'DUMMY':
@@ -105,7 +102,10 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         if listOfDevices:
             for i in listOfDevices:
                 self.device_combobox.addItem(i)
-        del myevt # cleanup handle
+        del myevt # cleanup device handle
+        # Prevents hangup if device is not found after reopening the project:
+        if not self.var.device in listOfDevices: 
+            self.var.device = u'DUMMY'
 
         self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
         self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
@@ -123,11 +123,9 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
     def refresh_combobox_device(self):
         if self.refresh_checkbox.isChecked():
-            number_of_items = self.device_combobox.count()
-            for i in range(number_of_items):
-                if i > 0:
-                    self.device_combobox.removeItem(i)
+            self.device_combobox.clear()
             # create new list:
+            self.device_combobox.addItem(u'DUMMY', userData=None)
             myevt = EvtExchanger()
             listOfDevices = myevt.Attached(u"EventExchanger-EVT")
             if listOfDevices:
@@ -141,7 +139,6 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
     def update_combobox_output_mode(self):
         # Get the current text or index from the combobox
         current_selection = self.output_mode_combobox.currentText()  # or use currentIndex() for the index
-
         # Enable or disable the line_edit based on the selection
         if current_selection == 'Write output lines':
             self.byte_value_line_edit.setEnabled(True)
