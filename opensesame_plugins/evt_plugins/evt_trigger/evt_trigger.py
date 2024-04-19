@@ -45,12 +45,10 @@ class EvtTrigger(Item):
         try:
             self.myevt.Select(self.var.device)
             self.myevt.SetLines(0)
-            #oslogger.info("Connecting and resetting the EVT device.")
-            oslogger.debug("Connecting and resetting the EVT device.")
+            oslogger.info("Connecting and resetting EVT device.")
         except:
             self.var.device = u'DUMMY'
-            #oslogger.info("Connecting to EVT device failed! Switching to dummy mode.")
-            oslogger.debug("Connecting to EVT device failed! Switching to the dummy mode.")
+            oslogger.warning("Connecting to EVT device failed! Switching to dummy-mode.")
    
     def run(self):
         self.set_item_onset()

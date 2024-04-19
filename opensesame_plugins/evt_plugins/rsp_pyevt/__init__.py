@@ -1,9 +1,8 @@
-"""Plugin to collect input from a RSP-12x responsebox"""
+"""A Plug-in to collect input from a RSP-12x responsebox"""
 
 authors = ["M. Stokroos"]
 category = "RUG/BSS hardware"
 help_url = 'https://github.com/MartinStokroos/evt-plugins'
-
 # Defines the GUI controls:
 controls = [
     {

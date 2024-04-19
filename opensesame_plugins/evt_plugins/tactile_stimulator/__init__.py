@@ -3,6 +3,7 @@
 authors = ["M.M.Span", "M.Stokroos"]
 # The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
+help_url = 'https://github.com/MartinStokroos/evt-plugins'
 # Defines the GUI controls
 controls = [
     {

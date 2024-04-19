@@ -187,7 +187,7 @@ class TactileStimulator(Item):
         self.set_item_onset()
         if self.var._device == u"DUMMY":
             if self.var._mode == u"Stimulate":
-                oslogger.info('stimulate with {}% and duration of {}ms'
+                oslogger.info('stimulate at {}% and the duration of {}ms'
                               .format(self.var._percOfCalibrationValue,
                                       self.var._pulseDuration))
             else:

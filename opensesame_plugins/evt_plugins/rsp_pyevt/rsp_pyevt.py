@@ -21,7 +21,7 @@ Research Support team from the faculty of Behavioural and Social Sciences
 from the University of Groningen.
 
 
-TO DO: Find where to reset the timer in rsp mode.
+TO DO: Find out where to reset the timer in rsp mode.
 """
 import math
 from pyevt import EvtExchanger
@@ -98,12 +98,10 @@ class RspPyevt(BaseResponseItem):
             try:
                 self.myevt.Select(self.var._device)
                 self.myevt.SetLines(0)
-                #oslogger.info("Connecting the RSP-12x box.")
-                oslogger.debug("Connecting the RSP-12x box.")
+                oslogger.info("Connecting the RSP-12x box.")
             except:
                 self.var._device = u'Keyboard'
-                #oslogger.info("Loading the RSP-12x-box failed!")
-                oslogger.debug("Loading the RSP-12x-box failed!")
+                oslogger.warning("Loading the RSP-12x-box failed!")
 
         '''
         The next part calculates the bit mask for the allowed responses
