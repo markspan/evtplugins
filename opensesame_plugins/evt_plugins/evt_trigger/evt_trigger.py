@@ -28,7 +28,7 @@ class EvtTrigger(Item):
 
     # Reset plug-in to initial values.
     def reset(self):
-        self.var.value = 0
+        self.var.mask = 0
         self.var.duration = 1000
         self.var.device = u'DUMMY'
         self.var.outputmode = u'Pulse output lines'
@@ -38,7 +38,7 @@ class EvtTrigger(Item):
 
     def prepare(self):
         super().prepare()
-        self.var.value = self.clamp(self.var.value, 0, 255)
+        self.var.mask = self.clamp(self.var.mask, 0, 255)
         self.experiment.var._outputValue = 0
         # Dynamically load an EVT device
         self.myevt = EvtExchanger()
@@ -54,31 +54,31 @@ class EvtTrigger(Item):
         self.set_item_onset()
         if self.var.device == u'DUMMY':
             if self.var.outputmode == u'Write output lines':
-                self.experiment.var._outputValue = self.var.value # Store as global.
-                oslogger.info('dummy: send byte code {}'.format(self.var.value))
+                self.experiment.var._outputValue = self.var.mask # Store as global.
+                oslogger.info('dummy: send byte code {}'.format(self.var.mask))
             elif self.var.outputmode == u'Pulse output lines':
                 oslogger.info('dummy: send byte code {} for the duration of {} ms'.format(
-                    self.experiment.var._outputValue ^ self.var.value, self.var.duration))
+                    self.experiment.var._outputValue ^ self.var.mask, self.var.duration))
             elif self.var.outputmode == u'Reset output lines':
                 oslogger.info('dummy: send byte code {}'.format(0))
             elif self.var.outputmode == u'Invert output lines':
-                self.experiment.var._outputValue ^= self.var.value
+                self.experiment.var._outputValue ^= self.var.mask
                 oslogger.info('dummy: send byte code {}'.format(self.experiment.var._outputValue))
         else:
             if self.var.outputmode == u'Write output lines':
-                self.myevt.SetLines(self.var.value)
-                self.experiment.var._outputValue = self.var.value # Store as global. There is no output read-back from the hardware.
-                oslogger.info('evt: send byte code {}'.format(self.var.value))
+                self.myevt.SetLines(self.var.mask)
+                self.experiment.var._outputValue = self.var.mask # Store as global. There is no output read-back from the hardware.
+                oslogger.info('evt: send byte code {}'.format(self.var.mask))
             elif self.var.outputmode == u'Pulse output lines':
-                self.myevt.PulseLines((self.experiment.var._outputValue ^ self.var.value), self.var.duration)
+                self.myevt.PulseLines((self.experiment.var._outputValue ^ self.var.mask), self.var.duration)
                 oslogger.info('evt: send byte code {} for the duration of {} ms'.format(
-                    self.experiment.var._outputValue ^ self.var.value, self.var.duration))
+                    self.experiment.var._outputValue ^ self.var.mask, self.var.duration))
             elif self.var.outputmode == u'Reset output lines':
                 oslogger.info('evt: send byte code {}'.format(0))
                 self.myevt.SetLines(0)
                 self.experiment.var._outputValue = 0
             elif self.var.outputmode == u'Invert output lines':
-                self.experiment.var._outputValue ^= self.var.value
+                self.experiment.var._outputValue ^= self.var.mask
                 self.myevt.SetLines(self.experiment.var._outputValue)
                 oslogger.info('evt: send byte code {}'.format(self.experiment.var._outputValue))
         return True
@@ -154,6 +154,8 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         else:
             self.byte_value_line_edit.setEnabled(False)
             self.duration_line_edit.setEnabled(False)
+        # Clear byte value line edit after swap and trigger the textChanged signal
+        self.byte_value_line_edit.setText(str(0))
 
     def update_line_edit_value(self):
         # Calculate the decimal value from checkboxes. (How can we enumerate and loop this?)
@@ -173,9 +175,9 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
     def update_checkboxes(self, text):
         # Convert line edit text to binary and update checkboxes
         try:
-            self.var.value = int(text)
-            if 0 <= self.var.value <= 255:
-                binary_string = format(self.var.value, '08b')
+            self.var.mask = int(text)
+            if 0 <= self.var.mask <= 255:
+                binary_string = format(self.var.mask, '08b')
                 self.b0_checkbox.setChecked(binary_string[7] == '1')
                 self.b1_checkbox.setChecked(binary_string[6] == '1')
                 self.b2_checkbox.setChecked(binary_string[5] == '1')

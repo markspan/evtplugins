@@ -82,8 +82,8 @@ controls = [
         "tooltip": "bit 7 checkbox"
     }, {
         "type": "line_edit",
-        "var": "value",
-        "label": "Bit mask value :",
+        "var": "mask",
+        "label": "Bit-mask value :",
         "name": "byte_value_line_edit",
         "tooltip": "Bit mask value [0-255]"
     }, {
