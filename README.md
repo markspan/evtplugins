@@ -7,7 +7,7 @@ The following plugins are available:
 Plugin | Description | OpenSesame back-end | operating system | Status
 ------ | ----------- | ------------------- | ---------------- | ------
 evt_trigger | Plugin for event exchanger EVT-2,3 and 4 variants for generating triggers | PyGame, PsychoPy | Windows | ok
-rsp_pyevt | Plugin for RSP12x button response box variants with 1-8 buttons | PyGame, PsychoPy | Windows | Keyboard timeout set to 'infinite' does not work under PsychoPy.
+response_box | Plugin for all of the RSP12x button response box variants with 1-8 buttons | PyGame, PsychoPy | Windows |
 rsp_pygame | Plugin for RSP12x button response box variants with 1-8 buttons | PyGame | Windows, Linux | ok
 tactile_stimulator | Plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | PyGame | Windows | ok
 vas_evt | A Visual Analog Slider plugin controlled via an encoder knob connected to the EVT-2 | PyGame | Windows | not validated
@@ -37,7 +37,7 @@ Possible Modes:
 - Invert output lines
 - Pulse output lines
 
-## rsp_pyevt
+## response_box
 
 ## rsp_pygame
 

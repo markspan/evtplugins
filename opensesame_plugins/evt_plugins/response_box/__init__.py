@@ -3,11 +3,10 @@
 authors = ["M. Stokroos"]
 category = "RUG/BSS hardware"
 help_url = 'https://github.com/MartinStokroos/evt-plugins'
-# Defines the GUI controls:
 controls = [
     {
         "type": "combobox",
-        "var": "_device",
+        "var": "device",
         "label": "Select device :",
         "options": [
             "Keyboard"
@@ -16,7 +15,7 @@ controls = [
         "tooltip": "Select the desired RSP-device"
     }, {
         "type": "checkbox",
-        "var": "refresh",
+        "var": "refresh_device_list",
         "label": "Refresh device list",
         "name": "refresh_checkbox",
         "tooltip": "Refresch device list checkbox"
