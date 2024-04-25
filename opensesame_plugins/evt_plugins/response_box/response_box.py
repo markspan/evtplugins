@@ -1,6 +1,18 @@
 """
-No rights reserved. All files in this repository are released into the public
-domain.
+This file is part of OpenSesame.
+
+OpenSesame is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+OpenSesame is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import math
@@ -13,6 +25,8 @@ from pyevt import EvtExchanger
 
 
 class ResponseBox(Item):
+
+    description = u"A Plug-in to collect input from a RSP-12x responsebox."
 
     def reset(self):
         """Resets plug-in to initial values."""
@@ -97,8 +111,6 @@ class ResponseBox(Item):
                                            self.var.correct_response), \
                                 response = self.var.response, \
                                 item=self.name)
-        #Report success      
-        return True
 
 
 class QtResponseBox(ResponseBox, QtAutoPlugin):
@@ -115,7 +127,6 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
         if listOfDevices:
             for i in listOfDevices:
                 self.device_combobox.addItem(i)
-        del myevt # cleanup device handle
         # Prevents hangup if device is not found after reopening the project:
         if not self.var.device in listOfDevices: 
             self.var.device = u'Keyboard'
@@ -132,7 +143,6 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
             if listOfDevices:
                 for i in listOfDevices:
                     self.device_combobox.addItem(i)
-            del myevt
 
     def update_combobox_device(self):
         self.refresh_checkbox.setChecked(False)

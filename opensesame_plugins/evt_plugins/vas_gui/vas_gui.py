@@ -1,32 +1,34 @@
-# -*- coding:utf-8 -*-
+"""
+This file is part of OpenSesame.
 
+OpenSesame is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+OpenSesame is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
 """
-No rights reserved. All files in this repository are released into the public
-domain.
-"""
+
 from libopensesame.py3compat import *
 from libopensesame.item import Item
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 from libopensesame.oslogging import oslogger
 from openexp.mouse import Mouse
 from openexp.canvas import Canvas
-from openexp.canvas_elements import (
-	Line
-)
+from openexp.canvas_elements import (Line)
 
 class VasGui(Item):
-
-    """
-    This class (the class with the same name as the module) handles the basic
-    functionality of the item. It does not deal with GUI stuff.
-    """
 
     description = u'A Revised VAS modifier for a canvas'
 
     def reset(self):
-
         """Resets plug-in to initial values."""
-
         self.var.vas_canvas_name = u'VASSCREEN'
         self.var.vas_body_name = u'VASBODY'
         self.var.vas_cursor_color = "#ffffff"
@@ -38,9 +40,7 @@ class VasGui(Item):
         self.var.vas_timeout = u'infinite'
 
     def prepare(self):
-
         """The preparation phase of the plug-in goes here."""
-
         self.my_mouse = Mouse(self.experiment)
         self.my_mouse.buttonlist = [1]
         

@@ -28,6 +28,7 @@ class EvtTrigger(Item):
 
     # Reset plug-in to initial values.
     def reset(self):
+        """Resets plug-in to initial values."""
         self.var.device = u'DUMMY'
         self.var.refresh = 'no'
         self.var.outputmode = u'Write output lines'
@@ -43,6 +44,7 @@ class EvtTrigger(Item):
         self.var.duration = 1000
 
     def prepare(self):
+        """The preparation phase of the plug-in goes here."""
         super().prepare()
         if self.var.device != u'DUMMY':
             # Dynamically load an EVT device
@@ -54,9 +56,9 @@ class EvtTrigger(Item):
             except:
                 self.var.device = u'DUMMY'
                 oslogger.warning("Connecting EVT device failed! Switching to dummy-mode.")
-        pass
 
     def run(self):
+        """The run phase of the plug-in goes here."""
         self.set_item_onset()
         if self.var.device == u'DUMMY':
             if self.var.outputmode == u'Reset output lines':
@@ -89,7 +91,6 @@ class EvtTrigger(Item):
                 self.myevt.PulseLines((self.experiment.var._outputValue ^ self.var.mask), self.var.duration)
                 oslogger.info('evt: send byte code {} for the duration of {} ms'.format(
                     self.experiment.var._outputValue ^ self.var.mask, self.var.duration))
-        pass
 
 
 class QtEvtTrigger(EvtTrigger, QtAutoPlugin):

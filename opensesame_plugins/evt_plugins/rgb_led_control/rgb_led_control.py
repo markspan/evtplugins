@@ -27,59 +27,62 @@ from openexp.keyboard import Keyboard
 
 class RgbLedControl(Item):
 
-    description = u"Sets and/or sends RGB led data from\r\n \
-        EventExchanger-based digital input/output device."
+    description = u"Plugin to send LED RGB data from \
+        \r\nEventExchanger-based digital input/output device."
 
     # Reset plug-in to initial values.
     def reset(self):
-        self.var._device = u'DUMMY'
-        self.var._correctButton = u'1'
-        self.var._allowedButtons = u'1;2;3'
-        self.var._responseTimeout = u'infinite'
-        self.var._button1_Led_Color = "#000000"
-        self.var._button2_Led_Color = "#000000"
-        self.var._button3_Led_Color = "#000000"
-        self.var._button4_Led_Color = "#000000"
-        self.var._resetAfter = 500
-        self.var._feedback = u'yes'
-        self.var._correctColor = "#00FF00"
-        self.var._incorrectColor = "#FF0000"
+        """Resets plug-in to initial values."""
+        self.var.device = u'DUMMY'
+        self.var.correct_button = u'1'
+        self.var.allowed_buttons = u'1;2;3'
+        self.var.timeout = u'infinite'
+        self.var.button1_color = "#000000"
+        self.var.button2_color = "#000000"
+        self.var.button3_color = "#000000"
+        self.var.button4_color = "#000000"
+        self.var.reset_delay = 500
+        self.var.feedback = u'yes'
+        self.var.correct_color = "#00FF00"
+        self.var.incorrect_color = "#FF0000"
 
     def prepare(self):
+        """The preparation phase of the plug-in goes here."""
         super().prepare()
         # Dynamically load an EVT device
         self.myevt = EvtExchanger()
         try:
-            self.myevt.Select(self.var._device)
+            self.myevt.Select(self.var.device)
             self.myevt.SetLines(0)
             oslogger.info("Connecting and resetting EVT device.")
         except:
-            self.var._device = u'DUMMY'
+            self.var.device = u'DUMMY'
             oslogger.warning("Connecting to EVT device failed! Switching to dummy-mode.")
 
-        if not type(self.var._responseTimeout) == int \
-        and not type(self.var._responseTimeout) == float:
-            self.var._responseTimeout = -1
+        if not type(self.var.timeout) == int \
+        and not type(self.var.timeout) == float:
+            self.var.timeout = -1
         # Recode Allowed buttons to AllowedEventLines
         self.var.AllowedEventLines = 0
         try:
-            AllowedList = self.var._allowedButtons.split(";")
+            AllowedList = self.var.allowed_buttons.split(";")
             for x in AllowedList:
                 self.var.AllowedEventLines += (1 << (int(x, 10) - 1))
         except Exception:
-            x = self.var._allowedButtons
+            x = self.var.allowed_buttons
             self.var.AllowedEventLines = (1 << (x - 1))
 
     def run(self):
+        """The run phase of the plug-in goes here."""
         # Save the current time...
         t0 = self.set_item_onset()
         hexprepend = "0x"
-        self.colors = [hexprepend + self.var._button1_Led_Color[1:],
-                       hexprepend + self.var._button2_Led_Color[1:],
-                       hexprepend + self.var._button3_Led_Color[1:],
-                       hexprepend + self.var._button4_Led_Color[1:]]
-        self.CorrectColor = hexprepend + self.var._correctColor[1:]
-        self.InCorrectColor = hexprepend + self.var._incorrectColor[1:]
+        self.colors = [hexprepend + self.var.button1_color[1:],
+                       hexprepend + self.var.button2_color[1:],
+                       hexprepend + self.var.button3_color[1:],
+                       hexprepend + self.var.button4_color[1:]]
+        self.CorrectColor = hexprepend + self.var.correct_color[1:]
+        self.InCorrectColor = hexprepend + self.var.incorrect_color[1:]
         CC = int(self.CorrectColor, 16)
         IC = int(self.InCorrectColor, 16)
         BLC = [0, 0, 0, 0]
@@ -87,7 +90,7 @@ class RgbLedControl(Item):
         for b in range(4):
             BLC[b] = int(self.colors[b], 16)
 
-        if self.var._device != u'DUMMY':
+        if self.var.device != u'DUMMY':
             for b in range(4):
                 self.myevt.SetLedColor(
                     ((BLC[b] >> 16) & 0xFF),
@@ -95,7 +98,7 @@ class RgbLedControl(Item):
                     (BLC[b] & 0xFF),
                     b + 1, 1)
 
-            if self.var._feedback == u'yes':
+            if self.var.feedback == u'yes':
                 for b in range(4):
                     self.myevt.SetLedColor(
                         ((IC >> 16) & 0xFF),
@@ -107,35 +110,35 @@ class RgbLedControl(Item):
                     ((CC >> 16) & 0xFF),
                     ((CC >> 8) & 0xFF),
                     (CC & 0xFF),
-                    int(self.var._correctButton),
-                    int(self.var._correctButton) + 10)
+                    int(self.var.correct_button),
+                    int(self.var.correct_button) + 10)
 
             # Call the 'wait for event' function in \
             # the EventExchanger C# object.
             (self.var.Response, self.var.RT) = (
                 self.myevt.WaitForDigEvents(
-                    self.var.AllowedEventLines, self.var._responseTimeout))
+                    self.var.AllowedEventLines, self.var.timeout))
 
             if (self.var.Response != -1):
                 self.var.Response = math.log2(self.var.Response) + 1
 
             # FEEDBACK:
-            if self.var._feedback == u'yes':
-                time.sleep(self.var._resetAfter / 1000.0)
+            if self.var.feedback == u'yes':
+                time.sleep(self.var.reset_delay / 1000.0)
                 for b in range(4):
                     self.myevt.SetLedColor(0, 0, 0, b + 1, 1)
 
         else:
             # demo mode: keyboard response.....
-            if self.var._responseTimeout == -1:
-                self.var._responseTimeout = None
+            if self.var.timeout == -1:
+                self.var.timeout = None
             self.var.Response,
             self.var.RT = self.Keyboard.get_key(
-                timeout=self.var._responseTimeout)
+                timeout=self.var.timeout)
 
         # HOUSE KEEPING:
         self.var.correct = \
-            bool(self.var.Response == self.var._correctButton)
+            bool(self.var.Response == self.var.correct_button)
 
         self.var.correct = distutils.util.strtobool(str(self.var.correct))
 
@@ -163,10 +166,9 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
         if listOfDevices:
             for i in listOfDevices:
                 self.device_combobox.addItem(i)
-        del myevt # cleanup device handle
         # Prevents hangup if device is not found after reopening the project:
-        if not self.var._device in listOfDevices: 
-            self.var._device = u'DUMMY'
+        if not self.var.device in listOfDevices: 
+            self.var.device = u'DUMMY'
         self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
         self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
 
@@ -180,7 +182,6 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
             if listOfDevices:
                 for i in listOfDevices:
                     self.device_combobox.addItem(i)
-            del myevt
 
     def update_combobox_device(self):
         self.refresh_checkbox.setChecked(False)

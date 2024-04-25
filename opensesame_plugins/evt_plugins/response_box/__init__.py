@@ -1,8 +1,8 @@
 """A Plug-in to collect input from a RSP-12x responsebox"""
 
-authors = ["M. Stokroos"]
+authors = ["M. Stokroos", "M.M. Span"]
 category = "RUG/BSS hardware"
-help_url = 'https://github.com/MartinStokroos/evt-plugins'
+help_url = 'https://markspan.github.io/evtplugins/'
 controls = [
     {
         "type": "combobox",

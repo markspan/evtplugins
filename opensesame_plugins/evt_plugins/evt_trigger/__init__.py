@@ -2,7 +2,7 @@
 
 authors = ["M. Stokroos", "M.M. Span"]
 category = "RUG/BSS hardware"
-help_url = 'https://github.com/MartinStokroos/evt-plugins'
+help_url = 'https://markspan.github.io/evtplugins/'
 # Defines the GUI controls:
 controls = [
     {
@@ -83,7 +83,7 @@ controls = [
     }, {
         "type": "line_edit",
         "var": "mask",
-        "label": "Bit-mask value :",
+        "label": "Byte or bit-mask value :",
         "name": "byte_value_line_edit",
         "tooltip": "Bit mask value [0-255]"
     }, {

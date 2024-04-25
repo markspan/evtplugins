@@ -44,44 +44,47 @@ class TactileStimulator(Item):
     """Class for handling the Tactile Stimulator."""
 
     description = u"Plugin for the calibration and the usage of the Tactile Stimulator.\
-        \nThe \"calibrate\" instance of the plugin should always precede the \"stimulate\" instance in the same experiment."
+        \r\nThe \"calibrate\" instance of the plugin should always precede the \"stimulate\" \
+        \r\ninstance in the same experiment."
 
     PULSE_VALUE_MAX = 254.0  # some models of the SHK1-1B do accept 255 as max intensity and others 254 (...)
 
     def reset(self):
-        self.var._percOfCalibrationValue = 0
-        self.var._pulseDuration = 150  # default value
-        self.var._pulseTimeOut = 1.0
-        self.var._interPulseHoldOffTime = 8
-        self.var._device = u"DUMMY"
-        self.var._mode = u"Calibrate"
+        """Resets plug-in to initial values."""
+        self.var.perc_calibr_value = 0
+        self.var.pulse_duration = 150  # default value
+        self.var.device = u"DUMMY"
+        self.var.mode = u"Calibrate"
+        self.var._pulse_timeout = 1.0
+        self.var._inter_pulse_holdoff = 8
 
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
         super().prepare()
-        if not 1 <= self.var._pulseDuration <= 2000:
+        if not 1 <= self.var.pulse_duration <= 2000:
             oslogger.error("Pulse duration input out of range!")
-            self.var._pulseDuration = 150
-        self.experiment.var.tactstim_pulse_duration_ms = self.var._pulseDuration
+            self.var.pulse_duration = 150
+        self.experiment.var.tactstim_pulse_duration_ms = self.var.pulse_duration
         self.experiment.var.tactstim_pulse_value = 0
-        # Dynamically load an EVT device
-        self.myevt = EvtExchanger()
-        try:
-            self.myevt.Select(self.var._device)
-            self.myevt.SetLines(0)
-            oslogger.info("Connecting and resetting the Tactile Stimulator.")
-        except:
-            self.var._device = u'DUMMY'
-            oslogger.warning("Connecting the Tactile Stimulator device failed! Switching to dummy-mode.")
-        if self.var._mode == u"Calibrate":
+        if self.var.device != u'DUMMY':
+            # Dynamically load an EVT device
+            self.myevt = EvtExchanger()
+            try:
+                self.myevt.Select(self.var.device)
+                self.myevt.SetLines(0)
+                oslogger.info("Connecting and resetting the Tactile Stimulator.")
+            except:
+                self.var.device = u'DUMMY'
+                oslogger.warning("Connecting the Tactile Stimulator device failed! Switching to dummy-mode.")
+        if self.var.mode == u"Calibrate":
             self.calibrate_prepare()
-        elif self.var._mode == u"Stimulate":
+        elif self.var.mode == u"Stimulate":
             self.stimulate_prepare()
 
     def calibrate_prepare(self):
-        if not (self.var._device == u"DUMMY"):
+        if not (self.var.device == u"DUMMY"):
             self.myevt.SetLines(0)
-            oslogger.info("Reset Tactile Stimulator Device")
+            oslogger.info("Reset Tactile Stimulator")
 
         self.c = Canvas(self.experiment)
         self.c.background_color=u'black'
@@ -98,8 +101,8 @@ class TactileStimulator(Item):
         self.c['Instruction'] = RichText(
             "Point at the desired value position "
             "on the slider and click the mouse button. "
-            "Click on TEST to apply the pulse. "
-            "Click OK to accept.",
+            "Click on TEST to apply a pulse to the subject. "
+            "Click OK to accept the current intensity setting.",
             center=True,
             x=0,
             y=-int(self.c.height / 8),
@@ -179,23 +182,24 @@ class TactileStimulator(Item):
                            "First run the Tactile Stimulator "
                            "in calibration mode!")
 
-        if not 0 <= self.var._percOfCalibrationValue <= 100:
+        if not 0 <= self.var.perc_calibr_value <= 100:
             oslogger.error("Given input percentage is out of range!")
-            self.var._percOfCalibrationValue = 0
+            self.var.perc_calibr_value = 0
 
     def run(self):
+        """The run phase of the plug-in goes here."""
         self.set_item_onset()
-        if self.var._device == u"DUMMY":
-            if self.var._mode == u"Stimulate":
+        if self.var.device == u"DUMMY":
+            if self.var.mode == u"Stimulate":
                 oslogger.info('stimulate at {}% and the duration of {}ms'
-                              .format(self.var._percOfCalibrationValue,
-                                      self.var._pulseDuration))
+                              .format(self.var.perc_calibr_value,
+                                      self.var.pulse_duration))
             else:
                 self.calibrate()
         else:
-            if self.var._mode == u"Calibrate":
+            if self.var.mode == u"Calibrate":
                 self.calibrate()
-            elif self.var._mode == u"Stimulate":
+            elif self.var.mode == u"Stimulate":
                 self.stimulate()
         return True
 
@@ -229,19 +233,19 @@ class TactileStimulator(Item):
                 self.c.show()
 
             if (x, y) in self.c['Test_Box']:
-                if (self.var._device == u"DUMMY"):
+                if (self.var.device == u"DUMMY"):
                     oslogger.info(
-                        "(Dummy) Tactile Stimulator pulsing at: {}%"
+                        "(Dummy) Tactile Stimulator pulsing with value: {}"
                         .format(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX)))
                 else:
                     self.myevt.PulseLines(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX),
-                                       self.var._pulseDuration)
+                                       self.var.pulse_duration)
                 self.c['Test_Box'].color = 'blue'
                 self.c.show()
                 self.c['wait'].color = 'green'
 
-                for n in range(1, self.var._interPulseHoldOffTime):
-                    self.c['wait'].text = "wait... " + str(self.var._interPulseHoldOffTime - n)
+                for n in range(1, self.var._inter_pulse_holdoff):
+                    self.c['wait'].text = "wait... " + str(self.var._inter_pulse_holdoff - n)
                     self.c['wait'].color = 'green'
                     self.c.show()
                     time.sleep(1)
@@ -262,10 +266,10 @@ class TactileStimulator(Item):
                 break
 
     def stimulate(self):
-        if (self.var._device == u"DUMMY"):
-            oslogger.info("In (Dummy) Tactile Stimulator: "
-                          "pulse with value: " + \
-                            str(self.var._percOfCalibrationValue))
+        if (self.var.device == u"DUMMY"):
+            oslogger.info("(Dummy) Tactile Stimulator "
+                          "pulsing with value: " + \
+                            str(self.var.perc_calibr_value))
         else:
             try:
                 timeLastPulse = self.experiment.var.tactstim_time_last_pulse
@@ -274,20 +278,20 @@ class TactileStimulator(Item):
             td = time.time() - timeLastPulse
             # oslogger.info("Time duration between pulses: " + str(td))
             
-            if (td > self.var._pulseTimeOut):
+            if (td > self.var._pulse_timeout):
                 """
                 This if statement is to prevent the possibility
                 to pulse if the previous stimulus was less then
                 the minimum time ago
                 """
                 self.experiment.var.tactstim_pulse_value = math.floor(
-                    self.var._percOfCalibrationValue * \
+                    self.var.perc_calibr_value * \
                         self.experiment.var.tactstim_calibration_perc * self.PULSE_VALUE_MAX / 10000)
                 self.experiment.var.tactstim_pulse_milliamp = round(
-                    self.var._percOfCalibrationValue * \
+                    self.var.perc_calibr_value * \
                         self.experiment.var.tactstim_calibration_perc * 5.0 / 10000, 2)
 
-                self.myevt.PulseLines(self.experiment.var.tactstim_pulse_value, self.var._pulseDuration)
+                self.myevt.PulseLines(self.experiment.var.tactstim_pulse_value, self.var.pulse_duration)
                 oslogger.info("Tactile-stimulator device "
                               "now pulsing at "
                               "(raw, mA): {}, {:.2f}".
@@ -331,12 +335,11 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
         if listOfDevices:
             for i in listOfDevices:
                 self.device_combobox.addItem(i)
-        del myevt # cleanup device handle
         # Prevents hangup if device is not found after reopening the project:
-        if not self.var._device in listOfDevices: 
-            self.var._device = u'DUMMY'
-        self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
-        self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
+        if not self.var.device in listOfDevices: 
+            self.var.device = u'DUMMY'
+        self.refresh_checkbox.stateChanged.connect(self.refresh_comboboxdevice)
+        self.device_combobox.currentIndexChanged.connect(self.update_comboboxdevice)
 
         self.duration_line_edit.setEnabled(True)
         self.value_line_edit.returnPressed.connect(self.perc_check)
@@ -345,7 +348,7 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
         self.value_line_edit.setEnabled(
             self.calibrate_combobox.currentText() == u'Stimulate')
 
-    def refresh_combobox_device(self):
+    def refresh_comboboxdevice(self):
         if self.refresh_checkbox.isChecked():
             self.device_combobox.clear()
             # create new list:
@@ -355,7 +358,6 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
             if listOfDevices:
                 for i in listOfDevices:
                     self.device_combobox.addItem(i)
-            del myevt
 
-    def update_combobox_device(self):
+    def update_comboboxdevice(self):
         self.refresh_checkbox.setChecked(False)
