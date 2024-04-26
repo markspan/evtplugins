@@ -1,9 +1,7 @@
 """Collects input from a RSP-12x responsebox or from a generic keyboard"""
 
-authors = ["Edwin Dalmaijer", "Sebastiaan Mathot", "Martin Stokroos"]
+# The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
-help_url = 'https://github.com/MartinStokroos/evt-plugins'
-
 # Defines the GUI controls
 controls = [
     {

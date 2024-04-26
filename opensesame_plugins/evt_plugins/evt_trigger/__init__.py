@@ -1,8 +1,7 @@
 """A plug-in for generating triggers with EVT devices."""
 
-authors = ["M. Stokroos", "M.M. Span"]
+# The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
-help_url = 'https://markspan.github.io/evtplugins/'
 # Defines the GUI controls:
 controls = [
     {
@@ -13,7 +12,7 @@ controls = [
             "DUMMY"
         ],
         "name": "device_combobox",
-        "tooltip": "Select the desired USB-device or dummy"
+        "tooltip": "Select the desired EVT-device or DUMMY."
     }, {
         "type": "checkbox",
         "var": "refresh",
@@ -89,8 +88,11 @@ controls = [
     }, {
         "type": "line_edit",
         "var": "duration",
-        "label": "Duration in ms :",
+        "label": "Duration [ms] :",
         "name": "duration_line_edit",
         "tooltip": "Expecting a value in milliseconds"
+    }, {
+        "type": "text",
+        "label": "<small>EVT-trigger plug-in version 1.0.0</small>"
     }
 ]

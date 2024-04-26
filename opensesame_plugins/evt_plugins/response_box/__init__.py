@@ -1,8 +1,7 @@
 """A Plug-in to collect input from a RSP-12x responsebox"""
 
-authors = ["M. Stokroos", "M.M. Span"]
+# The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
-help_url = 'https://markspan.github.io/evtplugins/'
 controls = [
     {
         "type": "combobox",
@@ -36,6 +35,9 @@ controls = [
         "var": "timeout",
         "label": "Timeout period :",
         "name": "timeout_line_edit",
-        "tooltip": "Expecting a value in milliseconds or 'infinite'"  
+        "tooltip": "Expecting a value in milliseconds or 'infinite'"
+    }, {
+        "type": "text",
+        "label": "<small>RSP-12x response box plug-in version 1.0.0</small>"
     }
 ]

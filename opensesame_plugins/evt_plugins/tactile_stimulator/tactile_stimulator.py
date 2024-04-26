@@ -1,18 +1,21 @@
-"""
-This file is part of OpenSesame.
+#-*- coding:utf-8 -*-
 
-OpenSesame is free software: you can redistribute it and/or modify
+"""
+Author: Martin Stokroos
+2024
+
+This plug-in is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-OpenSesame is distributed in the hope that it will be useful,
+This software is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
+along with this plug-in.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import time
@@ -47,7 +50,7 @@ class TactileStimulator(Item):
 
     description = u"Plugin for the calibration and the usage of the Tactile Stimulator."
 
-    PULSE_VALUE_MAX = 254.0  # some models of the SHK1-1B do accept 255 as max intensity and others 254 (...)
+    PULSE_VALUE_MAX = 254.0  # some models of the SHK1-1B do accept 255 as the max intensity and others 254 (...)
 
     def reset(self):
         """Resets plug-in to initial values."""
@@ -101,7 +104,7 @@ class TactileStimulator(Item):
         self.c['Instruction'] = RichText(
             "Point at the desired value "
             "on the bar and click the mouse button. "
-            "Click TEST to apply the pulse to the subject. "
+            "Click TEST to apply a pulse to the subject. "
             "Click OK to accept the set intensity.",
             center=True,
             x=0,
@@ -178,9 +181,7 @@ class TactileStimulator(Item):
         try:
             self.experiment.var.tactstim_calibration_value  # test if exists
         except:
-            raise UserWarning("No calibration has been done!"
-            "The \"calibrate\" instance of the plugin should always "
-            "precede the \"stimulate\" instance from the same experiment.")
+            raise UserWarning("Not calibrated!")
 
         if not 0 <= self.var.perc_calibr_value <= 100:
             oslogger.error("Given input percentage is out of range!")

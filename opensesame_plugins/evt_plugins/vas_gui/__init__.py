@@ -1,8 +1,7 @@
 """VAS-GUI plugin"""
 
-authors = ["M. M. Span", "M. Stokroos"]
+# The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
-help_url = 'https://markspan.github.io/evtplugins/'
 # Defines the GUI controls
 controls = [
     {   
@@ -62,6 +61,9 @@ controls = [
         "var": "vas_timeout",
         "label": "Timeout period [ms] :",
         "name": "timeout_widget",
-        "tooltip": "Expecting a value in milliseconds. '-1' is infinite"  
+        "tooltip": "Expecting a value in milliseconds. '-1' is infinite"
+    }, {
+        "type": "text",
+        "label": "<small>VAS-GUI plug-in version 1.0.0</small>"
     }
 ]

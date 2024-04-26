@@ -1,8 +1,7 @@
 """A plug-in for handling the Tactile Stimulator."""
 
-authors = ["M. Stokroos", "M.M. Span"]
+# The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
-help_url = 'https://markspan.github.io/evtplugins/'
 # Defines the GUI controls
 controls = [
     {
@@ -13,7 +12,7 @@ controls = [
             "DUMMY"
         ],
         "name": "device_combobox",
-        "tooltip": "Select the connected Tactile Stimulator or DUMMY for testing purposes: "
+        "tooltip": "Select the connected Tactile Stimulator or DUMMY."
     }, {
         "type": "checkbox",
         "var": "refresh",
@@ -33,7 +32,7 @@ controls = [
     }, {
         "type": "line_edit",
         "var": "perc_calibr_value",
-        "label": "Percentage of the calibrated intensity value applied to the subject 0-100[%] :",
+        "label": "Percentage of the calibrated intensity value applied to the subject 0-100% :",
         "name": "value_line_edit",
         "tooltip": "Give the percentage of the calibrated pulse intensity applied to the subject"
     }, {
@@ -42,5 +41,11 @@ controls = [
         "label": "Pulse duration 1-2000[ms] :",
         "name": "duration_line_edit",
         "tooltip": "Pulse duration value between 1 and 2000 milliseconds"
+    }, {
+        "type": "text",
+        "label": "<small><b>Note:</b> The calibrate instance of the plugin should always precede the stimulate instance within the experiment.</small>"
+    }, {
+        "type": "text",
+        "label": "<small>Tactile Stimulator plug-in version 1.0.0</small>"
     }
 ]

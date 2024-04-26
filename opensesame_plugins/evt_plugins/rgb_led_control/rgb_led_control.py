@@ -1,18 +1,21 @@
-"""
-This file is part of OpenSesame.
+#-*- coding:utf-8 -*-
 
-OpenSesame is free software: you can redistribute it and/or modify
+"""
+Author: Martin Stokroos
+2024
+
+This plug-in is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-OpenSesame is distributed in the hope that it will be useful,
+This software is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with OpenSesame.  If not, see <http://www.gnu.org/licenses/>.
+along with this plug-in.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import time
@@ -161,8 +164,8 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
     def init_edit_widget(self):
         super().init_edit_widget()
 
-        myevt = EvtExchanger()
-        listOfDevices = myevt.Attached(u"EventExchanger-RSP-LT")
+        self.myevt = EvtExchanger()
+        listOfDevices = self.myevt.Attached(u"EventExchanger-RSP-LT")
         if listOfDevices:
             for i in listOfDevices:
                 self.device_combobox.addItem(i)
@@ -177,8 +180,7 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
             self.device_combobox.clear()
             # create new list:
             self.device_combobox.addItem(u'DUMMY', userData=None)
-            myevt = EvtExchanger()
-            listOfDevices = myevt.Attached(u"EventExchanger-RSP-LT")
+            listOfDevices = self.myevt.Attached(u"EventExchanger-RSP-LT")
             if listOfDevices:
                 for i in listOfDevices:
                     self.device_combobox.addItem(i)

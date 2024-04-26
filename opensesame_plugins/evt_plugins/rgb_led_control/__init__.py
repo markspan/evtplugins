@@ -1,8 +1,7 @@
-"""Plugin for the RSP-LT response box for sending RGB-data."""
+"""Plug-in for the RSP-LT response box for sending RGB-data."""
 
-authors = ["M. Stokroos", "M.M. Span"]
+# The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"
-help_url = 'https://markspan.github.io/evtplugins/'
 # Defines the GUI controls:
 controls = [
     {
@@ -86,5 +85,8 @@ controls = [
         "label": "Incorrect button feedback color :",
         "name": "incorrect_color_edit",
         "tooltip": "Expecting a colorname (e.g., 'blue') or an HTML color (e.g., '#0000FF')"
+    }, {
+        "type": "text",
+        "label": "<small>RGB-LED control plug-in version 1.0.0</small>"
     }
 ]
