@@ -40,12 +40,12 @@ from openexp.canvas_elements import (
 	Text
 )
 
-class TactileStimulator(Item):
-    """Class for handling the Tactile Stimulator."""
+EVT_UMU = False # Set True to emulate SHOCKER with EVT-x
 
-    description = u"Plugin for the calibration and the usage of the Tactile Stimulator.\
-        \r\nThe \"calibrate\" instance of the plugin should always precede the \"stimulate\" \
-        \r\ninstance in the same experiment."
+class TactileStimulator(Item):
+    """Python module for handling the Tactile Stimulator."""
+
+    description = u"Plugin for the calibration and the usage of the Tactile Stimulator."
 
     PULSE_VALUE_MAX = 254.0  # some models of the SHK1-1B do accept 255 as max intensity and others 254 (...)
 
@@ -99,10 +99,10 @@ class TactileStimulator(Item):
             font_size=28
         )
         self.c['Instruction'] = RichText(
-            "Point at the desired value position "
-            "on the slider and click the mouse button. "
-            "Click on TEST to apply a pulse to the subject. "
-            "Click OK to accept the current intensity setting.",
+            "Point at the desired value "
+            "on the bar and click the mouse button. "
+            "Click TEST to apply the pulse to the subject. "
+            "Click OK to accept the set intensity.",
             center=True,
             x=0,
             y=-int(self.c.height / 8),
@@ -178,9 +178,9 @@ class TactileStimulator(Item):
         try:
             self.experiment.var.tactstim_calibration_value  # test if exists
         except:
-            raise UserWarning("No calibration step has been done. "
-                           "First run the Tactile Stimulator "
-                           "in calibration mode!")
+            raise UserWarning("No calibration has been done!"
+            "The \"calibrate\" instance of the plugin should always "
+            "precede the \"stimulate\" instance from the same experiment.")
 
         if not 0 <= self.var.perc_calibr_value <= 100:
             oslogger.error("Given input percentage is out of range!")
@@ -191,7 +191,7 @@ class TactileStimulator(Item):
         self.set_item_onset()
         if self.var.device == u"DUMMY":
             if self.var.mode == u"Stimulate":
-                oslogger.info('stimulate at {}% and the duration of {}ms'
+                oslogger.info('(Dummy) stimulate at {}% and duration of {}ms'
                               .format(self.var.perc_calibr_value,
                                       self.var.pulse_duration))
             else:
@@ -235,7 +235,7 @@ class TactileStimulator(Item):
             if (x, y) in self.c['Test_Box']:
                 if (self.var.device == u"DUMMY"):
                     oslogger.info(
-                        "(Dummy) Tactile Stimulator pulsing with value: {}"
+                        "(Dummy) Tactile Stimulator pulsing intensity value: {}"
                         .format(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX)))
                 else:
                     self.myevt.PulseLines(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX),
@@ -258,8 +258,8 @@ class TactileStimulator(Item):
                 self.experiment.var.tactstim_calibration_perc = round(xperc, 2)
                 self.experiment.var.tactstim_calibration_value = math.floor(xperc * self.PULSE_VALUE_MAX / 100)
                 self.experiment.var.tactstim_calibration_milliamp = round(5*(xperc / 100.0), 2)
-                oslogger.info("The set pulse intensity "
-                              "calibration value is "
+                oslogger.info("The calibration pulse "
+                              "intensity value is "
                               "(raw, mA): {}, {:.2f}".
                               format(self.experiment.var.tactstim_calibration_value,
                                      self.experiment.var.tactstim_calibration_milliamp))
@@ -268,8 +268,9 @@ class TactileStimulator(Item):
     def stimulate(self):
         if (self.var.device == u"DUMMY"):
             oslogger.info("(Dummy) Tactile Stimulator "
-                          "pulsing with value: " + \
-                            str(self.var.perc_calibr_value))
+                          "pulsing at: " + \
+                            str(self.var.perc_calibr_value) + \
+                            "%")
         else:
             try:
                 timeLastPulse = self.experiment.var.tactstim_time_last_pulse
@@ -330,8 +331,11 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        myevt = EvtExchanger()
-        listOfDevices = myevt.Attached(u"SHOCKER")
+        self.myevt = EvtExchanger()
+        if EVT_UMU:
+            listOfDevices = self.myevt.Attached(u"EventExchanger-EVT")
+        else:
+            listOfDevices = self.myevt.Attached(u"SHOCKER")
         if listOfDevices:
             for i in listOfDevices:
                 self.device_combobox.addItem(i)
@@ -353,8 +357,10 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
             self.device_combobox.clear()
             # create new list:
             self.device_combobox.addItem(u'DUMMY', userData=None)
-            myevt = EvtExchanger()
-            listOfDevices = myevt.Attached(u"SHOCKER")
+            if EVT_UMU:
+                listOfDevices = self.myevt.Attached(u"EventExchanger-EVT")
+            else:
+                listOfDevices = self.myevt.Attached(u"SHOCKER")
             if listOfDevices:
                 for i in listOfDevices:
                     self.device_combobox.addItem(i)
