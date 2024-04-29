@@ -27,17 +27,17 @@ controls = [
             "Calibrate",
             "Stimulate"
         ],
-        "name": "calibrate_combobox",
+        "name": "mode_combobox",
         "tooltip": "Select the mode of operation"    
     }, {
         "type": "line_edit",
         "var": "perc_calibr_value",
         "label": "Percentage of the calibrated intensity value applied to the subject 0-100% :",
-        "name": "value_line_edit",
+        "name": "perc_line_edit",
         "tooltip": "Give the percentage of the calibrated pulse intensity applied to the subject"
     }, {
         "type": "line_edit",
-        "var": "pulse_duration",
+        "var": "pulse_duration_value",
         "label": "Pulse duration 1-2000[ms] :",
         "name": "duration_line_edit",
         "tooltip": "Pulse duration value between 1 and 2000 milliseconds"

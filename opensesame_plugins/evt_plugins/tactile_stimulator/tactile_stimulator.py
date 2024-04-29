@@ -55,7 +55,7 @@ class TactileStimulator(Item):
     def reset(self):
         """Resets plug-in to initial values."""
         self.var.perc_calibr_value = 0
-        self.var.pulse_duration = 150  # default value
+        self.var.pulse_duration_value = 150  # default value
         self.var.device = u"DUMMY"
         self.var.mode = u"Calibrate"
         self.var._pulse_timeout = 1.0
@@ -64,10 +64,7 @@ class TactileStimulator(Item):
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
         super().prepare()
-        if not 1 <= self.var.pulse_duration <= 2000:
-            oslogger.error("Pulse duration input out of range!")
-            self.var.pulse_duration = 150
-        self.experiment.var.tactstim_pulse_duration_ms = self.var.pulse_duration
+        self.experiment.var.tactstim_pulse_duration_value_ms = self.var.pulse_duration_value
         self.experiment.var.tactstim_pulse_value = 0
         if self.var.device != u'DUMMY':
             # Dynamically load an EVT device
@@ -183,10 +180,6 @@ class TactileStimulator(Item):
         except:
             raise UserWarning("Not calibrated!")
 
-        if not 0 <= self.var.perc_calibr_value <= 100:
-            oslogger.error("Given input percentage is out of range!")
-            self.var.perc_calibr_value = 0
-
     def run(self):
         """The run phase of the plug-in goes here."""
         self.set_item_onset()
@@ -194,7 +187,7 @@ class TactileStimulator(Item):
             if self.var.mode == u"Stimulate":
                 oslogger.info('(Dummy) stimulate at {}% and duration of {}ms'
                               .format(self.var.perc_calibr_value,
-                                      self.var.pulse_duration))
+                                      self.var.pulse_duration_value))
             else:
                 self.calibrate()
         else:
@@ -240,7 +233,7 @@ class TactileStimulator(Item):
                         .format(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX)))
                 else:
                     self.myevt.PulseLines(math.floor((xperc / 100.0) * self.PULSE_VALUE_MAX),
-                                       self.var.pulse_duration)
+                                       self.var.pulse_duration_value)
                 self.c['Test_Box'].color = 'blue'
                 self.c.show()
                 self.c['wait'].color = 'green'
@@ -259,7 +252,7 @@ class TactileStimulator(Item):
                 self.experiment.var.tactstim_calibration_perc = round(xperc, 2)
                 self.experiment.var.tactstim_calibration_value = math.floor(xperc * self.PULSE_VALUE_MAX / 100)
                 self.experiment.var.tactstim_calibration_milliamp = round(5*(xperc / 100.0), 2)
-                oslogger.info("The calibration pulse "
+                oslogger.info("(Dummy) The set pulse "
                               "intensity value is "
                               "(raw, mA): {}, {:.2f}".
                               format(self.experiment.var.tactstim_calibration_value,
@@ -293,7 +286,7 @@ class TactileStimulator(Item):
                     self.var.perc_calibr_value * \
                         self.experiment.var.tactstim_calibration_perc * 5.0 / 10000, 2)
 
-                self.myevt.PulseLines(self.experiment.var.tactstim_pulse_value, self.var.pulse_duration)
+                self.myevt.PulseLines(self.experiment.var.tactstim_pulse_value, self.var.pulse_duration_value)
                 oslogger.info("Tactile-stimulator device "
                               "now pulsing at "
                               "(raw, mA): {}, {:.2f}".
@@ -312,26 +305,10 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
         TactileStimulator.__init__(self, name, experiment, script)
         QtAutoPlugin.__init__(self, __file__)
 
-    def perc_check(self):
-        try:
-            val = int(self.value_line_edit.text())
-        except ValueError:
-            val = 0
-        self.value_line_edit.setText(str(val))
-
-    def duration_check(self):
-        try:
-            val = int(self.duration_line_edit.text())
-        except ValueError:
-            val = 0
-        self.duration_line_edit.setText(str(val))
-
-    def type_check(self):
-        self.value_line_edit.setEnabled(
-            self.calibrate_combobox.currentText() == u'Stimulate')
-
     def init_edit_widget(self):
         super().init_edit_widget()
+        self.update_combobox_mode()
+
         self.myevt = EvtExchanger()
         if EVT_UMU:
             listOfDevices = self.myevt.Attached(u"EventExchanger-EVT")
@@ -343,15 +320,27 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
         # Prevents hangup if device is not found after reopening the project:
         if not self.var.device in listOfDevices: 
             self.var.device = u'DUMMY'
+
+        # event based calls:
+        self.mode_combobox.currentIndexChanged.connect(self.update_combobox_mode)
         self.refresh_checkbox.stateChanged.connect(self.refresh_comboboxdevice)
         self.device_combobox.currentIndexChanged.connect(self.update_comboboxdevice)
+        self.perc_line_edit.textChanged.connect(self.check_input_perc)
+        self.duration_line_edit.textChanged.connect(self.check_input_duration)
 
-        self.duration_line_edit.setEnabled(True)
-        self.value_line_edit.returnPressed.connect(self.perc_check)
-        self.value_line_edit.returnPressed.connect(self.duration_check)
-        self.calibrate_combobox.currentTextChanged.connect(self.type_check)
-        self.value_line_edit.setEnabled(
-            self.calibrate_combobox.currentText() == u'Stimulate')
+    def update_combobox_mode(self):
+        # Get the current text or index from the combobox
+        current_selection = self.mode_combobox.currentText()  # or use currentIndex() for the index
+        # Enable or disable the line_edit based on the combobox selection
+        if current_selection == 'Calibrate':
+            self.perc_line_edit.setEnabled(False)
+            self.duration_line_edit.setEnabled(True)
+        elif current_selection == 'Stimulate':
+            self.perc_line_edit.setEnabled(True)
+            self.duration_line_edit.setEnabled(True)
+        else:
+            self.perc_line_edit.setEnabled(False)
+            self.duration_line_edit.setEnabled(False)
 
     def refresh_comboboxdevice(self):
         if self.refresh_checkbox.isChecked():
@@ -368,3 +357,25 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
 
     def update_comboboxdevice(self):
         self.refresh_checkbox.setChecked(False)
+
+    def check_input_perc(self, text):
+        try:
+            self.var.perc_calibr_value = int(text)
+            if not 0 <= self.var.perc_calibr_value <= 100:
+                raise ValueError
+        except ValueError:
+            # Handle invalid input or out of range value
+            self.perc_line_edit.blockSignals(True)
+            self.perc_line_edit.setText('')
+            self.perc_line_edit.blockSignals(False)
+
+    def check_input_duration(self, text):
+        try:
+            self.var.pulse_duration_value = int(text)
+            if not 1 <= self.var.pulse_duration_value <= 2000:
+                raise ValueError
+        except ValueError:
+            # Handle invalid input or out of range value
+            self.duration_line_edit.blockSignals(True)
+            self.duration_line_edit.setText('')
+            self.duration_line_edit.blockSignals(False)
