@@ -46,6 +46,6 @@ controls = [
         "label": "<small><b>Note:</b> The calibrate instance of the plugin should always precede the stimulate instance within the experiment.</small>"
     }, {
         "type": "text",
-        "label": "<small>Tactile Stimulator plug-in version 1.0.0</small>"
+        "label": "<small>Tactile Stimulator plug-in version 2.0.0</small>"
     }
 ]

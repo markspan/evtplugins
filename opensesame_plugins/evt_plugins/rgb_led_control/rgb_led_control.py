@@ -1,8 +1,7 @@
 #-*- coding:utf-8 -*-
 
 """
-Author: Martin Stokroos
-2024
+Author: Martin Stokroos, 2024
 
 This plug-in is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -52,6 +51,7 @@ class RgbLedControl(Item):
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
         super().prepare()
+
         # Dynamically load an EVT device
         self.myevt = EvtExchanger()
         try:
@@ -157,11 +157,29 @@ class RgbLedControl(Item):
 
 class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
 
+    """This class handles the GUI aspect of the plug-in. The name should be the
+    same as that of the runtime class with the added prefix Qt.
+    
+    Important: defining a GUI class is optional, and only necessary if you need
+    to implement non-standard interfaces or interactions. In this case, we use
+    the GUI class to dynamically enable/ disable some controls (see below).
+    """
+
     def __init__(self, name, experiment, script=None):
+        # We don't need to do anything here, except call the parent
+        # constructors. Since the parent constructures take different arguments
+        # we cannot use super().
         RgbLedControl.__init__(self, name, experiment, script)
         QtAutoPlugin.__init__(self, __file__)
 
     def init_edit_widget(self):
+
+        """Constructs the GUI controls. Usually, you can omit this function
+        altogether, but if you want to implement more advanced functionality,
+        such as controls that are grayed out under certain conditions, you need
+        to implement this here.
+        """
+
         super().init_edit_widget()
 
         self.myevt = EvtExchanger()
@@ -169,7 +187,7 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
         if listOfDevices:
             for i in listOfDevices:
                 self.device_combobox.addItem(i)
-        # Prevents hangup if device is not found after reopening the project:
+        # Prevents hangup if the same device is not found after reopening the project:
         if not self.var.device in listOfDevices: 
             self.var.device = u'DUMMY'
             

@@ -1,9 +1,22 @@
 # -*- coding:utf-8 -*-
 
 """
-No rights reserved. All files in this repository are released into the public
-domain.
+Author: Martin Stokroos, 2024
+
+This plug-in is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this plug-in.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import os
 import sys
 import numpy as np
@@ -180,20 +193,9 @@ class QtVasEvt(VasEvt, QtAutoPlugin):
     """
 
     def __init__(self, name, experiment, script=None):
-
-        """
-        Constructor.
-
-        Arguments:
-        name        --    The name of the plug-in.
-        experiment    --    The experiment object.
-
-        Keyword arguments:
-        script        --    A definition script. (default=None)
-        """
-
         # We don't need to do anything here, except call the parent
-        # constructors.
+        # constructors. Since the parent constructures take different arguments
+        # we cannot use super().
         VasEvt.__init__(self, name, experiment, script)
         QtAutoPlugin.__init__(self, __file__)
 
@@ -207,8 +209,7 @@ class QtVasEvt(VasEvt, QtAutoPlugin):
 
     def init_edit_widget(self):
 
-        """
-        Constructs the GUI controls. Usually, you can omit this function
+        """Constructs the GUI controls. Usually, you can omit this function
         altogether, but if you want to implement more advanced functionality,
         such as controls that are grayed out under certain conditions, you need
         to implement this here.

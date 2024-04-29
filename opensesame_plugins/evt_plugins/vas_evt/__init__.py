@@ -64,5 +64,8 @@ controls = [
         "prefix": "0%",
         "suffix": "100%",
         "tooltip": "Slider start position"
+    }, {
+        "type": "text",
+        "label": "<small>VAS-EVT plug-in version 2.0.0</small>"
     }
 ]

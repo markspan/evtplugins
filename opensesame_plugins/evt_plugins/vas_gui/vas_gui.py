@@ -1,8 +1,7 @@
 #-*- coding:utf-8 -*-
 
 """
-Author: Martin Stokroos
-2024
+Author: Martin Stokroos, 2024
 
 This plug-in is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -181,6 +180,7 @@ class VasGui(Item):
 
 
 class QtVasGui(VasGui, QtAutoPlugin):
+
     """This class handles the GUI aspect of the plug-in. The name should be the
     same as that of the runtime class with the added prefix Qt.
     
@@ -197,11 +197,13 @@ class QtVasGui(VasGui, QtAutoPlugin):
         QtAutoPlugin.__init__(self, __file__)
 
     def init_edit_widget(self):
+
         """Constructs the GUI controls. Usually, you can omit this function
         altogether, but if you want to implement more advanced functionality,
         such as controls that are grayed out under certain conditions, you need
         to implement this here.
         """
+
         # First, call the parent constructor, which constructs the GUI controls
         # based on __init_.py.
         super().init_edit_widget()

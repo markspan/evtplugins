@@ -64,6 +64,6 @@ controls = [
         "tooltip": "Expecting a value in milliseconds. '-1' is infinite"
     }, {
         "type": "text",
-        "label": "<small>VAS-GUI plug-in version 1.0.0</small>"
+        "label": "<small>VAS-GUI plug-in version 2.0.0</small>"
     }
 ]

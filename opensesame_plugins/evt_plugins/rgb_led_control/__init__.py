@@ -87,6 +87,6 @@ controls = [
         "tooltip": "Expecting a colorname (e.g., 'blue') or an HTML color (e.g., '#0000FF')"
     }, {
         "type": "text",
-        "label": "<small>RGB-LED control plug-in version 1.0.0</small>"
+        "label": "<small>RGB-LED control plug-in version 2.0.0</small>"
     }
 ]

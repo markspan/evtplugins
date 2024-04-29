@@ -31,5 +31,8 @@ controls = [
         "var": "timeout",
         "label": "Timeout period :",
         "tooltip": "Expecting a value in milliseconds of 'infinite'"
+    }, {
+        "type": "text",
+        "label": "<small>Generic response box plug-in version 2.0.0</small>"
     }
 ]

@@ -93,6 +93,6 @@ controls = [
         "tooltip": "Expecting a value in milliseconds"
     }, {
         "type": "text",
-        "label": "<small>EVT-trigger plug-in version 1.0.0</small>"
+        "label": "<small>EVT-trigger plug-in version 2.0.0</small>"
     }
 ]
