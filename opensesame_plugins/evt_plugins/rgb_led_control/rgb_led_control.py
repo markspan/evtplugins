@@ -172,6 +172,8 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
         # Prevents hangup if device is not found after reopening the project:
         if not self.var.device in listOfDevices: 
             self.var.device = u'DUMMY'
+            
+        # event based calls:
         self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
         self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
 

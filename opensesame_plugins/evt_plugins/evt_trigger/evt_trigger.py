@@ -50,6 +50,8 @@ class EvtTrigger(Item):
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
         super().prepare()
+        self.experiment.var._outputValue = 0
+
         if self.var.device != u'DUMMY':
             # Dynamically load an EVT device
             self.myevt = EvtExchanger()
@@ -108,22 +110,7 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
     def init_edit_widget(self):
         super().init_edit_widget()
-        # Enable or disable the line_edit based on the selection from the project
-        if self.var.outputmode == 'Write output lines':
-            self.byte_value_line_edit.setEnabled(True)
-            self.duration_line_edit.setEnabled(False)
-        elif self.var.outputmode == 'Reset output lines':
-            self.byte_value_line_edit.setEnabled(False)
-            self.duration_line_edit.setEnabled(False)
-        elif self.var.outputmode == 'Invert output lines':
-            self.byte_value_line_edit.setEnabled(True)
-            self.duration_line_edit.setEnabled(False)
-        elif self.var.outputmode == 'Pulse output lines':
-            self.byte_value_line_edit.setEnabled(True)
-            self.duration_line_edit.setEnabled(True)
-        else:
-            self.byte_value_line_edit.setEnabled(False)
-            self.duration_line_edit.setEnabled(False)
+        self.update_combobox_output_mode()
 
         self.myevt = EvtExchanger()
         listOfDevices = self.myevt.Attached(u"EventExchanger-EVT")
@@ -134,6 +121,7 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         if not self.var.device in listOfDevices: 
             self.var.device = u'DUMMY'
 
+        # event based calls:
         self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
         self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
         self.output_mode_combobox.currentIndexChanged.connect(self.update_combobox_output_mode)
@@ -180,8 +168,6 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         else:
             self.byte_value_line_edit.setEnabled(False)
             self.duration_line_edit.setEnabled(False)
-        # Clear byte value line edit after swap and trigger the textChanged signal
-        #self.byte_value_line_edit.setText(str(0))
 
     def update_line_edit_value(self):
         # Calculate the decimal value from checkboxes. (How can we enumerate and loop this?)
@@ -218,6 +204,7 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
             # Handle invalid input or out of range value
             self.byte_value_line_edit.blockSignals(True)
             self.byte_value_line_edit.setText('')
+            self.byte_value_line_edit.blockSignals(False)
             self.b0_checkbox.setChecked(False)
             self.b1_checkbox.setChecked(False)
             self.b2_checkbox.setChecked(False)
@@ -226,4 +213,4 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
             self.b5_checkbox.setChecked(False)
             self.b6_checkbox.setChecked(False)
             self.b7_checkbox.setChecked(False)
-            self.byte_value_line_edit.blockSignals(False)
+
