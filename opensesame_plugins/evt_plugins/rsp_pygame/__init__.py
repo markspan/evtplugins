@@ -33,6 +33,6 @@ controls = [
         "tooltip": "Expecting a value in milliseconds of 'infinite'"
     }, {
         "type": "text",
-        "label": "<small>Generic response box plug-in version 2.0.0</small>"
+        "label": "<small>Generic response box plug-in version 0.2.0</small>"
     }
 ]

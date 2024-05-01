@@ -38,6 +38,6 @@ controls = [
         "tooltip": "Expecting a value in milliseconds or 'infinite'"
     }, {
         "type": "text",
-        "label": "<small>RSP-12x response box plug-in version 2.0.0</small>"
+        "label": "<small>RSP-12x response box plug-in version 0.2.0</small>"
     }
 ]
