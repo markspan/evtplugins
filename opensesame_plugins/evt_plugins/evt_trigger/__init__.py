@@ -9,7 +9,7 @@ controls = [
         "var": "device",
         "label": "Select device :",
         "options": [
-            "DUMMY"
+            "0: DUMMY"
         ],
         "name": "device_combobox",
         "tooltip": "Select the desired EVT-device or DUMMY."
