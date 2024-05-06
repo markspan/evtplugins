@@ -49,7 +49,7 @@ class EvtTrigger(Item):
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
         super().prepare()
-        self.experiment.var._outputValue = 0
+        self.experiment.var.output_value = 0
 
         # Create the EVT device handle
         self.myevt = EventExchanger()
@@ -58,7 +58,7 @@ class EvtTrigger(Item):
         except:
             oslogger.warning("Connecting EVT device failed!")
         # Create a shadow device list below, to find 'path' from the selected device.
-        # 'path' is the unique device ID.
+        # 'path' is a unique device ID.
         d_count = 1
         for d in device_list:
             if int(self.var.device[:1]) == 0:
@@ -78,36 +78,36 @@ class EvtTrigger(Item):
         self.set_item_onset()
         if self.var.device == u'0: DUMMY':
             if self.var.outputmode == u'Reset output lines':
-                self.experiment.var._outputValue = 0
-                oslogger.info('dummy: send byte code {}'.format(self.experiment.var._outputValue))
+                self.experiment.var.output_value = 0
+                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
             elif self.var.outputmode == u'Write output lines':
-                self.experiment.var._outputValue = self.var.mask
-                oslogger.info('dummy: send byte code {}'.format(self.experiment.var._outputValue))
+                self.experiment.var.output_value = self.var.mask
+                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
             elif self.var.outputmode == u'Invert output lines':
-                self.experiment.var._outputValue ^= self.var.mask
-                oslogger.info('dummy: send byte code {}'.format(self.experiment.var._outputValue))
+                self.experiment.var.output_value ^= self.var.mask
+                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
             elif self.var.outputmode == u'Pulse output lines':
                 oslogger.info('dummy: send byte code {} for the duration of {} ms'.format(
-                self.experiment.var._outputValue ^ self.var.mask, self.var.duration))
+                self.experiment.var.output_value ^ self.var.mask, self.var.duration))
         else:
             if self.var.outputmode == u'Reset output lines':
                 # Store output state as global. (There is no read-back from the hardware.)
-                self.experiment.var._outputValue = 0
-                self.myevt.write_lines(self.experiment.var._outputValue)
-                oslogger.info('evt: send byte code {}'.format(self.experiment.var._outputValue))
+                self.experiment.var.output_value = 0
+                self.myevt.write_lines(self.experiment.var.output_value)
+                oslogger.info('{}: send byte code {}'.format(self.myevt, self.experiment.var.output_value))
             elif self.var.outputmode == u'Write output lines':
-                self.experiment.var._outputValue = self.var.mask
-                self.myevt.write_lines(self.experiment.var._outputValue)
-                oslogger.info('evt: send byte code {}'.format(self.experiment.var._outputValue))
+                self.experiment.var.output_value = self.var.mask
+                self.myevt.write_lines(self.experiment.var.output_value)
+                oslogger.info('{}: send byte code {}'.format(self.myevt, self.experiment.var.output_value))
             elif self.var.outputmode == u'Invert output lines':
-                self.experiment.var._outputValue ^= self.var.mask
-                self.myevt.write_lines(self.experiment.var._outputValue)
-                oslogger.info('evt: send byte code {}'.format(self.experiment.var._outputValue))
+                self.experiment.var.output_value ^= self.var.mask
+                self.myevt.write_lines(self.experiment.var.output_value)
+                oslogger.info('{}: send byte code {}'.format(self.myevt, self.experiment.var.output_value))
             elif self.var.outputmode == u'Pulse output lines':
-                self.myevt.pulse_lines((self.experiment.var._outputValue ^ self.var.mask), self.var.duration)
-                oslogger.info('evt: send byte code {} for the duration of {} ms'.format(
-                    self.experiment.var._outputValue ^ self.var.mask, self.var.duration))
-            self.myevt.close()
+                self.myevt.pulse_lines((self.experiment.var.output_value ^ self.var.mask), self.var.duration)
+                oslogger.info('{}: send byte code {} for the duration of {} ms'.format(
+                    self.myevt, self.experiment.var.output_value ^ self.var.mask, self.var.duration))
+            # self.myevt.close()
 
 class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
