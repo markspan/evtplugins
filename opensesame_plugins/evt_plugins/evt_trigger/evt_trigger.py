@@ -22,8 +22,14 @@ from libopensesame.item import Item
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 from openexp.canvas import Canvas
 from libopensesame.oslogging import oslogger
+from time import sleep
 from pyevt import EventExchanger # pyevt 2.0
 
+# constant
+_DEVICE_GROUP = u'EVT'
+
+# global var
+open_devices = {} # Store open device handles.
 
 class EvtTrigger(Item):
 
@@ -51,27 +57,37 @@ class EvtTrigger(Item):
         super().prepare()
         self.experiment.var.output_value = 0
 
-        # Create the EVT device handle
-        self.myevt = EventExchanger()
-        try:
-            device_list = self.myevt.scan('EVT')
-        except:
-            oslogger.warning("Connecting EVT device failed!")
-        # Create a shadow device list below, to find 'path' from the selected device.
-        # 'path' is a unique device ID.
-        d_count = 1
-        for d in device_list:
-            if int(self.var.device[:1]) == 0:
+        if int(self.var.device[:1]) == 0:
+            oslogger.warning("Dummy prepare")
+        else:
+            # Create a shadow device list to find 'path' from the current selected device.
+            # 'path' is an unique device ID.
+            myevt = EventExchanger()
+            sleep(0.1) # without a delay, the list will not always be complete.
+            try:
+                device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
+                del myevt
+                # oslogger.info("device list: {}".format(device_list))
+            except:
+                oslogger.warning("Connecting EVT device failed!")
+
+            try:
+                d_count = 1            
+                for d in device_list:
+                    if not d_count in open_devices: # skip if already open
+                        # Dynamically load all EVT devices from the list
+                        open_devices[d_count] = EventExchanger()
+                        open_devices[d_count].attach_id(d['path']) # Get evt device handle
+                        oslogger.info('Device successfully attached as:{} s/n:{}'.format(
+                            d['product_string'], d['serial_number']))
+                    d_count += 1
+                oslogger.info('open devices: {}'.format(open_devices))
+                self.current_device = int(self.var.device[:1])
+                oslogger.info('Prepare - current device: {}'.format(self.current_device))
+                open_devices[self.current_device].write_lines(0) # clear lines
+            except:
                 self.var.device = u'0: DUMMY'
-                oslogger.warning("Dummy mode.")
-                break
-            elif int(self.var.device[:1]) == d_count:
-                # Dynamically load an EVT device
-                self.myevt.attach_id(d['path'])
-                oslogger.info('Device successfully attached as:{} s/n:{}'.format(
-                    d['product_string'], d['serial_number']))
-                break
-            d_count += 1
+                oslogger.warning("Device missing! Switching to dummy.")
 
     def run(self):
         """The run phase of the plug-in goes here."""
@@ -93,21 +109,26 @@ class EvtTrigger(Item):
             if self.var.outputmode == u'Reset output lines':
                 # Store output state as global. (There is no read-back from the hardware.)
                 self.experiment.var.output_value = 0
-                self.myevt.write_lines(self.experiment.var.output_value)
-                oslogger.info('{}: send byte code {}'.format(self.myevt, self.experiment.var.output_value))
+                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                oslogger.info('{}: send byte code {}'.format(
+                    open_devices[self.current_device], self.experiment.var.output_value))
             elif self.var.outputmode == u'Write output lines':
                 self.experiment.var.output_value = self.var.mask
-                self.myevt.write_lines(self.experiment.var.output_value)
-                oslogger.info('{}: send byte code {}'.format(self.myevt, self.experiment.var.output_value))
+                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                oslogger.info('{}: send byte code {}'.format(
+                    open_devices[self.current_device], self.experiment.var.output_value))
             elif self.var.outputmode == u'Invert output lines':
                 self.experiment.var.output_value ^= self.var.mask
-                self.myevt.write_lines(self.experiment.var.output_value)
-                oslogger.info('{}: send byte code {}'.format(self.myevt, self.experiment.var.output_value))
+                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                oslogger.info('{}: send byte code {}'.format(
+                    open_devices[self.current_device], self.experiment.var.output_value))
             elif self.var.outputmode == u'Pulse output lines':
-                self.myevt.pulse_lines((self.experiment.var.output_value ^ self.var.mask), self.var.duration)
+                open_devices[self.current_device].pulse_lines(
+                    (self.experiment.var.output_value ^ self.var.mask), self.var.duration)
                 oslogger.info('{}: send byte code {} for the duration of {} ms'.format(
-                    self.myevt, self.experiment.var.output_value ^ self.var.mask, self.var.duration))
-            # self.myevt.close()
+                    open_devices[self.current_device],
+                    self.experiment.var.output_value ^ self.var.mask, self.var.duration))
+            # open_devices[self.current_device].close()
 
 class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
@@ -137,9 +158,6 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         super().init_edit_widget()
 
         self.update_combobox_output_mode() # enable/disable actual line_edit widgets.
-
-        # Create the EVT device handle
-        self.myevt = EventExchanger()
         self.combobox_add_devices()
         
         # Event triggered calls:
@@ -234,27 +252,32 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
     def combobox_add_devices(self):
         self.device_combobox.clear()
         self.device_combobox.addItem(u'0: DUMMY', userData=None)
-        self.device_list = self.myevt.scan() # Default scans for all 'EventExchanger' devices.
-        old_device_found = False
-        if self.device_list:
+        
+        # Create the EVT device list
+        myevt = EventExchanger()
+        sleep(0.5) # without a delay, the list will not always be complete.
+        try:
+            device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
+            del myevt
+        except:
+            device_list = None
+        
+        added_item_list = {}
+        if device_list:
             d_count = 1
-            for d in self.device_list:
+            for d in device_list:
                 product_string = d['product_string']
                 serial_string = d['serial_number']
-                # add string to combobox:
-                self.device_combobox.addItem(str(d_count) + ": " + \
-                    product_string[15:] + " s/n: " + serial_string)
-                if self.var.device[3:28] in d['product_string']:
-                    old_device_found = True
+                composed_string = str(d_count) + ": " + \
+                    product_string[15:] + " s/n: " + serial_string
+                # add device string to combobox:
+                self.device_combobox.addItem(composed_string)
+                added_item_list[d_count] = composed_string
                 d_count += 1
                 if d_count > 9:
-                    # keep number of digits to 1
+                    # keep number of digits 1
                     break
-        else:
-            self.var.device = u'0: DUMMY'
-        
-        # Prevents hangup if the same device is not found after reopening the project.
-        # Any change in the hardware configuration could cause this.
-        if not old_device_found:
-            self.var.device = u'0: DUMMY'
-
+            # Prevents hangup if the old device is not found after reopening the project.
+            # Any change of the hardware configuration can cause this.
+            if not self.var.device in added_item_list.values():
+                self.var.device = u'0: DUMMY'
