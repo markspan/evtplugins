@@ -18,13 +18,20 @@ along with this plug-in.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import math
+from time import sleep
 from libopensesame.py3compat import *
 from libopensesame.item import Item
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
 from openexp.canvas import Canvas
 from libopensesame.oslogging import oslogger
 from openexp.keyboard import Keyboard
-from pyevt import EvtExchanger
+from pyevt import EventExchanger
+
+# constant
+_DEVICE_GROUP = u'RSP'
+
+# global var
+open_devices = {} # Store open device handles.
 
 
 class ResponseBox(Item):
@@ -42,15 +49,7 @@ class ResponseBox(Item):
         """The preparation phase of the plug-in goes here."""
         super().prepare()
 
-        if isinstance(self.var.timeout, int):
-            if self.var.timeout > 0:
-                _timeout = self.var.timeout
-            else:
-                _timeout = 0
-        else:
-            _timeout = None
-        self.var._timeout = _timeout
-        #oslogger.info('timeout: {}' .format(self.var._timeout))
+        oslogger.info('timeout: {}' .format(self.var.timeout))
 
         '''
         The next part calculates the bit mask for the allowed responses
@@ -71,11 +70,29 @@ class ResponseBox(Item):
         #oslogger.info('{}'.format(self.var.combined_allowed_events))
 
         if self.var.device != u'Keyboard':
-            # Dynamically load an EVT device
-            self.myevt = EvtExchanger()
+            # Create a shadow device list to find 'path' from the current selected device.
+            # 'path' is an unique device ID.
+            myevt = EventExchanger()
+            sleep(0.1) # without a delay, the list will not always be complete.
             try:
-                self.myevt.Select(self.var.device)
-                oslogger.info("Connecting the RSP-12x box.")
+                device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
+                del myevt
+                # oslogger.info("device list: {}".format(device_list))
+            except:
+                oslogger.warning("Connecting EVT device failed!")
+            try:
+                d_count = 1            
+                for d in device_list:
+                    if not d_count in open_devices: # skip if already open
+                        # Dynamically load all EVT devices from the list
+                        open_devices[d_count] = EventExchanger()
+                        open_devices[d_count].attach_id(d['path']) # Get evt device handle
+                        oslogger.info('Device successfully attached as:{} s/n:{}'.format(
+                            d['product_string'], d['serial_number']))
+                    d_count += 1
+                oslogger.info('open devices: {}'.format(open_devices))
+                self.current_device = int(self.var.device[:1])
+                oslogger.info('Prepare - current device: {}'.format(self.current_device))
             except:
                 self.var.device = u'Keyboard'
                 oslogger.warning("Loading the RSP-12x-box failed! Default is keyboard")
@@ -87,17 +104,21 @@ class ResponseBox(Item):
 
     def run(self):
         """The run phase of the plug-in goes here."""
-        # Trick to pass self.var._timeout to WaitForDigEvents(). Passing directly does not work(?)
-        if self.var._timeout is None:
-            _timeout is None
-        else:
-            _timeout = self.var._timeout
 
         if self.var.device != u'Keyboard':
             t0 = self.set_item_onset() # Save the current time.
-            self.var.response, self.var.end_time = \
-                self.myevt.WaitForDigEvents(
-                    self.var.combined_allowed_events, _timeout)
+            
+            # Passing self.var._timeout=None does not work(?)
+            if isinstance(self.var.timeout, int):
+                self.var.timeout = abs(self.var.timeout)
+                self.var.response, self.var.end_time = \
+                    open_devices[self.current_device].wait_for_event(
+                        self.var.combined_allowed_events, self.var.timeout)
+            else:
+                self.var.response, self.var.end_time = \
+                    open_devices[self.current_device].wait_for_event(
+                        self.var.combined_allowed_events, None)
+
             # Decode output to knob number:
             if self.var.response > 0:
                 self.var.response = math.log2(self.var.response) + 1
@@ -142,30 +163,50 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
         """
 
         super().init_edit_widget()
+
+        self.combobox_add_devices() # first time fill the combobox
         
-        myevt = EvtExchanger()
-        listOfDevices = myevt.Attached(u"EventExchanger-RSP-12")
-        if listOfDevices:
-            for i in listOfDevices:
-                self.device_combobox.addItem(i)
-        # Prevents hangup if the same device is not found after reopening the project:
-        if not self.var.device in listOfDevices: 
-            self.var.device = u'Keyboard'
-            
-        # event based calls:
+        # event-triggered calls:
         self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
         self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
 
     def refresh_combobox_device(self):
         if self.refresh_checkbox.isChecked():
-            self.device_combobox.clear()
-            # create new list:
-            self.device_combobox.addItem(u'Keyboard', userData=None)
-            myevt = EvtExchanger()
-            listOfDevices = myevt.Attached(u"EventExchanger-RSP-12")
-            if listOfDevices:
-                for i in listOfDevices:
-                    self.device_combobox.addItem(i)
+            # renew list:
+            self.combobox_add_devices()
 
     def update_combobox_device(self):
         self.refresh_checkbox.setChecked(False)
+
+    def combobox_add_devices(self):
+        self.device_combobox.clear()
+        self.device_combobox.addItem(u'0: DUMMY', userData=None)
+        
+        # Create the EVT device list
+        myevt = EventExchanger()
+        sleep(0.5) # without a delay, the list will not always be complete.
+        try:
+            device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
+            del myevt
+        except:
+            device_list = None
+        
+        added_items_list = {}
+        if device_list:
+            d_count = 1
+            for d in device_list:
+                product_string = d['product_string']
+                serial_string = d['serial_number']
+                composed_string = str(d_count) + ": " + \
+                    product_string[15:] + " s/n: " + serial_string
+                # add device string to combobox:
+                self.device_combobox.addItem(composed_string)
+                added_items_list[d_count] = composed_string
+                d_count += 1
+                if d_count > 9:
+                    # keep number of digits 1
+                    break
+        # Prevents hangup if the old device is not found after reopening the project.
+        # Any change of the hardware configuration can cause this.
+        if not self.var.device in added_items_list.values():
+            self.var.device = u'0: DUMMY'

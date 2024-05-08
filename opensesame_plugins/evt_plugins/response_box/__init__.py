@@ -33,7 +33,7 @@ controls = [
     }, {
         "type": "line_edit",
         "var": "timeout",
-        "label": "Timeout period :",
+        "label": "Timeout [ms]:",
         "name": "timeout_line_edit",
         "tooltip": "Expecting a value in milliseconds or 'infinite'"
     }, {
