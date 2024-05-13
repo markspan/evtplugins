@@ -9,7 +9,7 @@ controls = [
         "var": "device",
         "label": "Select device :",
         "options": [
-            "DUMMY"
+            "0: Keyboard"
         ],
         "name": "device_combobox",
         "tooltip": "Select device"
@@ -21,21 +21,21 @@ controls = [
         "tooltip": "Refresch device list checkbox"
     }, {
         "type": "line_edit",
-        "var": "correct_button",
-        "label": "Correct Button :",
-        "name": "correct_button_line_edit",
+        "var": "correct_response",
+        "label": "Correct response :",
+        "name": "correct_response_line_edit",
         "tooltip": "Correct Button (1 - 8), seperated by ';'"
     }, {
         "type": "line_edit",
-        "var": "allowed_buttons",
-        "label": "Allowed Buttons :",
-        "name": "allowed_buttons_line_edit",
+        "var": "allowed_responses",
+        "label": "Allowed responses :",
+        "name": "allowed_responses_line_edit",
         "tooltip": "Allowed Buttons (1 - 8), seperated by ';'"
     }, {
         "type": "line_edit",
         "var": "timeout",
-        "label": "Response Timeout :",
-        "name": "response_timeout_line_edit",
+        "label": "Response timeout [ms] :",
+        "name": "timeout_line_edit",
         "tooltip": "Response timeout in ms"
     }, {
         "type": "color_edit",
