@@ -89,7 +89,6 @@ class VasGui(Item):
 
     def run(self):
         xpos = -1
-        self.my_mouse.set_pos(pos=(0, 0)) # This function might be unreliable on some systems. See OS4 doc.
         self.my_mouse.show_cursor(show=True)
         start_time = self.clock.time()
         while(True):
