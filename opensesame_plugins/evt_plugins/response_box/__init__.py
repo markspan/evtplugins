@@ -28,7 +28,7 @@ controls = [
         "type": "line_edit",
         "var": "allowed_responses",
         "label": "Allowed responses :",
-        "name": "allowed_response_line_edit",
+        "name": "allowed_responses_line_edit",
         "tooltip": "Allowed responses (buttons 1-8) seperated by ';'"
     }, {
         "type": "line_edit",

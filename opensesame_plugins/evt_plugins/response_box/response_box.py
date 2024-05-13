@@ -49,7 +49,7 @@ class ResponseBox(Item):
         """The preparation phase of the plug-in goes here."""
         super().prepare()
 
-        oslogger.info('timeout: {}' .format(self.var.timeout))
+        # oslogger.info('timeout: {}' .format(self.var.timeout))
 
         '''
         The next part calculates the bit mask for the allowed responses
