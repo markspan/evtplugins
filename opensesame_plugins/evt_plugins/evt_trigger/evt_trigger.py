@@ -281,3 +281,4 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         # Any change of the hardware configuration can cause this.
         if not self.var.device in added_items_list.values():
             self.var.device = u'0: DUMMY'
+            oslogger.warning("The hardware configuration has been changed since the last run! Switching to dummy.")
