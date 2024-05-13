@@ -8,7 +8,7 @@ controls = [
         "var": "device",
         "label": "Select device :",
         "options": [
-            "Keyboard"
+            "0: Keyboard"
         ],
         "name": "device_combobox",
         "tooltip": "Select the desired RSP-device"

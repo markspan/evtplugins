@@ -40,7 +40,7 @@ class ResponseBox(Item):
 
     def reset(self):
         """Resets plug-in to initial values."""
-        self.var.device = u'Keyboard'
+        self.var.device = u'0: Keyboard'
         self.var.correct_response = u'1'
         self.var.allowed_responses = u'1;2'
         self.var.timeout = u'infinite'
@@ -69,7 +69,7 @@ class ResponseBox(Item):
         #oslogger.info('{}'.format(list_allowed_buttons))
         #oslogger.info('{}'.format(self.var.combined_allowed_events))
 
-        if self.var.device != u'Keyboard':
+        if self.var.device != u'0: Keyboard':
             # Create a shadow device list to find 'path' from the current selected device.
             # 'path' is an unique device ID.
             myevt = EventExchanger()
@@ -94,30 +94,27 @@ class ResponseBox(Item):
                 self.current_device = int(self.var.device[:1])
                 oslogger.info('Prepare - current device: {}'.format(self.current_device))
             except:
-                self.var.device = u'Keyboard'
+                self.var.device = u'0: Keyboard'
                 oslogger.warning("Loading the RSP-12x-box failed! Default is keyboard")
                 self.my_keyboard = Keyboard(self.experiment, 
-                                    keylist=list_allowed_buttons, timeout=_timeout)
+                                    keylist=list_allowed_buttons,
+                                    timeout=self.var.timeout if \
+                                    type(self.var.timeout)==int else None)
         else:
             self.my_keyboard = Keyboard(self.experiment, 
-                                keylist=list_allowed_buttons, timeout=_timeout)
+                                keylist=list_allowed_buttons,
+                                timeout=self.var.timeout if \
+                                type(self.var.timeout)==int else None)
 
     def run(self):
         """The run phase of the plug-in goes here."""
 
-        if self.var.device != u'Keyboard':
+        if self.var.device != u'0: Keyboard':
             t0 = self.set_item_onset() # Save the current time.
-            
-            # Passing self.var._timeout=None does not work(?)
-            if isinstance(self.var.timeout, int):
-                self.var.timeout = abs(self.var.timeout)
-                self.var.response, self.var.end_time = \
+            self.var.response, self.var.end_time = \
                     open_devices[self.current_device].wait_for_event(
-                        self.var.combined_allowed_events, self.var.timeout)
-            else:
-                self.var.response, self.var.end_time = \
-                    open_devices[self.current_device].wait_for_event(
-                        self.var.combined_allowed_events, None)
+                        self.var.combined_allowed_events,
+                        self.var.timeout if type(self.var.timeout)==int else None)
 
             # Decode output to knob number:
             if self.var.response > 0:
@@ -169,6 +166,7 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
         # event-triggered calls:
         self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
         self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
+        self.timeout_line_edit.textChanged.connect(self.check_timeout_duration)
 
     def refresh_combobox_device(self):
         if self.refresh_checkbox.isChecked():
@@ -177,10 +175,24 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
 
     def update_combobox_device(self):
         self.refresh_checkbox.setChecked(False)
+        
+    def check_timeout_duration(self, text):
+        try:
+            if text in u'infinite':
+                self.var.timeout = None
+            else:
+                self.var.timeout = int(text)
+                if not 0 <= self.var.timeout <= 3600000:
+                    raise ValueError
+        except ValueError:
+            # Handle invalid input or out of range value
+            self.timeout_line_edit.blockSignals(True)
+            self.timeout_line_edit.setText('')
+            self.timeout_line_edit.blockSignals(False)
 
     def combobox_add_devices(self):
         self.device_combobox.clear()
-        self.device_combobox.addItem(u'0: DUMMY', userData=None)
+        self.device_combobox.addItem(u'0: Keyboard', userData=None)
         
         # Create the EVT device list
         myevt = EventExchanger()
@@ -209,5 +221,5 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
         # Prevents hangup if the old device is not found after reopening the project.
         # Any change of the hardware configuration can cause this.
         if not self.var.device in added_items_list.values():
-            self.var.device = u'0: DUMMY'
+            self.var.device = u'0: Keyboard'
             oslogger.warning("The hardware configuration has been changed since the last run! Switching to dummy.")
