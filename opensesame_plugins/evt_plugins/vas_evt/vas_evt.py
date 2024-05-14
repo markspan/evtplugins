@@ -20,7 +20,8 @@ along with this plug-in.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 import numpy as np
-from pyevt import EvtExchanger
+from pyevt import EventExchanger
+from time import sleep
 from libopensesame.py3compat import *
 from libopensesame.item import Item
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
@@ -29,6 +30,12 @@ from libopensesame.oslogging import oslogger
 from openexp.keyboard import Keyboard
 from openexp.mouse import Mouse
 from libopensesame.exceptions import osexception
+
+# constant
+_DEVICE_GROUP = u'RDC1'
+
+# global var
+open_devices = {} # Store open device handles.
 
 
 class VasEvt(Item):
@@ -52,8 +59,8 @@ class VasEvt(Item):
         # in info.json. If you do not provide default values, the plug-in will
         # work, but the variables will be undefined when they are not
         # explicitly set in the GUI.
-        self.var.vas_encoder_id = u"MOUSE"
-        self.var.vas_exit_method = u'MOUSE'
+        self.var.device = u"0: Mouse"
+        self.var.vas_exit_method = u'Mouse'
         self.var.vas_exit_key = u' '
         self.var.vas_duration = 10000
         self.var.vas_canvas_name = u'VASSCREEN'
@@ -66,37 +73,52 @@ class VasEvt(Item):
 
         """The preparation phase of the plug-in goes here."""
         super().prepare()
-        self.evt = EvtExchanger()
-        Devices = self.evt.Select(self.var.vas_encoder_id)
 
-        try:
-            self.evt.RENC_SetUp(1024,
-                               0,
-                               int(1024 *
-                                   (self.var.vas_cursor_startposition /
-                                    100.0)),
-                               1,
-                               1)
-            if Devices[0] is None:
-                raise
+        if int(self.var.device[:1]) == 0:
+            oslogger.warning("Dummy prepare")
+        else:
+            # Create a shadow device list to find 'path' from the current selected device.
+            # 'path' is an unique device ID.
+            myevt = EventExchanger()
+            sleep(0.1) # without a delay, the list will not always be complete.
+            try:
+                device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
+                del myevt
+                # oslogger.info("device list: {}".format(device_list))
+            except:
+                oslogger.warning("Connecting EVT device failed!")
 
-        except Exception:
-            self.var.vas_encoder_id = u"MOUSE"
-            oslogger.info("Cannot find encoder input device: Using mouse")
-
+            try:
+                d_count = 1            
+                for d in device_list:
+                    if not d_count in open_devices: # skip if already open
+                        # Dynamically load all EVT devices from the list
+                        open_devices[d_count] = EventExchanger()
+                        open_devices[d_count].attach_id(d['path']) # Get evt device handle
+                        oslogger.info('Device successfully attached as:{} s/n:{}'.format(
+                            d['product_string'], d['serial_number']))
+                    d_count += 1
+                oslogger.info('open devices: {}'.format(open_devices))
+                self.current_device = int(self.var.device[:1])
+                oslogger.info('Prepare - current device: {}'.format(self.current_device))
+                open_devices[self.current_device].renc_init(
+                    1024, 0, int(1024 * (self.var.vas_cursor_startposition / 100.0)), 1, 1)
+            except:
+                self.var.device = u'0: Mouse'
+                oslogger.warning("Device missing! Switching to dummy.")
+        '''
         # Checking the excistence of the VAS elements is only
         # possible in the runphase as only then the full
         # canvas is availeable.
-
         self.c = Canvas(self.experiment)
         self._Keyboard = Keyboard(self.experiment, timeout=0)
         self._Mouse = Mouse(self.experiment)
         my_canvas = self.experiment.items[self.var.vas_canvas_name].canvas
 
         try:
-            if my_canvas[self.var.vas_cursor_nameE] is not None or
-            if my_canvas[self.var.vas_body_nameE] is not None:
-                oslogger.info("Should not occur")
+            if my_canvas[self.var.vas_cursor_nameE] is not None or \
+                my_canvas[self.var.vas_body_nameE] is not None:
+                    oslogger.info("Should not occur")
         except Exception as e:
             raise osexception(u"Please read the VAS manual:\n\r\
                               No VAS elements found on the named canvas")
@@ -123,8 +145,9 @@ class VasEvt(Item):
                 if (abs(self.w) > abs(self.h)):
                     self.TIMER_DIR = 'horiz'
                     self.TIMERSIZE = self.w
-
+    '''
     def run(self):
+        '''
         self.set_item_onset(self.c.show())
         st = self.experiment.time()
         val = int(1024*(self.var.vas_cursor_startposition/100.0))
@@ -144,7 +167,7 @@ class VasEvt(Item):
 
                 if ((self.experiment.time()-st) > self.var.vas_duration):
                     break
-            if self.var.vas_exit_method == 'MOUSE':
+            if self.var.vas_exit_method == 'Mouse':
                 button, position, timestamp = self._Mouse.get_click(timeout=2)
                 if button is not None:
                     break
@@ -156,7 +179,7 @@ class VasEvt(Item):
 
             self._Keyboard.flush()
 
-            if self.var.vas_encoder_id != u"MOUSE":
+            if self.var.vas_encoder_id != u"0: Mouse":
                 val = self.evt.GetAxis()
             else:
                 (val, y), time = self._Mouse.get_pos()
@@ -182,7 +205,7 @@ class VasEvt(Item):
                                       correct=None,
                                       response=str(round(val, 2)),
                                       item=self.name)
-
+        '''
 
 class QtVasEvt(VasEvt, QtAutoPlugin):
 
@@ -198,7 +221,7 @@ class QtVasEvt(VasEvt, QtAutoPlugin):
         # we cannot use super().
         VasEvt.__init__(self, name, experiment, script)
         QtAutoPlugin.__init__(self, __file__)
-
+    '''
     def c(self):
         self.VAS_TIMERNAME_widget.setEnabled(
             self.vas_exit_method_widget.currentText() == u'TIME')
@@ -206,7 +229,7 @@ class QtVasEvt(VasEvt, QtAutoPlugin):
             self.vas_exit_method_widget.currentText() == u'TIME')
         self.VAS_EXITKEY_widget.setEnabled(
             self.vas_exit_method_widget.currentText() == u'KEY')
-
+    '''
     def init_edit_widget(self):
 
         """Constructs the GUI controls. Usually, you can omit this function
@@ -217,14 +240,58 @@ class QtVasEvt(VasEvt, QtAutoPlugin):
 
         super().init_edit_widget()
 
-        ELister = EvtExchanger()
-        listofdevices = ELister.Attached()
-        for i in listofdevices:
-            self.VAS_ENCODERID_widget.addItem(i)
-        self.VAS_TIMERNAME_widget.setEnabled(
+        self.combobox_add_devices() # first time fill the combobox
+
+        # event-triggered calls:
+        self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
+        self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
+        '''
+        self.vas_timername_widget.setEnabled(
             self.vas_exit_method_widget.currentText() == u'TIME')
         self.vas_duration_widget.setEnabled(
             self.vas_exit_method_widget.currentText() == u'TIME')
-        self.VAS_EXITKEY_widget.setEnabled(
+        self.vas_exit_method_widget.setEnabled(
             self.vas_exit_method_widget.currentText() == u'KEY')
         self.vas_exit_method_widget.currentTextChanged.connect(self.c)
+        '''
+    def refresh_combobox_device(self):
+        if self.refresh_checkbox.isChecked():
+            # renew list:
+            self.combobox_add_devices()
+
+    def update_combobox_device(self):
+        self.refresh_checkbox.setChecked(False)
+
+    def combobox_add_devices(self):
+        self.device_combobox.clear()
+        self.device_combobox.addItem(u'0: Keyboard', userData=None)
+        
+        # Create the EVT device list
+        myevt = EventExchanger()
+        sleep(0.5) # without a delay, the list will not always be complete.
+        try:
+            device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
+            del myevt
+        except:
+            device_list = None
+        
+        added_items_list = {}
+        if device_list:
+            d_count = 1
+            for d in device_list:
+                product_string = d['product_string']
+                serial_string = d['serial_number']
+                composed_string = str(d_count) + ": " + \
+                    product_string[15:] + " s/n: " + serial_string
+                # add device string to combobox:
+                self.device_combobox.addItem(composed_string)
+                added_items_list[d_count] = composed_string
+                d_count += 1
+                if d_count > 9:
+                    # keep number of digits 1
+                    break
+        # Prevents hangup if the old device is not found after reopening the project.
+        # Any change of the hardware configuration can cause this.
+        if not self.var.device in added_items_list.values():
+            self.var.device = u'0: Keyboard'
+            oslogger.warning("The hardware configuration has been changed since the last run! Switching to dummy.")

@@ -6,13 +6,19 @@ category = "RUG/BSS hardware"
 controls = [
     {
         "type": "combobox",
-        "var": "vas_encoder_id",
+        "var": "device",
         "label": "Type of Encoder",
         "options": [
-            "MOUSE"
+            "0: Mouse"
         ],
-        "name": "vas_encoderid_widget",
+        "name": "device_combobox",
         "tooltip": "What encoder are you using?"
+    }, {
+        "type": "checkbox",
+        "var": "refresh_device_list",
+        "label": "Refresh device list",
+        "name": "refresh_checkbox",
+        "tooltip": "Refresch device list checkbox"
     }, {
         "type": "line_edit",
         "var": "vas_canvas_name",
@@ -27,7 +33,7 @@ controls = [
         "tooltip": "Name of the line element of the VAS on the canvas"
     }, {
         "type": "line_edit",
-        "var": "vas_=cursor_name",
+        "var": "vas_cursor_name",
         "label": "Name of the cursor",
         "name": "vas_cursorname_widget",
         "tooltip": "Name of the cursor element of the VAS on the canvas"
@@ -42,12 +48,12 @@ controls = [
         "var": "vas_exit_method",
         "label": "VAS exit method",
         "options": [
-            "MOUSE",
-            "TIME",
-            "KEY"
+            "Mouse",
+            "Timeout",
+            "Keypress"
         ],
         "name": "vas_exit_method_widget",
-        "tooltip": "Exit by mouseclick, key or after a set time."
+        "tooltip": "Exit by mouse click, key or after a timeout."
     }, {
         "type": "line_edit",
         "var": "vas_exitkey",
