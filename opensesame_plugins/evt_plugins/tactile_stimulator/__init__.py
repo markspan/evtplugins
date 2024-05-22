@@ -9,7 +9,7 @@ controls = [
         "var": "device",
         "label": "Select device :",
         "options": [
-            "0: DUMMY"
+            "DUMMY"
         ],
         "name": "device_combobox",
         "tooltip": "Select the connected Tactile Stimulator or DUMMY."
