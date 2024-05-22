@@ -38,7 +38,7 @@ class EvtTrigger(Item):
     # Reset plug-in to initial values.
     def reset(self):
         """Resets plug-in to initial values."""
-        self.var.device = u'0: DUMMY'
+        self.var.device = u'DUMMY'
         self.var.refresh = 'no'
         self.var.outputmode = u'Write output lines'
         self.var.bit0 = 'no'
@@ -57,43 +57,50 @@ class EvtTrigger(Item):
         super().prepare()
         self.experiment.var.output_value = 0
 
-        if int(self.var.device[:1]) == 0:
-            oslogger.warning("Dummy prepare")
-        else:
+        if self.var.device == u'DUMMY':
+            oslogger.warning("Hardware configuration could have changed! Dummy prepare...")
+        elif len(open_devices) == 0:
             # Create a shadow device list to find 'path' from the current selected device.
             # 'path' is an unique device ID.
-            myevt = EventExchanger()
-            sleep(0.1) # without a delay, the list will not always be complete.
+            temp_evt = EventExchanger()
+            sleep(1) # without a delay, the list will not always be complete.
             try:
-                device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
-                del myevt
+                device_list = temp_evt.scan(_DEVICE_GROUP) # filter on allowed EVT types
+                del temp_evt
                 # oslogger.info("device list: {}".format(device_list))
-            except:
-                oslogger.warning("Connecting EVT device failed!")
-
-            try:
-                d_count = 1            
                 for d in device_list:
-                    if not d_count in open_devices: # skip if already open
-                        # Dynamically load all EVT devices from the list
-                        open_devices[d_count] = EventExchanger()
-                        open_devices[d_count].attach_id(d['path']) # Get evt device handle
-                        oslogger.info('Device successfully attached as:{} s/n:{}'.format(
-                            d['product_string'], d['serial_number']))
-                    d_count += 1
-                oslogger.info('open devices: {}'.format(open_devices))
-                self.current_device = int(self.var.device[:1])
-                oslogger.info('Prepare - current device: {}'.format(self.current_device))
-                open_devices[self.current_device].write_lines(0) # clear lines
+                    sleep(1) # without a delays, the device will not always be there.
+                    open_devices[d['product_string'] + "s/n: " + d['serial_number']] = EventExchanger()
+                    # Get evt device handle:
+                    open_devices[d['product_string'] + "s/n: " + d['serial_number']].attach_id(d['path'])
+                    oslogger.info('Device successfully attached as:{} s/n:{}'.format(
+                        d['product_string'], d['serial_number']))
             except:
-                self.var.device = u'0: DUMMY'
-                oslogger.warning("Device missing! Switching to dummy.")
+                oslogger.warning("Connecting EVT-device failed! Device set to dummy.")
+                self.var.device = u'DUMMY'
+
+        # searching for selected device:
+        oslogger.info('open devices: {}'.format(open_devices))
+        self.current_device = None
+        for dkey in open_devices:
+            if self.var.device[:15] in dkey:
+                self.current_device = dkey # assign to value that belongs to the key.
+        if self.current_device is None:
+            oslogger.warning("EVT-device not found! Device set to dummy.")
+            self.var.device = u'DUMMY'
+        else:
+            oslogger.info('Prepare device: {}'.format(self.current_device))
+            open_devices[self.current_device].write_lines(0) # clear lines
+
+        # pass device var to experiment as global:
+        var_name = "self.experiment.var.current_device_" + self.name
+        exec(f'{var_name} = "{self.var.device}"')
 
     def run(self):
         """The run phase of the plug-in goes here."""
         self.set_item_onset()
-        if self.var.device == u'0: DUMMY':
-            if self.var.outputmode == u'Reset output lines':
+        if self.var.device == u'DUMMY':
+            if self.var.outputmode == u'Clear output lines':
                 self.experiment.var.output_value = 0
                 oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
             elif self.var.outputmode == u'Write output lines':
@@ -106,7 +113,7 @@ class EvtTrigger(Item):
                 oslogger.info('dummy: send byte code {} for the duration of {} ms'.format(
                 self.experiment.var.output_value ^ self.var.mask, self.var.duration))
         else:
-            if self.var.outputmode == u'Reset output lines':
+            if self.var.outputmode == u'Clear output lines':
                 # Store output state as global. (There is no read-back from the hardware.)
                 self.experiment.var.output_value = 0
                 open_devices[self.current_device].write_lines(self.experiment.var.output_value)
@@ -156,7 +163,7 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         # First, call the parent constructor, which constructs the GUI controls
         # based on __init_.py.
         super().init_edit_widget()
-
+        self.refresh_checkbox.setChecked(False)
         self.update_combobox_output_mode() # enable/disable actual line_edit widgets.
         self.combobox_add_devices()
         
@@ -187,7 +194,7 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         # Get the current text or index from the combobox
         current_selection = self.output_mode_combobox.currentText()  # or use currentIndex() for the index
         # Enable or disable the line_edit based on the selection
-        if current_selection == 'Reset output lines':
+        if current_selection == 'Clear output lines':
             self.byte_value_line_edit.setEnabled(False)
             self.duration_line_edit.setEnabled(False)
             self.byte_value_line_edit.setText(str(0)) # bit mask=0
@@ -251,34 +258,33 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
     def combobox_add_devices(self):
         self.device_combobox.clear()
-        self.device_combobox.addItem(u'0: DUMMY', userData=None)
+        self.device_combobox.addItem(u'DUMMY', userData=None)
         
         # Create the EVT device list
+        sleep(1) # delay after possible init of a previous instance of this plugin. 
         myevt = EventExchanger()
-        sleep(0.5) # without a delay, the list will not always be complete.
         try:
             device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
             del myevt
         except:
-            device_list = None
+            device_list = {}
         
-        added_items_list = {}
-        if device_list:
-            d_count = 1
+        try:
+            previous_device_found = False
             for d in device_list:
                 product_string = d['product_string']
                 serial_string = d['serial_number']
-                composed_string = str(d_count) + ": " + \
-                    product_string[15:] + " s/n: " + serial_string
-                # add device string to combobox:
+                composed_string = product_string[15:] + " s/n: " + serial_string
+                # add device id to combobox:
                 self.device_combobox.addItem(composed_string)
-                added_items_list[d_count] = composed_string
-                d_count += 1
-                if d_count > 9:
-                    # keep number of digits 1
-                    break
-        # Prevents hangup if the old device is not found after reopening the project.
-        # Any change of the hardware configuration can cause this.
-        if not self.var.device in added_items_list.values():
-            self.var.device = u'0: DUMMY'
+                # previous used device present?
+                if self.var.device[:15] in product_string:
+                    self.var.device = composed_string
+                    previous_device_found = True       
+        except:
+            self.var.device = u'DUMMY'
+            oslogger.warning("No devices found! Switching to dummy.")
+
+        if previous_device_found is False:
+            self.var.device = u'DUMMY'
             oslogger.warning("The hardware configuration has been changed since the last run! Switching to dummy.")

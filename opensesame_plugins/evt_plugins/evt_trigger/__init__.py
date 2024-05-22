@@ -9,7 +9,7 @@ controls = [
         "var": "device",
         "label": "Select device :",
         "options": [
-            "0: DUMMY"
+            "DUMMY"
         ],
         "name": "device_combobox",
         "tooltip": "Select the desired EVT-device or DUMMY."
@@ -24,7 +24,7 @@ controls = [
         "var": "outputmode",
         "label": "Select output mode :",
         "options": [
-            "Reset output lines",
+            "Clear output lines",
             "Write output lines",
             "Invert output lines",
             "Pulse output lines"
