@@ -70,17 +70,17 @@ class EvtTrigger(Item):
                 # oslogger.info("device list: {}".format(device_list))
                 for d in device_list:
                     sleep(1) # without a delays, the device will not always be there.
-                    open_devices[d['product_string'] + "s/n: " + d['serial_number']] = EventExchanger()
+                    open_devices[d['product_string'] + " s/n: " + d['serial_number']] = EventExchanger()
                     # Get evt device handle:
-                    open_devices[d['product_string'] + "s/n: " + d['serial_number']].attach_id(d['path'])
-                    oslogger.info('Device successfully attached as:{} s/n:{}'.format(
+                    open_devices[d['product_string'] + " s/n: " + d['serial_number']].attach_id(d['path'])
+                    oslogger.info('EVT-device successfully attached as:{} s/n:{}'.format(
                         d['product_string'], d['serial_number']))
             except:
                 oslogger.warning("Connecting EVT-device failed! Device set to dummy.")
                 self.var.device = u'DUMMY'
 
         # searching for selected device:
-        oslogger.info('open devices: {}'.format(open_devices))
+        oslogger.info('open device(s): {}'.format(open_devices))
         self.current_device = None
         for dkey in open_devices:
             if self.var.device[:15] in dkey:
@@ -93,7 +93,7 @@ class EvtTrigger(Item):
             open_devices[self.current_device].write_lines(0) # clear lines
 
         # pass device var to experiment as global:
-        var_name = "self.experiment.var.current_device_" + self.name
+        var_name = "self.experiment.var.connected_device_" + self.name
         exec(f'{var_name} = "{self.var.device}"')
 
     def run(self):

@@ -85,10 +85,10 @@ class ResponseBox(Item):
                 # oslogger.info("device list: {}".format(device_list))
                 for d in device_list:
                     sleep(1) # without a delays, the device will not always be there.
-                    open_devices[d['product_string'] + "s/n: " + d['serial_number']] = EventExchanger()
+                    open_devices[d['product_string'] + " s/n: " + d['serial_number']] = EventExchanger()
                     # Get evt device handle:
-                    open_devices[d['product_string'] + "s/n: " + d['serial_number']].attach_id(d['path'])
-                    oslogger.info('Device successfully attached as:{} s/n:{}'.format(
+                    open_devices[d['product_string'] + " s/n: " + d['serial_number']].attach_id(d['path'])
+                    oslogger.info('RSP-12x device successfully attached as:{} s/n:{}'.format(
                         d['product_string'], d['serial_number']))
             except:
                 oslogger.warning("Loading the RSP-12x-box failed! Default is keyboard")
@@ -98,13 +98,13 @@ class ResponseBox(Item):
                                             timeout=self.var.timeout if \
                                             type(self.var.timeout)==int else None)
             # searching for selected device:
-            oslogger.info('open devices: {}'.format(open_devices))
+            oslogger.info('open device(s): {}'.format(open_devices))
             self.current_device = None
             for dkey in open_devices:
                 if self.var.device[:15] in dkey:
                     self.current_device = dkey # assign to value that belongs to the key.
             if self.current_device is None:
-                oslogger.warning("EVT-device not found! Device set to Keyboard.")
+                oslogger.warning("RSP-12x device not found! Device set to Keyboard.")
                 self.var.device = u'Keyboard'
                 self.my_keyboard = Keyboard(self.experiment, 
                                             keylist=list_allowed_buttons,
@@ -115,7 +115,7 @@ class ResponseBox(Item):
                 # open_devices[self.current_device].write_lines(0) # clear lines
 
         # pass device var to experiment as global:
-        var_name = "self.experiment.var.current_device_" + self.name
+        var_name = "self.experiment.var.connected_device_" + self.name
         exec(f'{var_name} = "{self.var.device}"')
 
     def run(self):
