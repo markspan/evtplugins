@@ -24,7 +24,7 @@ evt_trigger | plug-in for event exchanger EVT-2,3 and 4 variants for generating 
 response_box | plug-in for all of the RSP12x button response box variants with 1-8 buttons | PyGame, PsychoPy | Windows | ok
 rsp_pygame | plug-in for RSP12x button response box variants with 1-8 buttons | PyGame | Windows, Linux | ok
 tactile_stimulator | plug-in for the Electrotactile Stimulator (SHK-1B) 0-5mA | PyGame | Windows | ok
-vas_evt | A Visual Analog Slider plug-in controlled via an encoder knob connected to the EVT-2 | PyGame | Windows | not validated
+vas_evt | A Visual Analog Slider plug-in controlled via an encoder knob connected to the EVT-2 | PyGame | Windows | planned
 vas_gui | A Visual Analog Slider plug-in controlled via the PC-mouse on a predefined canvas (sketchpad) | PyGame | Windows, Linux | Mouse response not ok in Linux.
 rgb_led_control | plug-in for multi-color LED response boxes | PyGme | Windows | not validated
 
