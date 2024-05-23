@@ -40,6 +40,7 @@ class EvtTrigger(Item):
         """Resets plug-in to initial values."""
         self.var.device = u'DUMMY'
         self.var.refresh = 'no'
+        self.var.close_device = 'no'
         self.var.outputmode = u'Write output lines'
         self.var.bit0 = 'no'
         self.var.bit1 = 'no'
@@ -73,14 +74,14 @@ class EvtTrigger(Item):
                     open_devices[d['product_string'] + " s/n: " + d['serial_number']] = EventExchanger()
                     # Get evt device handle:
                     open_devices[d['product_string'] + " s/n: " + d['serial_number']].attach_id(d['path'])
-                    oslogger.info('EVT-device successfully attached as:{} s/n:{}'.format(
+                    oslogger.info('Device successfully attached as:{} s/n:{}'.format(
                         d['product_string'], d['serial_number']))
+                oslogger.info('open device(s): {}'.format(open_devices))
             except:
                 oslogger.warning("Connecting EVT-device failed! Device set to dummy.")
                 self.var.device = u'DUMMY'
 
         # searching for selected device:
-        oslogger.info('open device(s): {}'.format(open_devices))
         self.current_device = None
         for dkey in open_devices:
             if self.var.device[:15] in dkey:
@@ -89,7 +90,7 @@ class EvtTrigger(Item):
             oslogger.warning("EVT-device not found! Device set to dummy.")
             self.var.device = u'DUMMY'
         else:
-            oslogger.info('Prepare device: {}'.format(self.current_device))
+            oslogger.info('Prepare device: {}'.format(open_devices[self.current_device]))
             open_devices[self.current_device].write_lines(0) # clear lines
 
         # pass device var to experiment as global:
@@ -98,44 +99,52 @@ class EvtTrigger(Item):
 
     def run(self):
         """The run phase of the plug-in goes here."""
-        self.set_item_onset()
-        if self.var.device == u'DUMMY':
-            if self.var.outputmode == u'Clear output lines':
-                self.experiment.var.output_value = 0
-                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
-            elif self.var.outputmode == u'Write output lines':
-                self.experiment.var.output_value = self.var.mask
-                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
-            elif self.var.outputmode == u'Invert output lines':
-                self.experiment.var.output_value ^= self.var.mask
-                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
-            elif self.var.outputmode == u'Pulse output lines':
-                oslogger.info('dummy: send byte code {} for the duration of {} ms'.format(
-                self.experiment.var.output_value ^ self.var.mask, self.var.duration))
-        else:
-            if self.var.outputmode == u'Clear output lines':
-                # Store output state as global. (There is no read-back from the hardware.)
-                self.experiment.var.output_value = 0
-                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
-                oslogger.info('{}: send byte code {}'.format(
-                    open_devices[self.current_device], self.experiment.var.output_value))
-            elif self.var.outputmode == u'Write output lines':
-                self.experiment.var.output_value = self.var.mask
-                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
-                oslogger.info('{}: send byte code {}'.format(
-                    open_devices[self.current_device], self.experiment.var.output_value))
-            elif self.var.outputmode == u'Invert output lines':
-                self.experiment.var.output_value ^= self.var.mask
-                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
-                oslogger.info('{}: send byte code {}'.format(
-                    open_devices[self.current_device], self.experiment.var.output_value))
-            elif self.var.outputmode == u'Pulse output lines':
-                open_devices[self.current_device].pulse_lines(
-                    (self.experiment.var.output_value ^ self.var.mask), self.var.duration)
-                oslogger.info('{}: send byte code {} for the duration of {} ms'.format(
-                    open_devices[self.current_device],
+        if self.var.close_device == 'no':
+            self.set_item_onset()
+            if self.var.device == u'DUMMY':
+                if self.var.outputmode == u'Clear output lines':
+                    self.experiment.var.output_value = 0
+                    oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
+                elif self.var.outputmode == u'Write output lines':
+                    self.experiment.var.output_value = self.var.mask
+                    oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
+                elif self.var.outputmode == u'Invert output lines':
+                    self.experiment.var.output_value ^= self.var.mask
+                    oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
+                elif self.var.outputmode == u'Pulse output lines':
+                    oslogger.info('dummy: send byte code {} for the duration of {} ms'.format(
                     self.experiment.var.output_value ^ self.var.mask, self.var.duration))
-            # open_devices[self.current_device].close()
+            else:
+                if self.var.outputmode == u'Clear output lines':
+                    # Store output state as global. (There is no read-back from the hardware.)
+                    self.experiment.var.output_value = 0
+                    open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                    oslogger.info('{}: send byte code {}'.format(
+                        open_devices[self.current_device], self.experiment.var.output_value))
+                elif self.var.outputmode == u'Write output lines':
+                    self.experiment.var.output_value = self.var.mask
+                    open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                    oslogger.info('{}: send byte code {}'.format(
+                        open_devices[self.current_device], self.experiment.var.output_value))
+                elif self.var.outputmode == u'Invert output lines':
+                    self.experiment.var.output_value ^= self.var.mask
+                    open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                    oslogger.info('{}: send byte code {}'.format(
+                        open_devices[self.current_device], self.experiment.var.output_value))
+                elif self.var.outputmode == u'Pulse output lines':
+                    open_devices[self.current_device].pulse_lines(
+                        (self.experiment.var.output_value ^ self.var.mask), self.var.duration)
+                    oslogger.info('{}: send byte code {} for the duration of {} ms'.format(
+                        open_devices[self.current_device],
+                        self.experiment.var.output_value ^ self.var.mask, self.var.duration))
+        else:
+            for dkey in open_devices:
+                try:
+                    open_devices[dkey].close()
+                    oslogger.info('Device: {} is closed!'.format(open_devices[dkey]))
+                except:
+                    oslogger.warning('Device {} for closing not found!'.format(open_devices[dkey]))
+
 
 class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
@@ -163,68 +172,114 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         # First, call the parent constructor, which constructs the GUI controls
         # based on __init_.py.
         super().init_edit_widget()
-        self.refresh_checkbox.setChecked(False)
+
         self.update_combobox_output_mode() # enable/disable actual line_edit widgets.
         self.combobox_add_devices()
-        
+        if self.var.close_device == 'yes':
+            self.device_combobox_widget.setEnabled(False)
+            self.refresh_checkbox_widget.setEnabled(False)
+            self.output_mode_combobox_widget.setEnabled(False)
+            self.b0_checkbox_widget.setEnabled(False)
+            self.b1_checkbox_widget.setEnabled(False)
+            self.b3_checkbox_widget.setEnabled(False)
+            self.b4_checkbox_widget.setEnabled(False)
+            self.b5_checkbox_widget.etEnabled(False)
+            self.b6_checkbox_widget.setEnabled(False)
+            self.b7_checkbox_widget.setEnabled(False)
+            self.byte_value_line_edit_widget.setEnabled(False)
+            self.byte_value_line_edit_widget.setEnabled(False)
+
         # Event triggered calls:
-        self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
-        self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
-        self.output_mode_combobox.currentIndexChanged.connect(self.update_combobox_output_mode)
+        self.close_device_checkbox_widget.stateChanged.connect(self.close_device)
+        self.refresh_checkbox_widget.stateChanged.connect(self.refresh_combobox_device)
+        self.device_combobox_widget.currentIndexChanged.connect(self.update_combobox_device)
+        self.output_mode_combobox_widget.currentIndexChanged.connect(self.update_combobox_output_mode)
         # Connect checkbox inputs with line input and vice verse.
-        self.b0_checkbox.stateChanged.connect(self.update_line_edit_value)
-        self.b1_checkbox.stateChanged.connect(self.update_line_edit_value)
-        self.b2_checkbox.stateChanged.connect(self.update_line_edit_value)
-        self.b3_checkbox.stateChanged.connect(self.update_line_edit_value)
-        self.b4_checkbox.stateChanged.connect(self.update_line_edit_value)
-        self.b5_checkbox.stateChanged.connect(self.update_line_edit_value)
-        self.b6_checkbox.stateChanged.connect(self.update_line_edit_value)
-        self.b7_checkbox.stateChanged.connect(self.update_line_edit_value)
-        self.byte_value_line_edit.textChanged.connect(self.update_checkboxes)
+        self.b0_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
+        self.b1_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
+        self.b2_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
+        self.b3_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
+        self.b4_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
+        self.b5_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
+        self.b6_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
+        self.b7_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
+        self.byte_value_line_edit_widget.textChanged.connect(self.update_checkboxes)
+
+    def close_device(self):
+        if self.close_device_checkbox_widget.isChecked():
+            self.var.close_device = 'yes'
+            self.device_combobox_widget.setEnabled(False)
+            self.refresh_checkbox_widget.setEnabled(False)
+            self.output_mode_combobox_widget.setEnabled(False)
+            self.b0_checkbox_widget.setEnabled(False)
+            self.b1_checkbox_widget.setEnabled(False)
+            self.b2_checkbox_widget.setEnabled(False)
+            self.b3_checkbox_widget.setEnabled(False)
+            self.b4_checkbox_widget.setEnabled(False)
+            self.b5_checkbox_widget.setEnabled(False)
+            self.b6_checkbox_widget.setEnabled(False)
+            self.b7_checkbox_widget.setEnabled(False)
+            self.byte_value_line_edit_widget.setEnabled(False)
+            self.byte_value_line_edit_widget.setEnabled(False)
+        else:
+            self.var.close_device = 'no'
+            self.device_combobox_widget.setEnabled(True)
+            self.refresh_checkbox_widget.setEnabled(True)
+            self.output_mode_combobox_widget.setEnabled(True)
+            self.b0_checkbox_widget.setEnabled(True)
+            self.b1_checkbox_widget.setEnabled(True)
+            self.b2_checkbox_widget.setEnabled(True)
+            self.b3_checkbox_widget.setEnabled(True)
+            self.b4_checkbox_widget.setEnabled(True)
+            self.b5_checkbox_widget.setEnabled(True)
+            self.b6_checkbox_widget.setEnabled(True)
+            self.b7_checkbox_widget.setEnabled(True)
+            self.byte_value_line_edit_widget.setEnabled(True)
+            self.byte_value_line_edit_widget.setEnabled(True)
 
     def refresh_combobox_device(self):
-        if self.refresh_checkbox.isChecked():
+        if self.refresh_checkbox_widget.isChecked():
             # renew list:
             self.combobox_add_devices()
 
     def update_combobox_device(self):
-        self.refresh_checkbox.setChecked(False)
+        self.refresh_checkbox_widget.setChecked(False)
 
     def update_combobox_output_mode(self):
         # Get the current text or index from the combobox
-        current_selection = self.output_mode_combobox.currentText()  # or use currentIndex() for the index
+        current_selection = self.output_mode_combobox_widget.currentText()  # or use currentIndex() for the index
         # Enable or disable the line_edit based on the selection
         if current_selection == 'Clear output lines':
-            self.byte_value_line_edit.setEnabled(False)
-            self.duration_line_edit.setEnabled(False)
-            self.byte_value_line_edit.setText(str(0)) # bit mask=0
+            self.byte_value_line_edit_widget.setEnabled(False)
+            self.duration_line_edit_widget.setEnabled(False)
+            self.byte_value_line_edit_widget.setText(str(0)) # bit mask=0
         elif current_selection == 'Write output lines':
-            self.byte_value_line_edit.setEnabled(True)
-            self.duration_line_edit.setEnabled(False)
+            self.byte_value_line_edit_widget.setEnabled(True)
+            self.duration_line_edit_widget.setEnabled(False)
         elif current_selection == 'Invert output lines':
-            self.byte_value_line_edit.setEnabled(True)
-            self.duration_line_edit.setEnabled(False)
+            self.byte_value_line_edit_widget.setEnabled(True)
+            self.duration_line_edit_widget.setEnabled(False)
         elif current_selection == 'Pulse output lines':
-            self.byte_value_line_edit.setEnabled(True)
-            self.duration_line_edit.setEnabled(True)
+            self.byte_value_line_edit_widget.setEnabled(True)
+            self.duration_line_edit_widget.setEnabled(True)
         else:
-            self.byte_value_line_edit.setEnabled(False)
-            self.duration_line_edit.setEnabled(False)
+            self.byte_value_line_edit_widget.setEnabled(False)
+            self.duration_line_edit_widget.setEnabled(False)
 
     def update_line_edit_value(self):
         # Calculate the decimal value from checkboxes. (How can we enumerate and loop this?)
-        tempVar = self.b0_checkbox.isChecked()
-        tempVar |= self.b1_checkbox.isChecked() << 1
-        tempVar |= self.b2_checkbox.isChecked() << 2
-        tempVar |= self.b3_checkbox.isChecked() << 3
-        tempVar |= self.b4_checkbox.isChecked() << 4
-        tempVar |= self.b5_checkbox.isChecked() << 5
-        tempVar |= self.b6_checkbox.isChecked() << 6
-        tempVar |= self.b7_checkbox.isChecked() << 7
+        tempVar = self.b0_checkbox_widget.isChecked()
+        tempVar |= self.b1_checkbox_widget.isChecked() << 1
+        tempVar |= self.b2_checkbox_widget.isChecked() << 2
+        tempVar |= self.b3_checkbox_widget.isChecked() << 3
+        tempVar |= self.b4_checkbox_widget.isChecked() << 4
+        tempVar |= self.b5_checkbox_widget.isChecked() << 5
+        tempVar |= self.b6_checkbox_widget.isChecked() << 6
+        tempVar |= self.b7_checkbox_widget.isChecked() << 7
         # Update line edit without triggering the textChanged signal
-        self.byte_value_line_edit.blockSignals(True)
-        self.byte_value_line_edit.setText(str(tempVar))
-        self.byte_value_line_edit.blockSignals(False)
+        self.byte_value_line_edit_widget.blockSignals(True)
+        self.byte_value_line_edit_widget.setText(str(tempVar))
+        self.byte_value_line_edit_widget.blockSignals(False)
 
     def update_checkboxes(self, text):
         # Convert line edit text to binary and update checkboxes
@@ -232,33 +287,33 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
             self.var.mask = int(text)
             if 0 <= self.var.mask <= 255:
                 binary_string = format(self.var.mask, '08b')
-                self.b0_checkbox.setChecked(binary_string[7] == '1')
-                self.b1_checkbox.setChecked(binary_string[6] == '1')
-                self.b2_checkbox.setChecked(binary_string[5] == '1')
-                self.b3_checkbox.setChecked(binary_string[4] == '1')
-                self.b4_checkbox.setChecked(binary_string[3] == '1')
-                self.b5_checkbox.setChecked(binary_string[2] == '1')
-                self.b6_checkbox.setChecked(binary_string[1] == '1')
-                self.b7_checkbox.setChecked(binary_string[0] == '1')
+                self.b0_checkbox_widget.setChecked(binary_string[7] == '1')
+                self.b1_checkbox_widget.setChecked(binary_string[6] == '1')
+                self.b2_checkbox_widget.setChecked(binary_string[5] == '1')
+                self.b3_checkbox_widget.setChecked(binary_string[4] == '1')
+                self.b4_checkbox_widget.setChecked(binary_string[3] == '1')
+                self.b5_checkbox_widget.setChecked(binary_string[2] == '1')
+                self.b6_checkbox_widget.setChecked(binary_string[1] == '1')
+                self.b7_checkbox_widget.setChecked(binary_string[0] == '1')
             else:
                 raise ValueError
         except ValueError:
             # Handle invalid input or out of range value
-            self.byte_value_line_edit.blockSignals(True)
-            self.byte_value_line_edit.setText('')
-            self.byte_value_line_edit.blockSignals(False)
-            self.b0_checkbox.setChecked(False)
-            self.b1_checkbox.setChecked(False)
-            self.b2_checkbox.setChecked(False)
-            self.b3_checkbox.setChecked(False)
-            self.b4_checkbox.setChecked(False)
-            self.b5_checkbox.setChecked(False)
-            self.b6_checkbox.setChecked(False)
-            self.b7_checkbox.setChecked(False)
+            self.byte_value_line_edit_widget.blockSignals(True)
+            self.byte_value_line_edit_widget.setText('')
+            self.byte_value_line_edit_widget.blockSignals(False)
+            self.b0_checkbox_widget.setChecked(False)
+            self.b1_checkbox_widget.setChecked(False)
+            self.b2_checkbox_widget.setChecked(False)
+            self.b3_checkbox_widget.setChecked(False)
+            self.b4_checkbox_widget.setChecked(False)
+            self.b5_checkbox_widget.setChecked(False)
+            self.b6_checkbox_widget.setChecked(False)
+            self.b7_checkbox_widget.setChecked(False)
 
     def combobox_add_devices(self):
-        self.device_combobox.clear()
-        self.device_combobox.addItem(u'DUMMY', userData=None)
+        self.device_combobox_widget.clear()
+        self.device_combobox_widget.addItem(u'DUMMY', userData=None)
         
         # Create the EVT device list
         sleep(1) # delay after possible init of a previous instance of this plugin. 
@@ -276,7 +331,7 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
                 serial_string = d['serial_number']
                 composed_string = product_string[15:] + " s/n: " + serial_string
                 # add device id to combobox:
-                self.device_combobox.addItem(composed_string)
+                self.device_combobox_widget.addItem(composed_string)
                 # previous used device present?
                 if self.var.device[:15] in product_string:
                     self.var.device = composed_string
