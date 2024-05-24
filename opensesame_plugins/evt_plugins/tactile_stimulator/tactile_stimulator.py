@@ -86,17 +86,19 @@ class TactileStimulator(Item):
                 # oslogger.info("device list: {}".format(device_list))
                 for d in device_list:
                     sleep(1) # without a delays, the device will not always be there.
-                    open_devices[d['product_string'] + " s/n: " + d['serial_number']] = EventExchanger()
+                    composed_string = d['product_string'] + " s/n: " + d['serial_number']
+                    open_devices[composed_string] = EventExchanger()
                     # Get evt device handle:
-                    open_devices[d['product_string'] + " s/n: " + d['serial_number']].attach_id(d['path'])
-                    oslogger.info('Tactile-stimulator successfully attached as:{} s/n:{}'.format(
+                    open_devices[composed_string].attach_id(d['path'])
+                    oslogger.info('Device successfully attached as: {} s/n: {}'.format(
                         d['product_string'], d['serial_number']))
+                    oslogger.info('        ...  and with device ID: {}'.format(
+                        open_devices[composed_string]))
             except:
                 oslogger.warning("Connecting the Tactile-stimulator failed! Device set to dummy.")
                 self.var.device = u'DUMMY'
 
         # searching for selected device:
-        oslogger.info('open devices: {}'.format(open_devices))
         self.current_device = None
         for dkey in open_devices:
             if self.var.device[:15] in dkey:
@@ -361,38 +363,38 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
 
         super().init_edit_widget()
 
-        self.refresh_checkbox.setChecked(False)
+        self.refresh_checkbox_widget.setChecked(False)
         self.update_combobox_mode()
         self.combobox_add_devices() # first time fill the combobox
 
         # event based calls:
-        self.mode_combobox.currentIndexChanged.connect(self.update_combobox_mode)
-        self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
-        self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
-        self.perc_line_edit.textChanged.connect(self.check_input_perc)
-        self.duration_line_edit.textChanged.connect(self.check_input_duration)
+        self.mode_combobox_widget.currentIndexChanged.connect(self.update_combobox_mode)
+        self.refresh_checkbox_widget.stateChanged.connect(self.refresh_combobox_device)
+        self.device_combobox_widget.currentIndexChanged.connect(self.update_combobox_device)
+        self.perc_line_edit_widget.textChanged.connect(self.check_input_perc)
+        self.duration_line_edit_widget.textChanged.connect(self.check_input_duration)
 
     def update_combobox_mode(self):
         # Get the current text or index from the combobox
-        current_selection = self.mode_combobox.currentText()  # or use currentIndex() for the index
+        current_selection = self.mode_combobox_widget.currentText()  # or use currentIndex() for the index
         # Enable or disable the line_edit based on the combobox selection
         if current_selection == 'Calibrate':
-            self.perc_line_edit.setEnabled(False)
-            self.duration_line_edit.setEnabled(True)
+            self.perc_line_edit_widget.setEnabled(False)
+            self.duration_line_edit_widget.setEnabled(True)
         elif current_selection == 'Stimulate':
-            self.perc_line_edit.setEnabled(True)
-            self.duration_line_edit.setEnabled(True)
+            self.perc_line_edit_widget.setEnabled(True)
+            self.duration_line_edit_widget.setEnabled(True)
         else:
-            self.perc_line_edit.setEnabled(False)
-            self.duration_line_edit.setEnabled(False)
+            self.perc_line_edit_widget.setEnabled(False)
+            self.duration_line_edit_widget.setEnabled(False)
 
     def refresh_combobox_device(self):
-        if self.refresh_checkbox.isChecked():
+        if self.refresh_checkbox_widget.isChecked():
             # renew list:
             self.combobox_add_devices()
 
     def update_combobox_device(self):
-        self.refresh_checkbox.setChecked(False)
+        self.refresh_checkbox_widget.setChecked(False)
 
     def check_input_perc(self, text):
         try:
@@ -401,9 +403,9 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
                 raise ValueError
         except ValueError:
             # Handle invalid input or out of range value
-            self.perc_line_edit.blockSignals(True)
-            self.perc_line_edit.setText('')
-            self.perc_line_edit.blockSignals(False)
+            self.perc_line_edit_widget.blockSignals(True)
+            self.perc_line_edit_widget.setText('')
+            self.perc_line_edit_widget.blockSignals(False)
 
     def check_input_duration(self, text):
         try:
@@ -412,13 +414,13 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
                 raise ValueError
         except ValueError:
             # Handle invalid input or out of range value
-            self.duration_line_edit.blockSignals(True)
-            self.duration_line_edit.setText('')
-            self.duration_line_edit.blockSignals(False)
+            self.duration_line_edit_widget.blockSignals(True)
+            self.duration_line_edit_widget.setText('')
+            self.duration_line_edit_widget.blockSignals(False)
 
     def combobox_add_devices(self):
-        self.device_combobox.clear()
-        self.device_combobox.addItem(u'DUMMY', userData=None)
+        self.device_combobox_widget.clear()
+        self.device_combobox_widget.addItem(u'DUMMY', userData=None)
         
         # Create the EVT device list
         sleep(1) # delay after possible init of a previous instance of this plugin. 
@@ -436,7 +438,7 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
                 serial_string = d['serial_number']
                 composed_string = product_string[15:] + " s/n: " + serial_string
                 # add device id to combobox:
-                self.device_combobox.addItem(composed_string)
+                self.device_combobox_widget.addItem(composed_string)
                 # previous used device present?
                 if self.var.device[:15] in product_string:
                     self.var.device = composed_string
