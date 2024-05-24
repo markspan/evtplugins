@@ -20,12 +20,6 @@ controls = [
         "name": "refresh_checkbox_widget",
         "tooltip": "Refresch device list checkbox"
     }, {
-        "type": "checkbox",
-        "var": "close_device",
-        "label": "Close device (Use this at the end of the experiment.)",
-        "name": "close_device_checkbox_widget",
-        "tooltip": "Close device list checkbox"
-    }, {
         "type": "combobox",
         "var": "outputmode",
         "label": "Select output mode :",
@@ -97,6 +91,12 @@ controls = [
         "label": "Duration [ms] :",
         "name": "duration_line_edit_widget",
         "tooltip": "Expecting a value in milliseconds"
+    }, {
+        "type": "checkbox",
+        "var": "close_device",
+        "label": "Auto close EVT-device(s). (Use this for the latter instance of the plugin or with a single instance of the plugin.)",
+        "name": "close_device_checkbox_widget",
+        "tooltip": "Close device list checkbox"
     }, {
         "type": "text",
         "label": "<small>EVT-trigger plug-in version 0.2.0</small>"

@@ -20,7 +20,6 @@ along with this plug-in.  If not, see <http://www.gnu.org/licenses/>.
 from libopensesame.py3compat import *
 from libopensesame.item import Item
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
-from openexp.canvas import Canvas
 from libopensesame.oslogging import oslogger
 from time import sleep
 from pyevt import EventExchanger # pyevt 2.0
@@ -35,12 +34,13 @@ class EvtTrigger(Item):
 
     description = u"A plug-in for generating triggers with EVT devices."
 
+    global open_devices
+
     # Reset plug-in to initial values.
     def reset(self):
         """Resets plug-in to initial values."""
         self.var.device = u'DUMMY'
         self.var.refresh = 'no'
-        self.var.close_device = 'no'
         self.var.outputmode = u'Write output lines'
         self.var.bit0 = 'no'
         self.var.bit1 = 'no'
@@ -52,6 +52,7 @@ class EvtTrigger(Item):
         self.var.bit7 = 'no'
         self.var.mask = 0
         self.var.duration = 1000
+        self.var.close_device = 'no'
 
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
@@ -71,12 +72,14 @@ class EvtTrigger(Item):
                 # oslogger.info("device list: {}".format(device_list))
                 for d in device_list:
                     sleep(1) # without a delays, the device will not always be there.
-                    open_devices[d['product_string'] + " s/n: " + d['serial_number']] = EventExchanger()
+                    composed_string = d['product_string'] + " s/n: " + d['serial_number']
+                    open_devices[composed_string] = EventExchanger()
                     # Get evt device handle:
-                    open_devices[d['product_string'] + " s/n: " + d['serial_number']].attach_id(d['path'])
-                    oslogger.info('Device successfully attached as:{} s/n:{}'.format(
+                    open_devices[composed_string].attach_id(d['path'])
+                    oslogger.info('Device successfully attached as: {} s/n: {}'.format(
                         d['product_string'], d['serial_number']))
-                oslogger.info('open device(s): {}'.format(open_devices))
+                    oslogger.info('        ...  and with device ID: {}'.format(
+                        open_devices[composed_string]))
             except:
                 oslogger.warning("Connecting EVT-device failed! Device set to dummy.")
                 self.var.device = u'DUMMY'
@@ -90,7 +93,7 @@ class EvtTrigger(Item):
             oslogger.warning("EVT-device not found! Device set to dummy.")
             self.var.device = u'DUMMY'
         else:
-            oslogger.info('Prepare device: {}'.format(open_devices[self.current_device]))
+            oslogger.info('Preparing device: {}'.format(open_devices[self.current_device]))
             open_devices[self.current_device].write_lines(0) # clear lines
 
         # pass device var to experiment as global:
@@ -99,49 +102,50 @@ class EvtTrigger(Item):
 
     def run(self):
         """The run phase of the plug-in goes here."""
-        if self.var.close_device == 'no':
-            self.set_item_onset()
-            if self.var.device == u'DUMMY':
-                if self.var.outputmode == u'Clear output lines':
-                    self.experiment.var.output_value = 0
-                    oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
-                elif self.var.outputmode == u'Write output lines':
-                    self.experiment.var.output_value = self.var.mask
-                    oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
-                elif self.var.outputmode == u'Invert output lines':
-                    self.experiment.var.output_value ^= self.var.mask
-                    oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
-                elif self.var.outputmode == u'Pulse output lines':
-                    oslogger.info('dummy: send byte code {} for the duration of {} ms'.format(
-                    self.experiment.var.output_value ^ self.var.mask, self.var.duration))
-            else:
-                if self.var.outputmode == u'Clear output lines':
-                    # Store output state as global. (There is no read-back from the hardware.)
-                    self.experiment.var.output_value = 0
-                    open_devices[self.current_device].write_lines(self.experiment.var.output_value)
-                    oslogger.info('{}: send byte code {}'.format(
-                        open_devices[self.current_device], self.experiment.var.output_value))
-                elif self.var.outputmode == u'Write output lines':
-                    self.experiment.var.output_value = self.var.mask
-                    open_devices[self.current_device].write_lines(self.experiment.var.output_value)
-                    oslogger.info('{}: send byte code {}'.format(
-                        open_devices[self.current_device], self.experiment.var.output_value))
-                elif self.var.outputmode == u'Invert output lines':
-                    self.experiment.var.output_value ^= self.var.mask
-                    open_devices[self.current_device].write_lines(self.experiment.var.output_value)
-                    oslogger.info('{}: send byte code {}'.format(
-                        open_devices[self.current_device], self.experiment.var.output_value))
-                elif self.var.outputmode == u'Pulse output lines':
-                    open_devices[self.current_device].pulse_lines(
-                        (self.experiment.var.output_value ^ self.var.mask), self.var.duration)
-                    oslogger.info('{}: send byte code {} for the duration of {} ms'.format(
-                        open_devices[self.current_device],
-                        self.experiment.var.output_value ^ self.var.mask, self.var.duration))
+        self.set_item_onset()
+        if self.var.device == u'DUMMY':
+            if self.var.outputmode == u'Clear output lines':
+                self.experiment.var.output_value = 0
+                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
+            elif self.var.outputmode == u'Write output lines':
+                self.experiment.var.output_value = self.var.mask
+                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
+            elif self.var.outputmode == u'Invert output lines':
+                self.experiment.var.output_value ^= self.var.mask
+                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
+            elif self.var.outputmode == u'Pulse output lines':
+                oslogger.info('dummy: send byte code {} for the duration of {} ms'.format(
+                self.experiment.var.output_value ^ self.var.mask, self.var.duration))
         else:
+            if self.var.outputmode == u'Clear output lines':
+                # Store output state as global. (There is no read-back from the hardware.)
+                self.experiment.var.output_value = 0
+                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                oslogger.info('{}: send byte code {}'.format(
+                    open_devices[self.current_device], self.experiment.var.output_value))
+            elif self.var.outputmode == u'Write output lines':
+                self.experiment.var.output_value = self.var.mask
+                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                oslogger.info('{}: send byte code {}'.format(
+                    open_devices[self.current_device], self.experiment.var.output_value))
+            elif self.var.outputmode == u'Invert output lines':
+                self.experiment.var.output_value ^= self.var.mask
+                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                oslogger.info('{}: send byte code {}'.format(
+                    open_devices[self.current_device], self.experiment.var.output_value))
+            elif self.var.outputmode == u'Pulse output lines':
+                open_devices[self.current_device].pulse_lines(
+                    (self.experiment.var.output_value ^ self.var.mask), self.var.duration)
+                oslogger.info('{}: send byte code {} for the duration of {} ms'.format(
+                    open_devices[self.current_device],
+                    self.experiment.var.output_value ^ self.var.mask, self.var.duration))
+
+        # close the device?
+        if self.var.close_device == 'yes':
             for dkey in open_devices:
                 try:
                     open_devices[dkey].close()
-                    oslogger.info('Device: {} is closed!'.format(open_devices[dkey]))
+                    oslogger.info('Device: {} successfully closed!'.format(open_devices[dkey]))
                 except:
                     oslogger.warning('Device {} for closing not found!'.format(open_devices[dkey]))
 
@@ -175,25 +179,12 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
 
         self.update_combobox_output_mode() # enable/disable actual line_edit widgets.
         self.combobox_add_devices()
-        if self.var.close_device == 'yes':
-            self.device_combobox_widget.setEnabled(False)
-            self.refresh_checkbox_widget.setEnabled(False)
-            self.output_mode_combobox_widget.setEnabled(False)
-            self.b0_checkbox_widget.setEnabled(False)
-            self.b1_checkbox_widget.setEnabled(False)
-            self.b3_checkbox_widget.setEnabled(False)
-            self.b4_checkbox_widget.setEnabled(False)
-            self.b5_checkbox_widget.etEnabled(False)
-            self.b6_checkbox_widget.setEnabled(False)
-            self.b7_checkbox_widget.setEnabled(False)
-            self.byte_value_line_edit_widget.setEnabled(False)
-            self.byte_value_line_edit_widget.setEnabled(False)
 
         # Event triggered calls:
-        self.close_device_checkbox_widget.stateChanged.connect(self.close_device)
         self.refresh_checkbox_widget.stateChanged.connect(self.refresh_combobox_device)
         self.device_combobox_widget.currentIndexChanged.connect(self.update_combobox_device)
         self.output_mode_combobox_widget.currentIndexChanged.connect(self.update_combobox_output_mode)
+        self.close_device_checkbox_widget.stateChanged.connect(self.close_device)
         # Connect checkbox inputs with line input and vice verse.
         self.b0_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
         self.b1_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
@@ -204,38 +195,6 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         self.b6_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
         self.b7_checkbox_widget.stateChanged.connect(self.update_line_edit_value)
         self.byte_value_line_edit_widget.textChanged.connect(self.update_checkboxes)
-
-    def close_device(self):
-        if self.close_device_checkbox_widget.isChecked():
-            self.var.close_device = 'yes'
-            self.device_combobox_widget.setEnabled(False)
-            self.refresh_checkbox_widget.setEnabled(False)
-            self.output_mode_combobox_widget.setEnabled(False)
-            self.b0_checkbox_widget.setEnabled(False)
-            self.b1_checkbox_widget.setEnabled(False)
-            self.b2_checkbox_widget.setEnabled(False)
-            self.b3_checkbox_widget.setEnabled(False)
-            self.b4_checkbox_widget.setEnabled(False)
-            self.b5_checkbox_widget.setEnabled(False)
-            self.b6_checkbox_widget.setEnabled(False)
-            self.b7_checkbox_widget.setEnabled(False)
-            self.byte_value_line_edit_widget.setEnabled(False)
-            self.byte_value_line_edit_widget.setEnabled(False)
-        else:
-            self.var.close_device = 'no'
-            self.device_combobox_widget.setEnabled(True)
-            self.refresh_checkbox_widget.setEnabled(True)
-            self.output_mode_combobox_widget.setEnabled(True)
-            self.b0_checkbox_widget.setEnabled(True)
-            self.b1_checkbox_widget.setEnabled(True)
-            self.b2_checkbox_widget.setEnabled(True)
-            self.b3_checkbox_widget.setEnabled(True)
-            self.b4_checkbox_widget.setEnabled(True)
-            self.b5_checkbox_widget.setEnabled(True)
-            self.b6_checkbox_widget.setEnabled(True)
-            self.b7_checkbox_widget.setEnabled(True)
-            self.byte_value_line_edit_widget.setEnabled(True)
-            self.byte_value_line_edit_widget.setEnabled(True)
 
     def refresh_combobox_device(self):
         if self.refresh_checkbox_widget.isChecked():
@@ -343,3 +302,9 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         if previous_device_found is False:
             self.var.device = u'DUMMY'
             oslogger.warning("The hardware configuration has been changed since the last run! Switching to dummy.")
+
+    def close_device(self):
+        if self.close_device_checkbox_widget.isChecked():
+            self.var.close_device = 'yes'
+        else:
+            self.var.close_device = 'no'
