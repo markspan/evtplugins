@@ -22,7 +22,7 @@ from time import sleep
 from libopensesame.py3compat import *
 from libopensesame.item import Item
 from libqtopensesame.items.qtautoplugin import QtAutoPlugin
-from openexp.canvas import Canvas
+#from openexp.canvas import Canvas
 from libopensesame.oslogging import oslogger
 from openexp.keyboard import Keyboard
 from pyevt import EventExchanger
@@ -44,12 +44,11 @@ class ResponseBox(Item):
         self.var.correct_response = u'1'
         self.var.allowed_responses = u'1;2'
         self.var.timeout = u'infinite'
+        self.var.close_device = 'no'
 
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
         super().prepare()
-
-        oslogger.info('timeout = {}' .format(self.var.timeout))
 
         '''
         The next part calculates the bit mask for the allowed responses
@@ -85,11 +84,14 @@ class ResponseBox(Item):
                 # oslogger.info("device list: {}".format(device_list))
                 for d in device_list:
                     sleep(1) # without a delays, the device will not always be there.
-                    open_devices[d['product_string'] + " s/n: " + d['serial_number']] = EventExchanger()
+                    composed_string = d['product_string'] + " s/n: " + d['serial_number']
+                    open_devices[composed_string] = EventExchanger()
                     # Get evt device handle:
-                    open_devices[d['product_string'] + " s/n: " + d['serial_number']].attach_id(d['path'])
-                    oslogger.info('RSP-12x device successfully attached as:{} s/n:{}'.format(
+                    open_devices[composed_string].attach_id(d['path'])
+                    oslogger.info('Device successfully attached as: {} s/n: {}'.format(
                         d['product_string'], d['serial_number']))
+                    oslogger.info('        ...  and with device ID: {}'.format(
+                        open_devices[composed_string]))
             except:
                 oslogger.warning("Loading the RSP-12x-box failed! Default is keyboard")
                 self.var.device = u'Keyboard'
@@ -98,7 +100,6 @@ class ResponseBox(Item):
                                             timeout=self.var.timeout if \
                                             type(self.var.timeout)==int else None)
             # searching for selected device:
-            oslogger.info('open device(s): {}'.format(open_devices))
             self.current_device = None
             for dkey in open_devices:
                 if self.var.device[:15] in dkey:
@@ -111,7 +112,7 @@ class ResponseBox(Item):
                                             timeout=self.var.timeout if \
                                             type(self.var.timeout)==int else None)
             else:
-                oslogger.info('Prepare device: {}'.format(self.current_device))
+                oslogger.info('Preparing device: {}'.format(self.current_device))
                 # open_devices[self.current_device].write_lines(0) # clear lines
 
         # pass device var to experiment as global:
@@ -145,6 +146,14 @@ class ResponseBox(Item):
                                       response = self.var.response, \
                                       item=self.name)
 
+        if self.var.close_device == 'yes':
+            for dkey in open_devices:
+                try:
+                    open_devices[dkey].close()
+                    oslogger.info('Device: {} successfully closed!'.format(open_devices[dkey]))
+                except:
+                    oslogger.warning('Device {} for closing not found!'.format(open_devices[dkey]))
+
 
 class QtResponseBox(ResponseBox, QtAutoPlugin):
     
@@ -173,21 +182,21 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
 
         super().init_edit_widget()
 
-        self.refresh_checkbox.setChecked(False)
         self.combobox_add_devices() # first time fill the combobox
         
         # event-triggered calls:
-        self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
-        self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
-        self.timeout_line_edit.textChanged.connect(self.check_timeout_duration)
+        self.refresh_checkbox_widget.stateChanged.connect(self.refresh_combobox_device)
+        self.device_combobox_widget.currentIndexChanged.connect(self.update_combobox_device)
+        self.timeout_line_edit_widget.textChanged.connect(self.check_timeout_duration)
+        self.close_device_checkbox_widget.stateChanged.connect(self.close_device)
 
     def refresh_combobox_device(self):
-        if self.refresh_checkbox.isChecked():
+        if self.refresh_checkbox_widget.isChecked():
             # renew list:
             self.combobox_add_devices()
 
     def update_combobox_device(self):
-        self.refresh_checkbox.setChecked(False)
+        self.refresh_checkbox_widget.setChecked(False)
         
     def check_timeout_duration(self, text):
         try:
@@ -199,13 +208,13 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
                     raise ValueError
         except ValueError:
             # Handle invalid input or out of range value
-            self.timeout_line_edit.blockSignals(True)
-            self.timeout_line_edit.setText('')
-            self.timeout_line_edit.blockSignals(False)
+            self.timeout_line_edit_widget.blockSignals(True)
+            self.timeout_line_edit_widget.setText('')
+            self.timeout_line_edit_widget.blockSignals(False)
 
     def combobox_add_devices(self):
-        self.device_combobox.clear()
-        self.device_combobox.addItem(u'Keyboard', userData=None)
+        self.device_combobox_widget.clear()
+        self.device_combobox_widget.addItem(u'Keyboard', userData=None)
         
         # Create the EVT device list
         sleep(1) # delay after possible init of a previous instance of this plugin. 
@@ -223,7 +232,7 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
                 serial_string = d['serial_number']
                 composed_string = product_string[15:] + " s/n: " + serial_string
                 # add device id to combobox:
-                self.device_combobox.addItem(composed_string)
+                self.device_combobox_widget.addItem(composed_string)
                 # previous used device present?
                 if self.var.device[:15] in product_string:
                     self.var.device = composed_string
@@ -235,3 +244,9 @@ class QtResponseBox(ResponseBox, QtAutoPlugin):
         if previous_device_found is False:
             self.var.device = u'Keyboard'
             oslogger.warning("The hardware configuration has been changed since the last run! Switching to dummy.")
+
+    def close_device(self):
+        if self.close_device_checkbox_widget.isChecked():
+            self.var.close_device = 'yes'
+        else:
+            self.var.close_device = 'no'
