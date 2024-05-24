@@ -65,6 +65,7 @@ class TactileStimulator(Item):
         self.var.mode = u"Calibrate"
         self.var._pulse_timeout = 1.0
         self.var._inter_pulse_holdoff = 8
+        self.var.close_device = 'no'
 
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
@@ -107,7 +108,7 @@ class TactileStimulator(Item):
             oslogger.warning("Tactile-stimulator not found! Device set to dummy.")
             self.var.device = u'DUMMY'
         else:
-            oslogger.info('Prepare device: {}'.format(self.current_device))
+            oslogger.info('Preparing device: {}'.format(self.current_device))
             open_devices[self.current_device].write_lines(0) # clear lines
 
         # pass device var to experiment as global:
@@ -233,7 +234,15 @@ class TactileStimulator(Item):
                 self.calibrate()
             elif self.var.mode == u"Stimulate":
                 self.stimulate()
-        return True
+
+        # close the device?
+        if self.var.close_device == 'yes':
+            for dkey in open_devices:
+                try:
+                    open_devices[dkey].close()
+                    oslogger.info('Device: {} successfully closed!'.format(open_devices[dkey]))
+                except:
+                    oslogger.warning('Device {} for closing not found!'.format(open_devices[dkey]))
 
     def calibrate(self):
         slmouse = mouse(self.experiment, timeout=None, visible=True)
@@ -373,6 +382,7 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
         self.device_combobox_widget.currentIndexChanged.connect(self.update_combobox_device)
         self.perc_line_edit_widget.textChanged.connect(self.check_input_perc)
         self.duration_line_edit_widget.textChanged.connect(self.check_input_duration)
+        self.close_device_checkbox_widget.stateChanged.connect(self.close_device)
 
     def update_combobox_mode(self):
         # Get the current text or index from the combobox
@@ -450,3 +460,9 @@ class QtTactileStimulator(TactileStimulator, QtAutoPlugin):
         if previous_device_found is False:
             self.var.device = u'DUMMY'
             oslogger.warning("The hardware configuration has been changed since the last run! Switching to dummy.")
+
+    def close_device(self):
+        if self.close_device_checkbox_widget.isChecked():
+            self.var.close_device = 'yes'
+        else:
+            self.var.close_device = 'no'

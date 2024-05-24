@@ -45,6 +45,12 @@ controls = [
         "type": "text",
         "label": "<small><b>Note:</b> The 'calibrate' instance of the plugin should always precede the 'stimulate' instance within the experiment.</small>"
     }, {
+        "type": "checkbox",
+        "var": "close_device",
+        "label": "Auto close EVT-device(s). (Use this for the latter instance of the plugin or with a single instance of the plugin.)",
+        "name": "close_device_checkbox_widget",
+        "tooltip": "Close device list checkbox"
+    }, {
         "type": "text",
         "label": "<small>Tactile Stimulator plug-in version 0.2.0</small>"
     }
