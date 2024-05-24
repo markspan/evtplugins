@@ -43,7 +43,7 @@ class RgbLedControl(Item):
     # Reset plug-in to initial values.
     def reset(self):
         """Resets plug-in to initial values."""
-        self.var.device = u'0: Keyboard'
+        self.var.device = u'Keyboard'
         self.var.correct_response = u'1'
         self.var.allowed_responses = u'1;2;3'
         self.var.timeout = u'infinite'
@@ -62,7 +62,7 @@ class RgbLedControl(Item):
 
         '''
         The next part calculates the bit mask for the allowed responses
-        to receive from the RSP-12x.
+        to receive from the RSP-LT.
         '''
         self.var.combined_allowed_events = 0
         try:
@@ -78,42 +78,56 @@ class RgbLedControl(Item):
         #oslogger.info('{}'.format(list_allowed_buttons))
         #oslogger.info('{}'.format(self.var.combined_allowed_events))
 
-        if self.var.device != u'0: Keyboard':
-            # Create a shadow device list to find 'path' from the current selected device.
-            # 'path' is an unique device ID.
-            myevt = EventExchanger()
-            sleep(0.1) # without a delay, the list will not always be complete.
-            try:
-                device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
-                del myevt
-                # oslogger.info("device list: {}".format(device_list))
-            except:
-                oslogger.warning("Connecting EVT device failed!")
-            try:
-                d_count = 1            
-                for d in device_list:
-                    if not d_count in open_devices: # skip if already open
-                        # Dynamically load all EVT devices from the list
-                        open_devices[d_count] = EventExchanger()
-                        open_devices[d_count].attach_id(d['path']) # Get evt device handle
-                        oslogger.info('Device successfully attached as:{} s/n:{}'.format(
-                            d['product_string'], d['serial_number']))
-                    d_count += 1
-                oslogger.info('open devices: {}'.format(open_devices))
-                self.current_device = int(self.var.device[:1])
-                oslogger.info('Prepare - current device: {}'.format(self.current_device))
-            except:
-                self.var.device = u'0: Keyboard'
-                oslogger.warning("Loading the RSP-12x-box failed! Default is keyboard")
-                self.my_keyboard = Keyboard(self.experiment, 
-                                    keylist=list_allowed_buttons,
-                                    timeout=self.var.timeout if \
-                                    type(self.var.timeout)==int else None)
-        else:
+        if self.var.device == u'Keyboard':
             self.my_keyboard = Keyboard(self.experiment, 
                                 keylist=list_allowed_buttons,
                                 timeout=self.var.timeout if \
                                 type(self.var.timeout)==int else None)
+        elif len(open_devices) == 0:
+            # Create a shadow device list to find 'path' from the current selected device.
+            # 'path' is an unique device ID.
+            temp_evt = EventExchanger()
+            sleep(1) # without a delay, the list will not always be complete.
+            try:
+                device_list = temp_evt.scan(_DEVICE_GROUP) # filter on allowed EVT types
+                del temp_evt
+                # oslogger.info("device list: {}".format(device_list))
+                for d in device_list:
+                    sleep(1) # without a delays, the device will not always be there.
+                    composed_string = d['product_string'] + " s/n: " + d['serial_number']
+                    open_devices[composed_string] = EventExchanger()
+                    # Get evt device handle:
+                    open_devices[composed_string].attach_id(d['path'])
+                    oslogger.info('Device successfully attached as: {} s/n: {}'.format(
+                        d['product_string'], d['serial_number']))
+                    oslogger.info('        ...  and with device ID: {}'.format(
+                        open_devices[composed_string]))
+            except:
+                oslogger.warning("Loading the RSP-12x-box failed! Default is keyboard")
+                self.var.device = u'Keyboard'
+                self.my_keyboard = Keyboard(self.experiment, 
+                                            keylist=list_allowed_buttons,
+                                            timeout=self.var.timeout if \
+                                            type(self.var.timeout)==int else None)
+            # searching for selected device:
+            self.current_device = None
+            for dkey in open_devices:
+                if self.var.device[:15] in dkey:
+                    self.current_device = dkey # assign to value that belongs to the key.
+            if self.current_device is None:
+                oslogger.warning("RSP-12x device not found! Device set to Keyboard.")
+                self.var.device = u'Keyboard'
+                self.my_keyboard = Keyboard(self.experiment, 
+                                            keylist=list_allowed_buttons,
+                                            timeout=self.var.timeout if \
+                                            type(self.var.timeout)==int else None)
+            else:
+                oslogger.info('Prepare device: {}'.format(self.current_device))
+                # open_devices[self.current_device].write_lines(0) # clear lines
+
+        # pass device var to experiment as global:
+        var_name = "self.experiment.var.connected_device_" + self.name
+        exec(f'{var_name} = "{self.var.device}"')
 
     def run(self):
         """The run phase of the plug-in goes here."""
@@ -134,7 +148,7 @@ class RgbLedControl(Item):
         for b in range(4):
             BLC[b] = int(self.colors[b], 16)
 
-        if self.var.device != u'0: Keyboard':
+        if self.var.device != u'Keyboard':
             for b in range(4):
                 open_devices[self.current_device].set_led_rgb(
                     ((BLC[b] >> 16) & 0xFF),
@@ -154,8 +168,8 @@ class RgbLedControl(Item):
                     ((CC >> 16) & 0xFF),
                     ((CC >> 8) & 0xFF),
                     (CC & 0xFF),
-                    int(self.var.correct_button),
-                    int(self.var.correct_button) + 10)
+                    int(self.var.correct_response),
+                    int(self.var.correct_response) + 10)
 
             # Call the 'wait for event' function in \
             # the EventExchanger C# object.
@@ -175,11 +189,11 @@ class RgbLedControl(Item):
         else:
             # dummy-mode: keyboard response.....
             self.var.response, self.var.keyboard_response = \
-                self.Keyboard.get_key()
+                self.my_keyboard.get_key()
 
         # HOUSE KEEPING:
         self.var.correct = \
-            bool(self.var.response == self.var.correct_button)
+            bool(self.var.response == self.var.correct_response)
 
         self.var.correct = distutils.util.strtobool(str(self.var.correct))
 
@@ -221,17 +235,17 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
         self.combobox_add_devices() # first time fill the combobox
 
         # Event-triggered calls:
-        self.refresh_checkbox.stateChanged.connect(self.refresh_combobox_device)
-        self.device_combobox.currentIndexChanged.connect(self.update_combobox_device)
-        self.timeout_line_edit.textChanged.connect(self.check_timeout_duration)
+        self.refresh_checkbox_widget.stateChanged.connect(self.refresh_combobox_device)
+        self.device_combobox_widget.currentIndexChanged.connect(self.update_combobox_device)
+        self.timeout_line_edit_widget.textChanged.connect(self.check_timeout_duration)
 
     def refresh_combobox_device(self):
-        if self.refresh_checkbox.isChecked():
+        if self.refresh_checkbox_widget.isChecked():
             # renew list:
             self.combobox_add_devices()
 
     def update_combobox_device(self):
-        self.refresh_checkbox.setChecked(False)
+        self.refresh_checkbox_widget.setChecked(False)
 
     def check_timeout_duration(self, text):
         try:
@@ -243,40 +257,40 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
                     raise ValueError
         except ValueError:
             # Handle invalid input or out of range value
-            self.timeout_line_edit.blockSignals(True)
-            self.timeout_line_edit.setText('')
-            self.timeout_line_edit.blockSignals(False)
+            self.timeout_line_edit_widget.blockSignals(True)
+            self.timeout_line_edit_widget.setText('')
+            self.timeout_line_edit_widget.blockSignals(False)
 
     def combobox_add_devices(self):
-        self.device_combobox.clear()
-        self.device_combobox.addItem(u'0: Keyboard', userData=None)
+        self.device_combobox_widget.clear()
+        self.device_combobox_widget.addItem(u'Keyboard', userData=None)
         
         # Create the EVT device list
+        sleep(1) # delay after possible init of a previous instance of this plugin. 
         myevt = EventExchanger()
-        sleep(0.5) # without a delay, the list will not always be complete.
         try:
             device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
             del myevt
         except:
-            device_list = None
+            device_list = {}
         
-        added_items_list = {}
-        if device_list:
-            d_count = 1
+        try:
+            previous_device_found = False
             for d in device_list:
                 product_string = d['product_string']
                 serial_string = d['serial_number']
-                composed_string = str(d_count) + ": " + \
-                    product_string[15:] + " s/n: " + serial_string
-                # add device string to combobox:
-                self.device_combobox.addItem(composed_string)
-                added_items_list[d_count] = composed_string
-                d_count += 1
-                if d_count > 9:
-                    # keep number of digits 1
-                    break
-        # Prevents hangup if the old device is not found after reopening the project.
-        # Any change of the hardware configuration can cause this.
-        if not self.var.device in added_items_list.values():
-            self.var.device = u'0: Keyboard'
-            oslogger.warning("The hardware configuration has been changed since the last run! Switching to dummy.")
+                composed_string = product_string[15:] + " s/n: " + serial_string
+                # add device id to combobox:
+                self.device_combobox_widget_widget.addItem(composed_string)
+                # previous used device present?
+                if self.var.device[:15] in product_string:
+                    self.var.device = composed_string
+                    previous_device_found = True       
+        except:
+            self.var.device = u'Keyboard'
+            oslogger.warning("No devices found! Switching to Keyboard.")
+
+        if previous_device_found is False:
+            self.var.device = u'Keyboard'
+            oslogger.warning(
+                "The hardware configuration has been changed since the last run! Switching to Keyboard.")
