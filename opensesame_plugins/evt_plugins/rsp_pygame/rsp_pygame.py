@@ -31,10 +31,11 @@ class RspPygame(BaseResponseItem):
     process_feedback = True
 
     def reset(self):
+        self.var.device = u'Keyboard'
         self.var.timeout = u'infinite'
         self.var.allowed_responses = u'1;2'
         self.var.correct_response = u'1'
-        self.var._device = u'Keyboard'
+        self.var.device = u'Keyboard'
 
     def validate_response(self, response):
         try:
@@ -48,7 +49,7 @@ class RspPygame(BaseResponseItem):
         # oslogger.info("Button pressed!")
         return self.experiment.joystick.get_joybutton(
             joybuttonlist=self._allowed_responses,
-            timeout=self._timeout
+            timeout=self.var.timeout if type(self.var.timeout) == int else None
         )
 
     def prepare_response_func(self):
@@ -60,12 +61,12 @@ class RspPygame(BaseResponseItem):
             ),
             timeout=self._timeout
         )
-        if self.var._device == u'Keyboard':
+        if self.var.device == u'Keyboard':
             return self._keyboard.get_key
         # Dynamically load a joystick instance
         if not hasattr(self.experiment, u'joystick'):
             from .libjoystick import LibJoystick
-            device_id = ord(self.var._device[-1]) - ord('0') # get the last char as int for joystick ID
+            device_id = ord(self.var.device[-1]) - ord('0') # get the last char as int for joystick ID
             oslogger.info("RSP-12x ID: " + str(device_id))
             self.experiment.joystick = LibJoystick(self.experiment, device=device_id)
             self.python_workspace[u'joystick'] = self.experiment.joystick
@@ -77,7 +78,7 @@ class RspPygame(BaseResponseItem):
         return safe_decode(test) in ref
 
     def coroutine(self):
-        if self.var._device == u'Keyboard':
+        if self.var.device == u'Keyboard':
             self._keyboard.timeout = 0
         else:
             self._timeout = 0
@@ -118,8 +119,41 @@ class QtRspPygame(RspPygame, QtAutoPlugin):
         """
 
         super().init_edit_widget()
+
+        # event-triggered calls:
+        self.refresh_checkbox_widget.stateChanged.connect(self.refresh_combobox_device)
+        self.device_combobox_widget.currentIndexChanged.connect(self.update_combobox_device)
+        self.timeout_line_edit_widget.textChanged.connect(self.check_timeout_duration)
+
+    def refresh_combobox_device(self):
+        if self.refresh_checkbox_widget.isChecked():
+            # renew list:
+            self.combobox_add_devices()
+
+    def update_combobox_device(self):
+        self.refresh_checkbox_widget.setChecked(False)
+
+    def check_timeout_duration(self, text):
+        try:
+            if text in u'infinite':
+                self.var.timeout = u'infinite'
+            else:
+                self.var.timeout = int(text)
+                if (not 0 <= self.var.timeout <= 3600000):
+                    raise ValueError
+        except ValueError:
+            # Handle invalid input or out of range value
+            self.timeout_line_edit_widget.blockSignals(True)
+            self.timeout_line_edit_widget.setText('')
+            self.timeout_line_edit_widget.blockSignals(False)
+
+    def combobox_add_devices(self):
+        self.device_combobox_widget.clear()
+        self.device_combobox_widget.addItem(u'Keyboard', userData=None)
+
         pygame.joystick.init()
         for x in range(pygame.joystick.get_count()):
-            self.device_widget.addItem("EVT-device_" + str(x)) #add device(s) to combobox list
+            # add device(s) to combobox list
+            self.device_combobox_widget.addItem("EVT-device_" + str(x))
             if x > 8:
                 break

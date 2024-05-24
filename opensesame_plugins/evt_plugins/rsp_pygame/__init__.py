@@ -6,31 +6,36 @@ category = "RUG/BSS hardware"
 controls = [
     {
         "type": "combobox",
-        "var": "_device",
+        "var": "device",
         "label": "Select device :",
         "options": [
             "Keyboard"
         ],
-        "name": "device_widget",
+        "name": "device_combobox_widget",
         "tooltip": "Identifies the response box, in case there are multiple response boxes"
-    },
-    {
+    }, {
+        "type": "checkbox",
+        "var": "refresh_device_list",
+        "label": "Refresh device list",
+        "name": "refresh_checkbox_widget",
+        "tooltip": "Refresch device list checkbox"
+
+    }, {
         "type": "line_edit",
         "var": "correct_response",
         "label": "Correct response :",
         "tooltip": "Expecting a comma-separated list of numbers between 1 and the number of joybuttons"
-    },
-    {
+    }, {
         "type": "line_edit",
         "var": "allowed_responses",
         "label": "Allowed responses :",
         "tooltip": "Expecting a comma-separated list of numbers between 1 and the number of joybuttons"
-    },
-    {
+    }, {
         "type": "line_edit",
         "var": "timeout",
         "label": "Timeout period :",
-        "tooltip": "Expecting a value in milliseconds of 'infinite'"
+        "name": "timeout_line_edit_widget",
+        "tooltip": "Expecting a value in milliseconds or 'infinite'."
     }, {
         "type": "text",
         "label": "<small>Generic response box plug-in version 0.2.0</small>"
