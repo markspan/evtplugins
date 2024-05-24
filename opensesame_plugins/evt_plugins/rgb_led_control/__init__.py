@@ -86,6 +86,12 @@ controls = [
         "name": "incorrect_color_edit_widget",
         "tooltip": "Expecting a colorname (e.g., 'blue') or an HTML color (e.g., '#0000FF')"
     }, {
+        "type": "checkbox",
+        "var": "close_device",
+        "label": "Auto close EVT-device(s). (Use this for the latter instance of the plugin or with a single instance of the plugin.)",
+        "name": "close_device_checkbox_widget",
+        "tooltip": "Close device list checkbox"
+    }, {
         "type": "text",
         "label": "<small>RGB-LED control plug-in version 0.2.0</small>"
     }

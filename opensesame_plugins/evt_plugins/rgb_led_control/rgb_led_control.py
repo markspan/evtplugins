@@ -55,6 +55,7 @@ class RgbLedControl(Item):
         self.var.feedback = u'yes'
         self.var.correct_color = "#00FF00"
         self.var.incorrect_color = "#FF0000"
+        self.var.close_device = 'no'
 
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
@@ -122,7 +123,7 @@ class RgbLedControl(Item):
                                             timeout=self.var.timeout if \
                                             type(self.var.timeout)==int else None)
             else:
-                oslogger.info('Prepare device: {}'.format(self.current_device))
+                oslogger.info('Preparing device: {}'.format(self.current_device))
                 # open_devices[self.current_device].write_lines(0) # clear lines
 
         # pass device var to experiment as global:
@@ -203,6 +204,14 @@ class RgbLedControl(Item):
                                       correct=self.var.correct,
                                       response=self.var.response,
                                       item=self.name)
+        # close the device?
+        if self.var.close_device == 'yes':
+            for dkey in open_devices:
+                try:
+                    open_devices[dkey].close()
+                    oslogger.info('Device: {} successfully closed!'.format(open_devices[dkey]))
+                except:
+                    oslogger.warning('Device {} for closing not found!'.format(open_devices[dkey]))
 
 
 class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
@@ -238,6 +247,7 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
         self.refresh_checkbox_widget.stateChanged.connect(self.refresh_combobox_device)
         self.device_combobox_widget.currentIndexChanged.connect(self.update_combobox_device)
         self.timeout_line_edit_widget.textChanged.connect(self.check_timeout_duration)
+        self.close_device_checkbox_widget.stateChanged.connect(self.close_device)
 
     def refresh_combobox_device(self):
         if self.refresh_checkbox_widget.isChecked():
@@ -294,3 +304,9 @@ class QtRgbLedControl(RgbLedControl, QtAutoPlugin):
             self.var.device = u'Keyboard'
             oslogger.warning(
                 "The hardware configuration has been changed since the last run! Switching to Keyboard.")
+
+    def close_device(self):
+        if self.close_device_checkbox_widget.isChecked():
+            self.var.close_device = 'yes'
+        else:
+            self.var.close_device = 'no'
