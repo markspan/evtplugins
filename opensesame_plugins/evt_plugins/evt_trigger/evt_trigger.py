@@ -28,13 +28,15 @@ from pyevt import EventExchanger # pyevt 2.0
 _DEVICE_GROUP = u'EVT'
 
 # global var
-open_devices = {} # Store open device handles.
+open_devices = {} # store open device handles.
+device_output_value = {} # store output state of connected devices.
 
 class EvtTrigger(Item):
 
     description = u"A plug-in for generating triggers with EVT devices."
 
     global open_devices
+    global device_output_value
 
     # Reset plug-in to initial values.
     def reset(self):
@@ -57,7 +59,8 @@ class EvtTrigger(Item):
     def prepare(self):
         """The preparation phase of the plug-in goes here."""
         super().prepare()
-        self.experiment.var.output_value = 0
+
+        self.output_value = 0 # create output state storage for dummy mode.
 
         if self.var.device == u'DUMMY':
             oslogger.warning("Hardware configuration could have changed! Dummy prepare...")
@@ -74,6 +77,7 @@ class EvtTrigger(Item):
                     sleep(1) # without a delays, the device will not always be there.
                     composed_string = d['product_string'] + " s/n: " + d['serial_number']
                     open_devices[composed_string] = EventExchanger()
+                    device_output_value[composed_string] = 0 # create device output state storage
                     # Get evt device handle:
                     open_devices[composed_string].attach_id(d['path'])
                     oslogger.info('Device successfully attached as: {} s/n: {}'.format(
@@ -105,41 +109,40 @@ class EvtTrigger(Item):
         self.set_item_onset()
         if self.var.device == u'DUMMY':
             if self.var.outputmode == u'Clear output lines':
-                self.experiment.var.output_value = 0
-                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
+                self.output_value = 0
+                oslogger.info('dummy: send byte code {}'.format(self.output_value))
             elif self.var.outputmode == u'Write output lines':
-                self.experiment.var.output_value = self.var.mask
-                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
+                self.output_value = self.var.mask
+                oslogger.info('dummy: send byte code {}'.format(self.output_value))
             elif self.var.outputmode == u'Invert output lines':
-                self.experiment.var.output_value ^= self.var.mask
-                oslogger.info('dummy: send byte code {}'.format(self.experiment.var.output_value))
+                self.output_value ^= self.var.mask
+                oslogger.info('dummy: send byte code {}'.format(self.output_value))
             elif self.var.outputmode == u'Pulse output lines':
                 oslogger.info('dummy: send byte code {} for the duration of {} ms'.format(
-                self.experiment.var.output_value ^ self.var.mask, self.var.duration))
+                self.output_value ^ self.var.mask, self.var.duration))
         else:
             if self.var.outputmode == u'Clear output lines':
                 # Store output state as global. (There is no read-back from the hardware.)
-                self.experiment.var.output_value = 0
-                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                device_output_value[self.current_device] = 0
+                open_devices[self.current_device].write_lines(device_output_value[self.current_device])
                 oslogger.info('{}: send byte code {}'.format(
-                    open_devices[self.current_device], self.experiment.var.output_value))
+                    open_devices[self.current_device], device_output_value[self.current_device]))
             elif self.var.outputmode == u'Write output lines':
-                self.experiment.var.output_value = self.var.mask
-                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                device_output_value[self.current_device] = self.var.mask
+                open_devices[self.current_device].write_lines(device_output_value[self.current_device])
                 oslogger.info('{}: send byte code {}'.format(
-                    open_devices[self.current_device], self.experiment.var.output_value))
+                    open_devices[self.current_device], device_output_value[self.current_device]))
             elif self.var.outputmode == u'Invert output lines':
-                self.experiment.var.output_value ^= self.var.mask
-                open_devices[self.current_device].write_lines(self.experiment.var.output_value)
+                device_output_value[self.current_device] ^= self.var.mask
+                open_devices[self.current_device].write_lines(device_output_value[self.current_device])
                 oslogger.info('{}: send byte code {}'.format(
-                    open_devices[self.current_device], self.experiment.var.output_value))
+                    open_devices[self.current_device], device_output_value[self.current_device]))
             elif self.var.outputmode == u'Pulse output lines':
                 open_devices[self.current_device].pulse_lines(
-                    (self.experiment.var.output_value ^ self.var.mask), self.var.duration)
+                    (device_output_value[self.current_device] ^ self.var.mask), self.var.duration)
                 oslogger.info('{}: send byte code {} for the duration of {} ms'.format(
                     open_devices[self.current_device],
-                    self.experiment.var.output_value ^ self.var.mask, self.var.duration))
-
+                    device_output_value[self.current_device] ^ self.var.mask, self.var.duration))
         # close the device?
         if self.var.close_device == 'yes':
             for dkey in open_devices:
@@ -275,8 +278,9 @@ class QtEvtTrigger(EvtTrigger, QtAutoPlugin):
         self.device_combobox_widget.addItem(u'DUMMY', userData=None)
         
         # Create the EVT device list
-        sleep(1) # delay after possible init of a previous instance of this plugin. 
+        sleep(.5) # delay after possible init of a previous instance of this plugin. 
         myevt = EventExchanger()
+        sleep(.2)
         try:
             device_list = myevt.scan(_DEVICE_GROUP) # filter on allowed EVT types
             del myevt
