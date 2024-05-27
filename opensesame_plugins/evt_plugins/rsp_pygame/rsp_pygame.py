@@ -74,9 +74,6 @@ class RspPygame(BaseResponseItem):
             self._allowed_responses = [int(r) for r in self._allowed_responses]
         return self._get_button_press
 
-    def response_matches(self, test, ref):
-        return safe_decode(test) in ref
-
     def coroutine(self):
         if self.var.device == u'Keyboard':
             self._keyboard.timeout = 0
@@ -120,6 +117,8 @@ class QtRspPygame(RspPygame, QtAutoPlugin):
 
         super().init_edit_widget()
 
+        self.combobox_add_devices()
+
         # event-triggered calls:
         self.refresh_checkbox_widget.stateChanged.connect(self.refresh_combobox_device)
         self.device_combobox_widget.currentIndexChanged.connect(self.update_combobox_device)
@@ -151,9 +150,22 @@ class QtRspPygame(RspPygame, QtAutoPlugin):
         self.device_combobox_widget.clear()
         self.device_combobox_widget.addItem(u'Keyboard', userData=None)
 
+        previous_device_found = False
         pygame.joystick.init()
-        for x in range(pygame.joystick.get_count()):
+        joycount = pygame.joystick.get_count()
+        for i in range(joycount):
             # add device(s) to combobox list
-            self.device_combobox_widget.addItem("EVT-device_" + str(x))
-            if x > 8:
+            self.device_combobox_widget.addItem("EVT-device_" + str(i))
+            # Previous used device present?
+            if ord(self.var.device[-1]) - ord('0') == i:
+                previous_device_found = True
+            if i > 8:
                 break
+        pygame.joystick.quit()
+
+        if previous_device_found is False:
+            self.var.device = u'Keyboard'
+            oslogger.warning("The hardware configuration has been changed since the last run! Switching to Keyboard.")
+
+
+

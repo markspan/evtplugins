@@ -12,28 +12,27 @@ controls = [
             "Keyboard"
         ],
         "name": "device_combobox_widget",
-        "tooltip": "Identifies the response box, in case there are multiple response boxes"
+        "tooltip": "Identifies the response box, in case there are multiple response boxes connected"
     }, {
         "type": "checkbox",
         "var": "refresh_device_list",
         "label": "Refresh device list",
         "name": "refresh_checkbox_widget",
         "tooltip": "Refresch device list checkbox"
-
     }, {
         "type": "line_edit",
         "var": "correct_response",
         "label": "Correct response :",
-        "tooltip": "Expecting a comma-separated list of numbers between 1 and the number of joybuttons"
+        "tooltip": "Expecting a comma-separated list of numbers between 1 and the number of buttons"
     }, {
         "type": "line_edit",
         "var": "allowed_responses",
         "label": "Allowed responses :",
-        "tooltip": "Expecting a comma-separated list of numbers between 1 and the number of joybuttons"
+        "tooltip": "Expecting a comma-separated list of numbers between 1 and the number of buttons"
     }, {
         "type": "line_edit",
         "var": "timeout",
-        "label": "Timeout period :",
+        "label": "Timeout period [ms]:",
         "name": "timeout_line_edit_widget",
         "tooltip": "Expecting a value in milliseconds or 'infinite'."
     }, {
