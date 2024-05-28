@@ -3,13 +3,11 @@ OpenSesame Plugin Collection for EVT USB-devices
 
 *An OpenSesame plugin collection for sending stimulus synchronization triggers and for response collection through EventExchanger v2 USB hardware.*  
 
-Copyright 2024, Martin Stokroos
+Copyright 2010-2024 Mark Span (<m.m.span@rug.nl>), M. Stokroos (<m.stokroos@rug.nl>)
 
 Contributions: This code is based on the work of Eise Hoekstra and Mark M. Span. The code is debugged and largely rewritten for OpenSesame 4 by Martin Stokroos.
 
-
 ## 1. About
------------
 The OpenSesame plugin collection for use with Event-Exchanger (EVT-2) USB-devices.
 
 EVT-devices and the associated plugins are developed by the [Research Support](https://myuniversity.rug.nl/infonet/medewerkers/profiles/departments/11422) department from the faculty of Behavioural and Social Sciences from the University of Groningen.
@@ -67,6 +65,8 @@ SUBSYSTEM=="usb", ATTR{idVendor}=="1807", MODE="0660", GROUP="plugdev"
 
 The user should be member of the `plugdev` -group.
 
+## 2. Plugin Descriptions
+
 ### evt_trigger
 Possible Modes:
 
@@ -117,9 +117,7 @@ variable name | description
 ### rgb_led_control
 This plugin works for the RSP-LT device, a response-box with RGB-controlled LED buttons.
 
-## 2. LICENSE
--------------
-
+## 3. LICENSE
 The evt-plugins collection is distributed under the terms of the GNU General Public License 3.
 The full license should be included in the file COPYING, or can be obtained from
 
@@ -127,9 +125,7 @@ The full license should be included in the file COPYING, or can be obtained from
 
 This plugin collection contains the work of others.
 
-## 3. Documentation
--------------------
-
+## 4. Documentation
 Installation instructions and documentation on OpenSesame are available on the documentation website:
 
 [http://osdoc.cogsci.nl/](http://osdoc.cogsci.nl/)
