@@ -1,4 +1,4 @@
-"""Collects input from a RSP-12x responsebox or from a generic keyboard"""
+"""Plugin to collect input from a Joystick a RSP-12x responsebox or from a generic keyboard"""
 
 # The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"

@@ -1,4 +1,4 @@
-"""VAS-GUI plugin"""
+"""A Virtual Analog Slider plugin, controlled by a canvas screen GUI."""
 
 # The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"

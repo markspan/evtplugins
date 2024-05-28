@@ -28,7 +28,7 @@ from openexp.canvas_elements import (Line)
 
 class VasGui(Item):
 
-    description = u'A Revised VAS modifier for a canvas'
+    description = u'A Virtual Analog Slider plugin, controlled by a canvas screen GUI.'
 
     def reset(self):
         """Resets plug-in to initial values."""

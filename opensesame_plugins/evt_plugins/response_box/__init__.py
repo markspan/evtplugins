@@ -1,4 +1,4 @@
-"""A Plug-in to collect input from a RSP-12x responsebox"""
+"""A Plugin to collect input from a RSP-12x responsebox"""
 
 # The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"

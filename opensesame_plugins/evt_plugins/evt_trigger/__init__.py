@@ -1,4 +1,4 @@
-"""A plug-in for generating triggers with EVT devices."""
+"""A plugin for generating triggers with EVT devices."""
 
 # The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"

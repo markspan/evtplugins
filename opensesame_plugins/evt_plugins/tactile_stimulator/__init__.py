@@ -1,4 +1,4 @@
-"""A plug-in for handling the Tactile Stimulator."""
+"""A plugin for handling the Tactile Stimulator."""
 
 # The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"

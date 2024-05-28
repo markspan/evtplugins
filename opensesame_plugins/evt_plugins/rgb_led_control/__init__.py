@@ -1,4 +1,4 @@
-"""Plug-in for sending RGB-data to the RSP-LT response box."""
+"""Plugin for sending RGB-data to the RSP-LT response box."""
 
 # The category determines the group for the plugin in the item toolbar
 category = "RUG/BSS hardware"

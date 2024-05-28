@@ -155,7 +155,7 @@ class QtRspPygame(RspPygame, QtAutoPlugin):
         joycount = pygame.joystick.get_count()
         for i in range(joycount):
             # add device(s) to combobox list
-            self.device_combobox_widget.addItem("EVT-device_" + str(i))
+            self.device_combobox_widget.addItem("joystick-device_" + str(i))
             # Previous used device present?
             if ord(self.var.device[-1]) - ord('0') == i:
                 previous_device_found = True
