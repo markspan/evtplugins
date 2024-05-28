@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "evt-plugins"
-version = "0.1.0"
-description = "RUG/BSS evt-plugins for OpenSesame"
-authors = ["M. Stokroos <m.stokroos@rug.nl>"]
+version = "0.2.0"
+description = "RUG/BSS evt-plugins for OpenSesame 4"
+authors = ["Martin Stokroos <m.stokroos@rug.nl>", "Mark M. Span <m.m.span@rug.nl>"]
 readme = "readme.md"
 packages = [
     {include = "opensesame_plugins"},
