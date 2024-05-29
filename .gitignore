@@ -1,2 +1,10 @@
+# Python
 __pycache__/
 *.bak
+*.txt
+pyproject.toml
+
+# Distribution packaging
+.pypirc
+build/
+dist/
