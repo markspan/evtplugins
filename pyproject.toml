@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "evt-plugins"
-version = "0.2.1"
+version = "0.2.2"
 description = "RUG/BSS EVT-plugins for OpenSesame 4"
 authors = [
     "Martin Stokroos <m.stokroos@rug.nl>",
