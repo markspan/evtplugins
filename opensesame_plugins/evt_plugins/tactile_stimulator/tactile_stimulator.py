@@ -209,7 +209,6 @@ class TactileStimulator(Item):
             y=-(self.c.height / 10)+(self.c.height / 2),
             color='black'
         )
-        self.c.show()
         self.experiment.var.tactstim_calibration_value = -1 
         # Assign negative number to indicate that the calibration prepare is done
 
