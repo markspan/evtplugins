@@ -174,7 +174,7 @@ class VasGui(Item):
                 if (x, y) in self.c[self.var.vas_exitbutton_name]:
                     if xpos != -1:
                         self.experiment.var.vas_response_time = self.clock.time() - start_time
-                        self.experiment.var.vas_response = round(xpos, 2)
+                        self.experiment.var.vas_response = int(round(xpos, 0))
                         break
 
 
