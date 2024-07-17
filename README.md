@@ -35,7 +35,13 @@ The plugins are dependent on the Python module pyevt and the underlying hidapi p
 
 `!pip install --user pyevt`
 
-NOTE: Currently, the plugin package is not released as pip package yet. Instead, clone this repository and copy the plugins manually into your OpenSesame python package folder.
+NOTE: Currently, the plugin package is released as pip package in a test environment. Clone this repository and copy the plugins manually into your OpenSesame python package folder or temporary install from OpenSesame 4 with:
+
+```
+!pip install --user hidapi
+!pip install --user --index-url https://test.pypi.org/simple/ pyevt
+!pip install --user --index-url https://test.pypi.org/simple/ evt-plugins
+```
 
 ### Environmental settings
 By default, the OpenSesame 4.0 plugins are installed as python site-package and automatically loaded at the startup.
