@@ -18,13 +18,13 @@ The following plugins are available:
 
 icon | plugin | Description | OpenSesame back-end | operating system | Status
 ---- | ------- | ----------- | ------------------- | ---------------- | ------
-![](opensesame_plugins/evt_plugins/evt_trigger/evt_trigger_large.png) | evt_trigger | plugin for event exchanger EVT-2,3 and 4 variants for generating triggers | PyGame, PsychoPy | Windows | ok
-![](opensesame_plugins/evt_plugins/response_box/response_box_large.png) | response_box | plugin for all of the RSP12x button response box variants with 1-8 buttons | PyGame, PsychoPy | Windows | ok
-![](opensesame_plugins/evt_plugins/rsp_pygame/rsp_pygame_large.png) | rsp_pygame | plugin for RSP12x button response box variants with 1-8 buttons | PyGame | Windows, Linux | ok
-![](opensesame_plugins/evt_plugins/tactile_stimulator/tactile_stimulator_large.png) | tactile_stimulator | plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | PyGame | Windows | ok
-![](opensesame_plugins/evt_plugins/vas_evt/vas_evt_large.png) | vas_evt | A Visual Analog Slider plugin controlled via an encoder knob connected to the EVT-2 | PyGame | Windows | planned
-![](opensesame_plugins/evt_plugins/vas_gui/vas_gui_large.png) | vas_gui | A Visual Analog Slider plugin controlled via the PC-mouse on a predefined canvas (sketchpad) | PyGame | Windows, Linux | Mouse response not ok in Linux.
-![](opensesame_plugins/evt_plugins/rgb_led_control/rgb_led_control_large.png) | rgb_led_control | plugin for multi-color LED response boxes | PyGme | Windows | not validated
+![](opensesame_plugins/evt_plugins/evt_trigger/evt_trigger_large.png) | *evt_trigger* | plugin for event exchanger EVT-2,3 and 4 variants for generating triggers | PyGame, PsychoPy | Windows | ok
+![](opensesame_plugins/evt_plugins/response_box/response_box_large.png) | *response_box* | plugin for all of the RSP12x button response box variants with 1-8 buttons | PyGame, PsychoPy | Windows | ok
+![](opensesame_plugins/evt_plugins/rsp_pygame/rsp_pygame_large.png) | *rsp_pygame* | plugin for RSP12x button response box variants with 1-8 buttons | PyGame | Windows, Linux | ok
+![](opensesame_plugins/evt_plugins/tactile_stimulator/tactile_stimulator_large.png) | *tactile_stimulator* | plugin for the Electrotactile Stimulator (SHK-1B) 0-5mA | PyGame | Windows | ok
+![](opensesame_plugins/evt_plugins/vas_evt/vas_evt_large.png) | *vas_evt* | A Visual Analog Slider plugin controlled via an encoder knob connected to the EVT-2 | PyGame | Windows | planned
+![](opensesame_plugins/evt_plugins/vas_gui/vas_gui_large.png) | *vas_gui* | A Visual Analog Slider plugin controlled via the PC-mouse on a predefined canvas (sketchpad) | PyGame | Windows, Linux | Mouse response not ok in Linux.
+![](opensesame_plugins/evt_plugins/rgb_led_control/rgb_led_control_large.png) | *rgb_led_control* | plugin for multi-color LED response boxes | PyGme | Windows | not validated
 
 ### Package dependencies
 The plugins are dependent on the Python module pyevt and the underlying hidapi package.
@@ -50,6 +50,7 @@ When the plugins are located somewhere else, add your path to the python-path of
 ## 2. Plugin Descriptions
 
 *evt_trigger*
+
 Existing modes:
 
 - Clear output lines
@@ -58,14 +59,17 @@ Existing modes:
 - Pulse output lines
 
 *response_box*
+
 Collects responses from a 1 to 8 button RSP-12x response box.
 
 After the prepare phase of the plugin, a workspace variable `connected_device_plugin_instance_name` is created to check if the actual tactile-stimulator device is really detected and connected to the plugin.
 
 *rsp_pygame*
+
 This response-box plugin works for EVT devices as well for joystick devices. It makes use of the pygame joystick API and is platform independent. 
 
 *tactile_stimulator*
+
 The tactile_stimulator plugin operates in two modes. Usually two instances of this plugin are used in the OpenSesame experiment. Mode-I, the `Calibration`-mode should always precede the `Stimulate`-mode. In `Calibration`-mode the upper limit of stimulus-current threshold is set between 0 and 5mA rms. In the `Stimulate`-mode, a percentage of the stimulus-current upper limit is set to be applied to the subject. The `Calibration`-mode can be used standalone for instance to precondition the subject. The pulse duration can be extended up to 2000ms.
 
 After the prepare phase of the plugin, a workspace variable `connected_device_plugin_instance_name` is created to check if the actual tactile-stimulator device is really detected and connected to the plugin.
@@ -83,10 +87,12 @@ variable name | description
 `tactstim_time_last_pulse` | Unique time stamp in seconds from the moment of the shock.
 
 *vas_evt*
+
 A Visual Analog Slider plugin controlled by an EVT rotary or linear encoder.
 The *vas_evt* plugin does not work standalone, but requires a linkage to a custom designed sketchpad screen.
 
 *vas_gui*
+
 A Visual Analog Slider plugin. The *vas_gui* plugin does not work standalone, but requires a linkage to a custom designed sketchpad screen with an analog slider design!
 
 Here below is the list of the variables that will appear in the OpenSesame variable inspector when using the vas_gui plugin:
@@ -97,6 +103,7 @@ variable name | description
 `vas_response_time` | this is the repsonse time in ms. The value -1 means that the timeout period was reached.
 
 *rgb_led_control*
+
 This plugin works for the RSP-LT device, a response-box with RGB-controlled LED buttons.
 
 ## 3. LICENSE
